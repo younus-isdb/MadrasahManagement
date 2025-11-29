@@ -1,121 +1,140 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MadrasahManagement.Models;
+using MadrasahManagement.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MadrasahManagement.Models;
-using MadrasahManagement.ViewModels;
-
 
 namespace MadrasahManagement.Controllers
 {
-
-    public class AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, ILogger<AccountController> logger) : Controller
+    public class AccountController : Controller
     {
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly RoleManager<AppRole> _roleManager;
 
-
-
-        [AllowAnonymous]
-        public IActionResult Login(string ReturnUrl = "/")
+        // 🔥 Constructor Injection (এটাই ছিল missing)
+        public AccountController(
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
+            RoleManager<AppRole> roleManager)
         {
-            return View(new LoginModel() { ReturnUrl = ReturnUrl });
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
-
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginModel model)
+        // =======================
+        // REGISTER (GET)
+        // =======================
+        [HttpGet]
+        public IActionResult Register()
         {
-            if (ModelState.IsValid)
-            {
-                var user = userManager.Users.FirstOrDefault(u => u.UserName == model.UserName || u.Email == model.UserName);
-
-                if (user == null)
-                {
-                    ModelState.AddModelError("UserName", "Invalid user");
-                    return View(model);
-                }
-
-                var signResult = await signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
-
-                if (signResult.Succeeded)
-                {
-                    logger.LogInformation($"{model.UserName} logged in at {DateTime.Now}");
-
-
-
-                    return RedirectPermanent(model.ReturnUrl);
-
-                }
-
-                else
-                {
-                    ModelState.AddModelError("Password", "Invalid credentials");
-                    return View(model);
-                }
-
-            }
-
-
-
             return View();
         }
 
-
-
-        [AllowAnonymous]
-        public IActionResult Register(string ReturnUrl = "/")
-        {
-            return View(new RegisterModel() { ReturnUrl = ReturnUrl });
-        }
-        [AllowAnonymous]
+        // =======================
+        // REGISTER (POST)
+        // =======================
         [HttpPost]
         public async Task<IActionResult> Register(RegisterModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = new AppUser
             {
-                var newUser = new AppUser()
+                UserName = model.UserName,
+                Email = model.UserName
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                // Ensure Student role exists
+                if (!await _roleManager.RoleExistsAsync("Student"))
                 {
-                    UserName = model.UserName,
-                    Email = model.UserName
-                }
-                ;
-
-
-                var result = await userManager.CreateAsync(newUser, model.Password);
-
-
-                if (result.Succeeded)
-                {
-                    await signInManager.CheckPasswordSignInAsync(newUser, model.Password, false);
-                    logger.LogInformation($"{model.UserName} registered in at {DateTime.Now}");
-                    return RedirectPermanent(model.ReturnUrl);
-                }
-                else
-                {
-                    foreach (var err in result.Errors)
-                    {
-                        ModelState.AddModelError(err.Code, err.Description);
-                    }
-                    return View(model);
+                    await _roleManager.CreateAsync(new AppRole("Student"));
                 }
 
+                // Default Role Assign
+                await _userManager.AddToRoleAsync(user, "Student");
+
+                // Auto Login
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
+                return await RedirectUserByRole(user);
             }
 
-
-
+            // Show errors
+            foreach (var error in result.Errors)
+                ModelState.AddModelError("", error.Description);
 
             return View(model);
         }
 
 
+        // =======================
+        // LOGIN (GET)
+        // =======================
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
 
+        // =======================
+        // LOGIN (POST)
+        // =======================
         [HttpPost]
-        [Authorize]
+        public async Task<IActionResult> Login(LoginModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var result = await _signInManager.PasswordSignInAsync(
+                model.UserName,
+                model.Password,
+                false,
+                false
+            );
+
+            if (result.Succeeded)
+            {
+                var user = await _userManager.FindByEmailAsync(model.UserName);
+                return await RedirectUserByRole(user);
+            }
+
+            ModelState.AddModelError("", "Invalid Login Attempt");
+            return View(model);
+        }
+
+        // =======================
+        // ROLE-BASED REDIRECTION
+        // =======================
+        private async Task<IActionResult> RedirectUserByRole(AppUser user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles.Contains("Admin"))
+                return RedirectToAction("Index", "AdminDashboard");
+
+            if (roles.Contains("Teacher"))
+                return RedirectToAction("Index", "TeacherDashboard");
+
+            if (roles.Contains("Student"))
+                return RedirectToAction("Index", "StudentDashboard");
+
+            // Default fallback
+            return RedirectToAction("Index", "Home");
+        }
+
+        // =======================
+        // LOGOUT
+        // =======================
         public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
-            logger.LogInformation($"{HttpContext.User.Identity.Name} logged out at {DateTime.Now}");
-
-            return RedirectPermanent("/");
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login");
         }
     }
 }
