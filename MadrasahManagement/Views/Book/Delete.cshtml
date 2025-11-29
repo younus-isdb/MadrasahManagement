@@ -1,0 +1,55 @@
+﻿@model MadrasahManagement.Models.Book
+
+@{
+    ViewData["Title"]="Delete Book";
+}
+
+<div class="container">
+    <h1>Delete Book</h1>
+
+
+    <div class="alert alert-warning">
+        <h3>Are you sure enough to delete this book?</h3>
+        <p class="mb-0">This action cannot be undone.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Book details</h5>
+        </div>
+
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Title:</dt>
+                <dd class="col-sm-9">@Model.Title</dd>
+                <dt class="col-sm-3">Author:</dt>
+                <dd class="col-sm-9">@Model.Author</dd>
+                <dt class="col-sm-3">ISBN:</dt>
+                <dd class="col-sm-9">@Model.ISBN</dd>
+                <dt class="col-sm-3">Category:</dt>
+                <dd class="col-sm-9">@Model.Category</dd>
+                <dt class="col-sm-3">TotalCopies:</dt>
+                <dd class="col-sm-9">@Model.TotalCopies</dd>
+                <dt class="col-sm-3">AvailableCopies:</dt>
+                <dd class="col-sm-9">@Model.AvailableCopies</dd>
+            </dl>
+
+            @if (Model.IssuedBooks.Any(ib => ib.ReturnDate == null))
+            {
+                <div class="alert alert-danger">
+                    <strong>warning: </strong> This book has @(Model.TotalCopies - Model.AvailableCopies)copies currently borrowed
+                </div>
+            }
+
+            <form asp-action="Delete" method="post">
+               
+                <input type="hidden" asp-for="BookId" />
+
+                <div class="form-group">
+                    <input type="submit" value="delete" class="btn btn-danger" />
+                    <a asp-action="index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

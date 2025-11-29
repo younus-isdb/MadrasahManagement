@@ -1,0 +1,17 @@
+﻿@model MadrasahManagement.ViewModels.UserRoleViewModel
+@{
+    ViewData["Title"] = "Edit Roles";
+}
+
+<h2>Edit Roles for @Model.Email</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="UserId" />
+    <div class="form-group">
+        <label>Roles</label>
+        <select asp-for="Roles" class="form-control" multiple
+                asp-items="@(new MultiSelectList(ViewBag.AllRoles, Model.Roles))">
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success mt-2">Update Roles</button>
+</form>

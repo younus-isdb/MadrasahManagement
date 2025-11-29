@@ -1,0 +1,11 @@
+﻿@model MadrasahManagement.Models.Class
+
+<h2>Class Details</h2>
+
+<table class="table table-bordered">
+    <tr><th>Class Name</th><td>@Model.ClassName</td></tr>
+    <tr><th>Session</th><td>@Model.SessionYear</td></tr>
+    <tr><th>Department</th><td>@Model.Department.DepartmentName</td></tr>
+</table>
+
+<a href="/Class/Index" class="btn btn-secondary">Back</a>

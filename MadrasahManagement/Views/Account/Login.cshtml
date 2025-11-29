@@ -1,0 +1,78 @@
+﻿@model MadrasahManagement.ViewModels.LoginModel
+ 
+
+
+@* <form method="post">
+    <div asp-validation-summary="All"></div>
+
+    <div>
+        <label asp-for="UserName" class="form-label"></label>
+        <input  asp-for="UserName" class="form-control"/>
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="RememberMe" class="form-label"></label>
+        <input asp-for="RememberMe" class="form-check" />
+        <span asp-validation-for="RememberMe" class="text-danger"></span>
+    </div>
+    <button class="btn btn-success">Login</button>
+    <a asp-action="Register" class="btn btn-info" asp-route-ReturnUrl="@Model.ReturnUrl">New?</a>
+</form> *@
+
+<section class="login-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="login-container">
+                    <h2 class="text-center mb-3" style="color:black;">Welcome Back</h2>
+                    <p class="text-center mb-4">Sign in to access your Info</p>
+
+                    <form method="post">
+                        <div class="validation-summary">
+                            <div asp-validation-summary="All"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserName" class="form-label">Username or Email</label>
+                            <input asp-for="UserName" class="form-control" placeholder="Enter your username or email" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Password</label>
+                            <input asp-for="Password" class="form-control" placeholder="Enter your password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="RememberMe" class="form-check-input" />
+                                <label asp-for="RememberMe" class="form-check-label">Remember me</label>
+                            </div>
+                            <span asp-validation-for="RememberMe" class="text-danger"></span>
+                        </div>
+
+                        <div class="button-group ">
+                            <button class="btn btn-login btn-warning">Login</button>
+                            <a asp-action="Register" class="btn btn-register btn-warning" asp-route-ReturnUrl="@Model.ReturnUrl">
+                                New? Register
+                            </a>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a href="#" class="text-muted">Forgot your password?</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"></partial>
+}

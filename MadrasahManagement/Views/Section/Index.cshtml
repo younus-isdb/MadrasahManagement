@@ -1,0 +1,96 @@
+﻿@model IEnumerable<MadrasahManagement.Models.Section>
+@{
+    ViewData["Title"] = "Sections";
+}
+
+<h2 class="mb-4">Sections List</h2>
+
+<div class="mb-3">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sectionModal" onclick="openCreateModal()">
+        <i class="bi bi-plus-circle"></i> Create New Section
+    </button>
+</div>
+
+<div id="sectionTable" class="table-responsive">
+    <table class="table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Class</th>
+                <th>Section Name</th>
+                <th>Students</th>
+                <th>Timetables</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr id="row-@item.SectionId">
+                    <td>@item.SectionId</td>
+                    <td>@item.Class.ClassName</td>
+                    <td>@item.SectionName</td>
+                    <td>@item.Students.Count</td>
+                    <td>@item.Timetables.Count</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="openEditModal(@item.SectionId)"><i class="bi bi-pencil-square"></i></button>
+                        <a asp-action="Delete" asp-route-id="@item.SectionId" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="sectionModal" tabindex="-1" aria-labelledby="sectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sectionModalLabel">Create Section</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalBodyContent">
+                    <!-- AJAX-loaded form will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openCreateModal() {
+            $('#sectionModalLabel').text('Create Section');
+            $.get('@Url.Action("Create")', function (data) {
+                $('#modalBodyContent').html(data);
+            });
+        }
+
+        function openEditModal(id) {
+            $('#sectionModalLabel').text('Edit Section');
+            $.get('@Url.Action("Edit")/' + id, function (data) {
+                $('#modalBodyContent').html(data);
+            });
+        }
+
+        // AJAX submit for modal forms
+        $(document).on('submit', '#modalForm', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (response) {
+                    // Reload table or replace row
+                    location.reload(); // simple approach; can be optimized to update table row via AJAX
+                },
+                error: function () {
+                    alert('Error occurred. Please try again.');
+                }
+            });
+        });
+    </script>
+}

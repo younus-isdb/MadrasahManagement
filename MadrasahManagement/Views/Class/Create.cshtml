@@ -1,0 +1,209 @@
+﻿@model MadrasahManagement.Models.Class
+
+@{
+    ViewData["Title"] = "Create Class";
+}
+
+<h2 class="mb-4">Create New Class</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Class Name -->
+                    <div class="mb-3">
+                        <label asp-for="ClassName" class="form-label"></label>
+                        <input asp-for="ClassName" class="form-control" placeholder="Enter Class Name" />
+                        <span asp-validation-for="ClassName" class="text-danger"></span>
+                    </div>
+
+                    <!-- Session Year -->
+                    <div class="mb-3">
+                        <label asp-for="SessionYear" class="form-label"></label>
+                        <input asp-for="SessionYear" class="form-control" placeholder="2024-2025" />
+                        <span asp-validation-for="SessionYear" class="text-danger"></span>
+                    </div>
+
+                    <!-- Department -->
+                    <div class="mb-3">
+                        <label asp-for="DepartmentId"></label>
+
+                        <div class="input-group">
+                            <select asp-for="DepartmentId"
+                                    asp-items="@(new SelectList(ViewBag.DepartmentList, "DepartmentId", "DepartmentName"))"
+                                    class="form-control">
+                                <option value="">-- Select Department --</option>
+                            </select>
+
+                            <!-- + Button -->
+                            <button type="button"
+                                    class="btn btn-success"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#departmentModal">
+                                +
+                            </button>
+                        </div>
+
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left-circle"></i> Back
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 🔥 Bootstrap Modal for Department Create -->
+<div class="modal fade" id="departmentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="departmentModalBody">
+                <!-- AJAX দ্বারা Department Create Form লোড হবে -->
+                Loading...
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // 🚀 Modal ওপেন হবার সাথে সাথে AJAX দিয়ে Create Dept Form লোড
+        $('#departmentModal').on('show.bs.modal', function () {
+            $("#departmentModalBody").load('/Department/CreateModal');
+        });
+
+        // 🚀 Department তৈরি হওয়ার পর select list রিফ্রেশ
+        function RefreshDepartmentList() {
+            $.get('/Department/GetAll', function (data) {
+                let ddl = $('#DepartmentId');
+                ddl.empty();
+                ddl.append('<option value="">-- Select Department --</option>');
+                $.each(data, function (i, dept) {
+                    ddl.append(`<option value="${dept.departmentId}">${dept.departmentName}</option>`);
+                });
+            });
+        }
+    </script>
+}
+
+
+
+
+
+
+
+@* @model MadrasahManagement.Models.Class
+
+@{
+    ViewData["Title"] = "Create Class";
+}
+
+<h2 class="mb-4">Create New Class</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Class Name -->
+                    <div class="mb-3">
+                        <label asp-for="ClassName" class="form-label"></label>
+                        <input asp-for="ClassName" class="form-control" placeholder="Enter Class Name" />
+                        <span asp-validation-for="ClassName" class="text-danger"></span>
+                    </div>
+
+                    <!-- Session Year -->
+                    <div class="mb-3">
+                        <label asp-for="SessionYear" class="form-label"></label>
+                        <input asp-for="SessionYear" class="form-control" placeholder="2024-2025" />
+                        <span asp-validation-for="SessionYear" class="text-danger"></span>
+                    </div>
+
+                    <!-- Department -->
+                    <div class="mb-3">
+                        <label asp-for="DepartmentId"></label>
+                        <select asp-for="DepartmentId"
+                                asp-items="@(new SelectList(ViewBag.DepartmentList, "DepartmentId", "DepartmentName"))"
+                                class="form-control">
+                            <option value="">-- Select Department --</option>
+                        </select>
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left-circle"></i> Back
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+  *@
+
+@*@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using MadrasahManagement.Models
+@model Class
+
+<h2>Create Class</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group mb-2">
+        <label asp-for="ClassName"></label>
+        <input asp-for="ClassName" class="form-control" />
+        <span asp-validation-for="ClassName" class="text-danger"></span>
+    </div>
+
+    
+
+    <div class="form-group mb-3">
+        <label asp-for="DepartmentId"></label>
+        <select asp-for="DepartmentId"
+                asp-items="@(new SelectList(ViewBag.DepartmentList, "DepartmentId", "DepartmentName"))"
+                class="form-control">
+            <option value="">-- Select Department --</option>
+        </select>
+        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+ *@

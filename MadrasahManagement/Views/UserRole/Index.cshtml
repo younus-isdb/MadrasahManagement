@@ -1,0 +1,39 @@
+﻿@using MadrasahManagement.ViewModels
+@using Microsoft.AspNetCore.Identity
+@model List<UserRoleViewModel>
+@inject RoleManager<AppRole> RoleManager
+
+<h3 class="mb-3">User Role Management</h3>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Current Roles</th>
+            <th>Assign New Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@string.Join(", ", user.Roles)</td>
+                <td>
+                    <form asp-action="AssignRole" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="userId" value="@user.UserId" />
+
+                        <select name="role" class="form-select">
+                            @foreach (var role in RoleManager.Roles)
+                            {
+                                <option value="@role.Name">@role.Name</option>
+                            }
+                        </select>
+
+                        <button type="submit" class="btn btn-success btn-sm">Assign</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

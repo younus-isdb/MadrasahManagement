@@ -1,0 +1,77 @@
+﻿@model MadrasahManagement.ViewModels.RegisterModel
+ 
+<section class="login-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="login-container">
+                    
+                    <p class="text-center mb-4">Sign in to access your Info</p>
+
+                    <form method="post">
+                        <div class="validation-summary">
+                            <div asp-validation-summary="All"></div>
+                        </div>
+
+                        <div>
+                            <label asp-for="UserName" class="form-label"></label>
+                            <input asp-for="UserName" class="form-control" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="Password" class="form-label"></label>
+                            <input asp-for="Password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="ConfirmPassword" class="form-label"></label>
+                            <input asp-for="ConfirmPassword" class="form-control" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                        <br />
+                        <div class="button-group">
+                            <button class="btn btn-register btn-warning">Register</button>
+                            <a asp-action="Login" class="btn btn-login btn-warning" asp-route-ReturnUrl="@Model.ReturnUrl">
+                                Login?
+                            </a>
+                        </div>
+
+
+
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"></partial>
+}
+
+
+@* <form method="post">
+    <div asp-validation-summary="All"></div>
+
+    <div>
+        <label asp-for="UserName" class="form-label"></label>
+        <input  asp-for="UserName" class="form-control"/>
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div>
+        <label asp-for="ConfirmPassword" class="form-label"></label>
+        <input asp-for="ConfirmPassword" class="form-control" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+    <button class="btn btn-success">Register</button>
+    <a asp-action="Login" class="btn btn-info" asp-route-ReturnUrl="@Model.ReturnUrl">Login?</a>
+</form> *@

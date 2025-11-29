@@ -1,0 +1,246 @@
+﻿@using System.Text.Json
+
+@Model MadrasahManagement.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row g-4">
+        <!-- Module Cards -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-success">
+                <h5>Total Students</h5>
+                <h2>@Model.TotalStudents</h2>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-success">
+                <h5>Total Teachers</h5>
+                <h2>@Model.TotalTeachers</h2>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-success">
+                <h5>Total Classes</h5>
+                <h2>@Model.TotalClasses</h2>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-success">
+                <h5>Total Subjects</h5>
+                <h2>@Model.TotalSubjects</h2>
+            </div>
+        </div>
+
+        <!-- Attendance Today -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-warning">
+                <h5>Attendance Today</h5>
+                <h2>@Model.TodayAttendance</h2>
+            </div>
+        </div>
+
+        <!-- Fee Collections -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-warning">
+                <h5>Total Fee Collections</h5>
+                <h2>@Model.TotalFeeCollections</h2>
+            </div>
+        </div>
+
+        <!-- Hostel Residents -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-success">
+                <h5>Hostel Residents</h5>
+                <h2>@Model.TotalHostelResidents</h2>
+            </div>
+        </div>
+
+        <!-- Transport Assignments -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-success">
+                <h5>Transport Assignments</h5>
+                <h2>@Model.TotalTransportAssignments</h2>
+            </div>
+        </div>
+
+        <!-- Issued Books -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-warning">
+                <h5>Issued Books</h5>
+                <h2>@Model.TotalIssuedBooks</h2>
+            </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card p-3 text-center shadow-sm border-warning">
+                <h5>Upcoming Events</h5>
+                <h2>@Model.TotalEvents</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mt-4 g-4">
+        <!-- Attendance Trend -->
+        <div class="col-lg-6 col-md-12">
+            <div class="card p-4 shadow-sm">
+                <h5>Daily Attendance (Last 7 Days)</h5>
+                <canvas id="attendanceTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Fee Collection Trend -->
+        <div class="col-lg-6 col-md-12">
+            <div class="card p-4 shadow-sm">
+                <h5>Monthly Fee Collection (Last 6 Months)</h5>
+                <canvas id="feeTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Hostel Occupancy Pie -->
+        <div class="col-lg-6 col-md-12">
+            <div class="card p-4 shadow-sm">
+                <h5>Hostel Occupancy</h5>
+                <canvas id="hostelPieChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Transport Occupancy Pie -->
+        <div class="col-lg-6 col-md-12">
+            <div class="card p-4 shadow-sm">
+                <h5>Transport Occupancy</h5>
+                <canvas id="transportPieChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<div class="row g-4 mt-4">
+    <!-- Upcoming Events Panel -->
+    <div class="col-lg-4 col-md-12">
+        <div class="card shadow-sm p-3 border-success">
+            <h5>Upcoming Events</h5>
+            <ul class="list-group list-group-flush">
+                @foreach (var e in Model.UpcomingEvents)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @e.Title
+                        <span class="badge bg-success">@e.StartDateTime.ToString("dd MMM")</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="col-lg-4 col-md-12">
+        <div class="card shadow-sm p-3 border-warning">
+            <h5>Notifications</h5>
+            <ul class="list-group list-group-flush">
+                @foreach (var n in Model.Notifications)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @n.Message
+                        <small class="text-muted">@n.CreatedAt.ToString("dd MMM")</small>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- Quick Links Panel -->
+    <div class="col-lg-4 col-md-12">
+        <div class="card shadow-sm p-3 border-info">
+            <h5>Quick Links</h5>
+            <div class="d-grid gap-2">
+                @foreach (var q in Model.QuickLinks)
+                {
+                    <a href="@q.Url" class="btn btn-success btn-sm">
+                        <i class="@q.IconClass me-2"></i> @q.Title
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@* 
+@section Scripts {
+    <script>
+        // Attendance Trend Line
+        const attendanceCtx = document.getElementById('attendanceTrendChart').getContext('2d');
+        new Chart(attendanceCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.AttendanceTrend.Select(x => x.Label).ToList())),
+                datasets: [{
+                    label: 'Attendance',
+                    data: @Html.Raw(Json.Serialize(Model.AttendanceTrend.Select(x => x.Value))),
+                    borderColor: '#1e5128',
+                    backgroundColor: 'rgba(30,81,40,0.2)',
+                    fill: true
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        // Fee Collection Trend
+        const feeCtx = document.getElementById('feeTrendChart').getContext('2d');
+        new Chart(feeCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.FeeCollectionTrend.Select(x => x.Label))),
+                datasets: [{
+                    label: 'Fee Collections',
+                    data: @Html.Raw(Json.Serialize(Model.FeeCollectionTrend.Select(x => x.Value))),
+                    backgroundColor: '#FFD700'
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        // Hostel Occupancy Pie
+        const hostelCtx = document.getElementById('hostelPieChart').getContext('2d');
+        new Chart(hostelCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.HostelOccupancy.Select(x => x.Label))),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.HostelOccupancy.Select(x => x.Value))),
+                    backgroundColor: ['#1e5128','#FFD700','#4CAF50','#FFC107','#388E3C']
+                }]
+            },
+            options: { responsive: true }
+        });
+ *@@* 
+        // Transport Occupancy Pie
+        const transportCtx = document.getElementById('transportPieChart').getContext('2d');
+        new Chart(transportCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.TransportOccupancy.Select(x => x.Label))),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.TransportOccupancy.Select(x => x.Value))),
+                    backgroundColor: ['#1e5128','#FFD700','#4CAF50','#FFC107','#388E3C']
+                }]
+            },
+            options: { responsive: true }
+        });
+    </script> *@
+}

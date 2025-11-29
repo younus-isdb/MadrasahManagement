@@ -1,0 +1,62 @@
+﻿@model IEnumerable<MadrasahManagement.Models.Book>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container">
+    <h1>Books</h1>
+
+    <p>
+        <a asp-action="Create" class="btn btn-outline-success">Create New </a>
+    </p>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>ISBN</th>
+                <th>Category</th>
+                <th>TotalCopies</th>
+                <th>AvailableCopies</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var book in Model)
+                {
+                    <tr>
+                        <td>@book.Title</td>
+                        <td>@book.Author</td>
+                        <td>@book.Author</td>
+                        <td>@book.ISBN</td>
+                        <td>@book.Category</td>
+                        <td>@book.TotalCopies</td>
+                        <td>
+                            <span class="@(book.AvailableCopies > 0 ? "text-success" : "text-danger")">
+                                @book.AvailableCopies
+                                @*  @Html.DisplayFor(modelItem => book.AvailableCopies) *@
+                            </span>
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@book.BookId" class="btn btn-warning btn-sm">Edit</a>
+                            <a asp-action="Details" asp-route-id="@book.BookId" class="btn btn-info btn-sm">Details</a>
+                            <a asp-action="Delete" asp-route-id="@book.BookId" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center">No books found</td>
+                </tr>
+            }
+
+            
+        </tbody>
+    </table>
+</div>

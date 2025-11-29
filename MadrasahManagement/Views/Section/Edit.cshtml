@@ -1,0 +1,25 @@
+﻿@model MadrasahManagement.Models.Section
+
+<form id="modalForm" asp-action="Edit" method="post">
+    <input type="hidden" asp-for="SectionId" />
+
+    <div class="mb-3">
+        <label asp-for="ClassId" class="form-label"></label>
+        <select asp-for="ClassId" class="form-select" asp-items="@(new SelectList(ViewBag.Classes, "ClassId", "ClassName"))" required>
+            <option value="">-- Select Class --</option>
+        </select>
+        <span asp-validation-for="ClassId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SectionName" class="form-label"></label>
+        <input asp-for="SectionName" class="form-control" placeholder="Enter Section Name" required />
+        <span asp-validation-for="SectionName" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Save Changes</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

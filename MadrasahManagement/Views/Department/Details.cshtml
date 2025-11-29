@@ -1,0 +1,32 @@
+﻿@model MadrasahManagement.Models.Department
+@{
+    ViewData["Title"] = "Department Details";
+}
+
+<h2>Department Details</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">ID</dt>
+            <dd class="col-sm-9">@Model.DepartmentId</dd>
+
+            <dt class="col-sm-3">Department Name</dt>
+            <dd class="col-sm-9">@Model.DepartmentName</dd>
+
+            <dt class="col-sm-3">Description</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+
+            <dt class="col-sm-3">Classes Count</dt>
+            <dd class="col-sm-9">@Model.Classes.Count</dd>
+
+            <dt class="col-sm-3">Teachers Count</dt>
+            <dd class="col-sm-9">@Model.Teachers.Count</dd>
+        </dl>
+
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model.DepartmentId" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Edit</a>
+            <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+        </div>
+    </div>
+</div>

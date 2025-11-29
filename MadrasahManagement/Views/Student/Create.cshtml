@@ -1,0 +1,451 @@
+﻿
+@model Student
+@{
+	ViewData["Title"] = "Create Student";
+}
+
+<style>
+	.page-header {
+		background: linear-gradient(135deg, #6a11cb, #2575fc);
+		color: white;
+		padding: 25px;
+		border-radius: 14px;
+		box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+		margin-bottom: 25px;
+	}
+
+	.card-custom {
+		border-radius: 16px;
+		padding: 20px;
+		background: #ffffff;
+		box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+		margin-bottom: 25px;
+	}
+
+	.section-title {
+		font-weight: 700;
+		font-size: 20px;
+		color: #444;
+		margin-bottom: 12px;
+		border-left: 5px solid #6a11cb;
+		padding-left: 8px;
+	}
+
+	label {
+		font-weight: 600;
+		margin-top: 8px;
+	}
+
+	.btn-primary {
+		background: #6a11cb;
+		border: none;
+		font-weight: 600;
+		padding: 10px 20px;
+		border-radius: 10px;
+		box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+	}
+
+	.btn-primary:hover {
+		background: #5b0fb8;
+	}
+
+	.btn-secondary {
+		border-radius: 10px;
+		font-weight: 600;
+	}
+
+	.form-control {
+		border-radius: 10px;
+		padding: 10px;
+	}
+
+	.gradient-box {
+		background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+		padding: 15px;
+		border-radius: 14px;
+		color: #333;
+		margin-bottom: 15px;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+	}
+</style>
+
+<div class="page-header">
+	<h2><i class="bi bi-person-plus-fill"></i> Create Student</h2>
+</div>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+
+	<!-- Basic Information Card -->
+	<div class="card-custom">
+		<div class="section-title">Basic Information</div>
+		<div class="row">
+			<div class="col-md-6">
+				<label asp-for="StudentName">Student Name English</label>
+				<input asp-for="StudentName" class="form-control" placeholder="Enter English Name" />
+				<span asp-validation-for="StudentName" class="text-danger"></span>
+
+				<label asp-for="ArabicStudentName">Student Name Arabic</label>
+				<input asp-for="ArabicStudentName" class="form-control" placeholder="الاسم بالعربية (اختياري)" />
+
+				<label asp-for="BanglaStudentName">Student Name Bangla</label>
+				<input asp-for="BanglaStudentName" class="form-control" placeholder="বাংলা নাম (ঐচ্ছিক)" />
+			</div>
+
+			<div class="col-md-6">
+				<label asp-for="RollNo">Roll No</label>
+				<input asp-for="RollNo" class="form-control" />
+
+				<label asp-for="AdmissionNumber">Admission Number</label>
+				<input asp-for="AdmissionNumber" class="form-control" />
+
+				<label asp-for="NationalId">Birth/NID No</label>
+				<input asp-for="NationalId" class="form-control" placeholder="Birth/NID No" />
+		  
+				<label asp-for="AdmissionDate" class="form-label fw-bold">Admission Date</label>
+				<input asp-for="AdmissionDate" type="date" class="form-control" />
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Academic Info -->
+	<div class="card-custom">
+		<div class="section-title">Academic Information</div>
+		<div class="row">
+			<div class="col-md-4">
+				<label asp-for="DepartmentId"></label>
+
+				<div class="input-group">
+					<select asp-for="DepartmentId"
+							asp-items="ViewBag.DepartmentList"
+							class="form-control">
+						<option value="">-- Select Department --</option>
+					</select>
+
+					<!-- + Button -->
+					<button type="button"
+							class="btn btn-success"
+							data-bs-toggle="modal"
+							data-bs-target="#departmentModal">
+						+
+					</button>
+				</div>
+
+				<span asp-validation-for="DepartmentId" class="text-danger"></span>
+			</div>
+
+			<div class="col-md-4">
+				<label>Class</label>
+				<div class="input-group">
+					<select asp-for="ClassId" asp-items="ViewBag.ClassList" class="form-control" id="ClassId">
+						<option value="">Select Class</option>
+					</select>
+
+					<button type="button" class="btn btn-success"
+							data-bs-toggle="modal"
+							data-bs-target="#classModal">
+						+
+					</button>
+				</div>
+			</div>
+
+
+			<div class="col-md-4">
+				<label>Section</label>
+				<div class="input-group">
+					<select asp-for="SectionId" asp-items="ViewBag.SectionList" class="form-control" id="SectionId">
+						<option value="">Select Section</option>
+					</select>
+
+					<button type="button" class="btn btn-success"
+							data-bs-toggle="modal"
+							data-bs-target="#sectionModal">
+						+
+					</button>
+				</div>
+			</div>
+
+			<!-- Academic History -->
+			<div class="col-md-8 mb-3">
+				<label asp-for="PreviousSchoolName" class="form-label fw-bold">Previous School Name</label>
+				<input asp-for="PreviousSchoolName" class="form-control" />
+			</div>
+			<div class="col-md-4 mb-3">
+				<label asp-for="PreviousGPA" class="form-label fw-bold">Previous Result</label>
+				<input asp-for="PreviousGPA" step="0.01" class="form-control" />
+			</div>
+		</div>
+	</div>
+	
+	<!-- Personal Information -->
+	<div class="card-custom">
+		<div class="section-title">Personal Information</div>
+		<div class="row">
+			<div class="col-md-4">
+				<label asp-for="Gender"></label>
+				<select asp-for="Gender" class="form-control">
+					<option value="">Select Gender</option>
+					<option value="0">Male</option>
+					<option value="1">Female</option>
+				</select>
+
+				<label asp-for="DOB">Date Of Birth</label>
+				<input asp-for="DOB" type="date" class="form-control" />
+
+				<label asp-for="BloodGroup"></label>
+				<input asp-for="BloodGroup" class="form-control" placeholder="A+, B-, O+, etc." />
+			</div>
+
+			<div class="col-md-4">
+				<div class="gradient-box"><b>Father Information</b></div>
+				<label asp-for="FatherName">Father Name</label>
+				<input asp-for="FatherName" class="form-control" />
+
+				<label asp-for="FatherPhone">Father Phone</label>
+				<input asp-for="FatherPhone" class="form-control" />
+			</div>
+
+			<div class="col-md-4">
+				<div class="gradient-box"><b>Mother Information</b></div>
+				<label asp-for="MotherName">Mother Name</label>
+				<input asp-for="MotherName" class="form-control" />
+
+				<label asp-for="MotherPhone">Mother Phone</label>
+				<input asp-for="MotherPhone" class="form-control" />
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Guardian & Address -->
+	<div class="card-custom">
+		<div class="section-title">Guardian Information & Address</div>
+		<div class="row">
+			<div class="col-md-4">
+				<label asp-for="GuardianName">Guardian Name</label>
+				<input asp-for="GuardianName" class="form-control" />
+
+				<label asp-for="GuardianPhone">Guardian Phone</label>
+				<input asp-for="GuardianPhone" class="form-control" />
+
+				<label asp-for="GuardianEmail">Guardian Email</label>
+				<input asp-for="GuardianEmail" class="form-control" />
+			</div>
+
+			<div class="col-md-4">
+				<label asp-for="Address"></label>
+				<textarea asp-for="Address" class="form-control"></textarea>
+
+				<label asp-for="City"></label>
+				<input asp-for="City" class="form-control" />
+
+				<label asp-for="Country"></label>
+				<input asp-for="Country" class="form-control" />
+			</div>
+
+			<div class="col-md-4">
+				<div class="gradient-box"><b>Emergency Contact</b></div>
+				<label asp-for="EmergencyContactName">Emergency Contact Name</label>
+				<input asp-for="EmergencyContactName" class="form-control" />
+
+				<label asp-for="EmergencyPhone">Emergency Phone</label>
+				<input asp-for="EmergencyPhone" class="form-control" />
+
+				<label asp-for="MedicalNotes">Medical Notes</label>
+				<textarea asp-for="MedicalNotes" class="form-control"></textarea>
+			</div>
+		</div>
+	</div>
+
+	
+	<!-- Media Upload -->
+	<div class="card-custom">
+		<div class="section-title">Media & Documents</div>
+
+		<label>Profile Image</label>
+		<input type="file" name="ProfileImage" class="form-control" />
+
+		<label>Document (PDF / Image)</label>
+		<input type="file" name="DocumentFile" class="form-control" />
+	</div>
+	<!-- Status -->
+	<div class="form-check mb-3">
+		<input asp-for="IsActive" class="form-check-input" />
+		<label asp-for="IsActive" class="form-check-label fw-bold"></label>
+	</div>
+
+	<!-- Leaving Info -->
+	<div class="row">
+		<div class="col-md-4 mb-3">
+			<label asp-for="LeavingDate" class="form-label fw-bold">Leaving Date</label>
+			<input asp-for="LeavingDate" type="date" class="form-control" />
+		</div>
+
+		<div class="col-md-8 mb-3">
+			<label asp-for="LeavingReason" class="form-label fw-bold">Leaving Reason</label>
+			<input asp-for="LeavingReason" class="form-control" />
+		</div>
+	</div>
+
+	<!-- Buttons -->
+	<div class="d-flex justify-content-between mt-4">
+		<a asp-action="Index" class="btn btn-secondary px-4">Back</a>
+		<button type="submit" class="btn btn-primary px-4"
+				style="background: linear-gradient(45deg, #00b09b, #96c93d); border: none;">
+			Save Student
+		</button>
+	</div>
+</form>
+<!-- 🔥 Bootstrap Modal for Department Create -->
+<div class="modal fade" id="departmentModal" tabindex="-1">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Create Department</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+
+			<div class="modal-body" id="departmentModalBody">
+				<!-- AJAX দ্বারা Department Create Form লোড হবে -->
+				Loading...
+			</div>
+		</div>
+	</div>
+</div>
+@* Class Create Modal *@
+<div class="modal fade" id="classModal" tabindex="-1">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Create Class</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+
+			<div class="modal-body" id="classModalBody">
+				Loading...
+			</div>
+		</div>
+	</div>
+</div>
+
+@* //Section Create Modal *@
+<div class="modal fade" id="sectionModal" tabindex="-1">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Create Section</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+
+			<div class="modal-body" id="sectionModalBody">
+				Loading...
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+		// 🚀 Modal ওপেন হবার সাথে সাথে AJAX দিয়ে Create Dept Form লোড
+		$('#departmentModal').on('show.bs.modal', function () {
+			$("#departmentModalBody").load('/Department/CreateModal');
+		});
+
+		// 🚀 Class Modal → Load Create Form
+		$('#classModal').on('show.bs.modal', function () {
+			$("#classModalBody").load('/Class/CreateModal');
+		});
+
+
+
+
+
+				function OpenClassCreateModal() {
+			$("#classFormBody").load("/Class/CreateForm", function () {
+				$("#classModal").modal("show");
+			});
+		}
+
+		function OpenDeptCreateModal() {
+			$("#deptFormBody").load("/Department/CreateForm", function () {
+				$("#deptModal").modal("show");
+			});
+		}
+
+
+		// 🚀 Section Modal → Load Create Form
+		$('#sectionModal').on('show.bs.modal', function () {
+			$("#sectionModalBody").load('/Section/CreateModal');
+		});
+
+
+
+
+		// 🚀 Department তৈরি হওয়ার পর select list রিফ্রেশ
+		function RefreshDepartmentList() {
+			$.get('/Department/GetAll', function (data) {
+				let ddl = $('#DepartmentId');
+				ddl.empty();
+				ddl.append('<option value="">-- Select Department --</option>');
+				$.each(data, function (i, dept) {
+					ddl.append(`<option value="${dept.departmentId}">${dept.departmentName}</option>`);
+				});
+			});
+		}
+
+
+				function RefreshClassList(departmentId) {
+			$.get('/Student/GetClasses', { departmentId: departmentId }, function (data) {
+				let ddl = $("#ClassId");
+				ddl.empty().append('<option value="">Select Class</option>');
+
+				$.each(data, function (i, c) {
+					ddl.append(`<option value="${c.classId}">${c.className}</option>`);
+				});
+			});
+		}
+
+		function RefreshSectionList(classId) {
+			$.get('/Student/GetSections', { classId: classId }, function (data) {
+				let ddl = $("#SectionId");
+				ddl.empty().append('<option value="">Select Section</option>');
+
+				$.each(data, function (i, s) {
+					ddl.append(`<option value="${s.sectionId}">${s.sectionName}</option>`);
+				});
+			});
+		}
+
+	</script>
+	<script>
+		// Load classes when department changes
+		$("#DepartmentId").change(function () {
+			var deptId = $(this).val();
+
+			$.get('/Student/GetClasses', { departmentId: deptId }, function (data) {
+				$("#ClassId").empty().append('<option value="">Select Class</option>');
+				$.each(data, function (i, c) {
+					$("#ClassId").append('<option value="' + c.classId + '">' + c.className + '</option>');
+				});
+
+				$("#SectionId").empty().append('<option value="">Select Section</option>');
+			});
+		});
+
+		// Load sections when class changes
+		$("#ClassId").change(function () {
+			var classId = $(this).val();
+
+			$.get('/Student/GetSections', { classId: classId }, function (data) {
+				$("#SectionId").empty().append('<option value="">Select Section</option>');
+				$.each(data, function (i, s) {
+					$("#SectionId").append('<option value="' + s.sectionId + '">' + s.sectionName + '</option>');
+				});
+			});
+		});
+	</script>
+}
+
