@@ -11,7 +11,7 @@ namespace MadrasahManagement.Controllers
     public class UserRoleController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly RoleManager<AppRole> _roleManager; // ✅ AppRole instead of IdentityRole
+        private readonly RoleManager<AppRole> _roleManager;
 
         public UserRoleController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
         {
@@ -19,65 +19,92 @@ namespace MadrasahManagement.Controllers
             _roleManager = roleManager;
         }
 
-        // ✅ Show all users with assigned roles
-        public IActionResult Index()
+        // ----------------------------
+        // Show all users with roles
+        // ----------------------------
+        public async Task<IActionResult> Index()
         {
-            var users = _userManager.Users.ToList();
+            var users = await _userManager.Users.ToListAsync();
 
-            var model = users.Select(u => new UserRoleViewModel
+            var model = new List<UserRoleViewModel>();
+            foreach (var u in users)
             {
-                UserId = u.Id, // int or string depending on model
-                Email = u.Email!,
-                Roles = _userManager.GetRolesAsync(u).Result.ToList()
-            }).ToList();
+                var roles = await _userManager.GetRolesAsync(u);
+                model.Add(new UserRoleViewModel
+                {
+                    UserId = u.Id,
+                    Email = u.Email!,
+                    Roles = roles.ToList()
+                });
+            }
 
-            return View(model);
+            return View("index", model); // AJAX Live View
         }
 
-        // GET: UserRole/Edit/{id}
-        public async Task<IActionResult> Edit(string id)
-        {
-            if (string.IsNullOrEmpty(id)) return NotFound();
-
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null) return NotFound();
-
-            var model = new UserRoleViewModel
-            {
-                UserId = user.Id,
-                Email = user.Email,
-                Roles = new List<string>(await _userManager.GetRolesAsync(user))
-            };
-
-            // ✅ Make sure AllRoles is not null
-            var roles = await _roleManager.Roles.ToListAsync();
-            ViewBag.AllRoles = roles.Select(r => r.Name).ToList();
-
-            return View(model);
-        }
-
-        // POST: UserRole/Edit
+        // ----------------------------
+        // AJAX: Assign Role
+        // ----------------------------
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UserRoleViewModel model)
+        public async Task<JsonResult> AssignRoleAjax(string userId, string role)
         {
-            if (!ModelState.IsValid) return View(model);
-
-            var user = await _userManager.FindByIdAsync(model.UserId);
-            if (user == null) return NotFound();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Json(new { success = false, message = "User not found" });
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
-            // Roles to add
-            var rolesToAdd = model.Roles.Except(userRoles);
-            // Roles to remove
-            var rolesToRemove = userRoles.Except(model.Roles);
+            // Only add if not already assigned
+            if (!userRoles.Contains(role))
+            {
+                await _userManager.AddToRoleAsync(user, role);
+            }
 
-            await _userManager.AddToRolesAsync(user, rolesToAdd);
-            await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
-
-            return RedirectToAction(nameof(Index));
+            // Return updated role list
+            var updatedRoles = await _userManager.GetRolesAsync(user);
+            return Json(new { success = true, roles = updatedRoles });
         }
 
+        // ----------------------------
+        // AJAX: Remove Role
+        // ----------------------------
+        [HttpPost]
+        public async Task<JsonResult> RemoveRoleAjax(string userId, string role)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Json(new { success = false, message = "User not found" });
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            if (userRoles.Contains(role))
+            {
+                await _userManager.RemoveFromRoleAsync(user, role);
+            }
+
+            // Return updated role list
+            var updatedRoles = await _userManager.GetRolesAsync(user);
+            return Json(new { success = true, roles = updatedRoles });
+        }
+
+        // ----------------------------
+        // AJAX: Delete User
+        // ----------------------------
+        [HttpPost]
+        public async Task<JsonResult> DeleteUserAjax(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Json(new { success = false, message = "User not found" });
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded) return Json(new { success = false, message = "Delete failed" });
+
+            return Json(new { success = true });
+        }
+
+        // ----------------------------
+        // Create User Page
+        // ----------------------------
+        public IActionResult CreateUser()
+        {
+            return View(); // Optional: Create User Form
+        }
     }
 }

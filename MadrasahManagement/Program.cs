@@ -1,22 +1,20 @@
 using MadrasahManagement.Models;
 using MadrasahManagement.Services;
+using MadrasahManagement.Services.Seeders;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<MadrasahDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ✅ Identity DI registration
 builder.Services.AddIdentity<AppUser, AppRole>()
     .AddEntityFrameworkStores<MadrasahDbContext>()
     .AddDefaultTokenProviders();
 
-// Optional: Cookie Login/Logout redirect config
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -27,17 +25,16 @@ builder.Services.AddFileUploader();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -47,5 +44,16 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+
+// =========================
+// SEED DEFAULT ROLES/USERS
+// =========================
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
+
+    await UserRoleSeeder.SeedAsync(userManager, roleManager);
+}
 
 app.Run();
