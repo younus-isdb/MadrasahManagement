@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace MadrasahManagement.Models
@@ -636,61 +637,99 @@ namespace MadrasahManagement.Models
         public DateTimeOffset Date { get; set; }
     }
 
-    // -------------------------
-    // 17. Book
-    // -------------------------
-    public class Book
-    {
-        [Key]
-        public int BookId { get; set; }
+	// -------------------------
+	// 17. Book
+	// -------------------------
+	public class Book
+	{
+		[Key]
+		public int BookId { get; set; }
 
-        [Required, MaxLength(250)]
-        public string Title { get; set; } = default!;
+		[Required, MaxLength(250)]
+		public string Title { get; set; } = default!;
 
-        [MaxLength(150)]
-        public string? Author { get; set; }
+		[MaxLength(150)]
+		public string? Author { get; set; }
 
-        [MaxLength(20)]
-        public string? ISBN { get; set; }
+		[MaxLength(20)]
+		public string? ISBN { get; set; }
 
-        [MaxLength(100)]
-        public string? Category { get; set; }
+		[MaxLength(100)]
+		public string? Category { get; set; }
 
-        public int TotalCopies { get; set; }
-        public int AvailableCopies { get; set; }
+		[Range(1, int.MaxValue, ErrorMessage = "Total copies must be at least 1")]
+		public int TotalCopies { get; set; }
+		public int AvailableCopies { get; set; }
 
-        public ICollection<IssuedBook> IssuedBooks { get; set; } = new HashSet<IssuedBook>();
-    }
+		[DataType(DataType.ImageUrl)]
+		public string? ImageUrl { get; set; }
+
+		[NotMapped, DisplayName("Image")]
+		public IFormFile? ImageFile { get; set; }
+
+		public ICollection<IssuedBook> IssuedBooks { get; set; } = new HashSet<IssuedBook>();
+		public bool CanBeIssued()
+		{
+			return AvailableCopies > 0;
+		}
+
+		// Method to issue a book
+		public void IssueBook()
+		{
+			if (AvailableCopies <= 0)
+				throw new InvalidOperationException("No copies available for issuing");
+
+			AvailableCopies--;
+		}
+
+		// Method to return a book
+		public void ReturnBook()
+		{
+			if (AvailableCopies >= TotalCopies)
+				throw new InvalidOperationException("Cannot return more copies than total");
+
+			AvailableCopies++;
+		}
+
+	}
 
 
-    // -------------------------
-    // 18. IssuedBook
-    // -------------------------
-    public class IssuedBook
-    {
-        [Key]
-        public int Id { get; set; }
+	// -------------------------
+	// 18. IssuedBook
+	// -------------------------
+	public class IssuedBook
+	{
+		[Key]
+		public int Id { get; set; }
 
-        [ForeignKey(nameof(Book))]
-        public int BookId { get; set; }
+		[ForeignKey(nameof(Book))]
+		[Required(ErrorMessage = "Please select a book")]
+		public int BookId { get; set; }
 
-        [Required]
-        [ForeignKey(nameof(AppUser))]
-        public string IssuedTo { get; set; } = default!;
-     
-        public DateTimeOffset IssueDate { get; set; }
-        public DateTimeOffset? ReturnDate { get; set; }
+		[ForeignKey(nameof(AppUser))]
+		[Required(ErrorMessage = "Please select a user")]
+		public string? IssuedTo { get; set; }
 
-        public decimal Fine { get; set; }
 
-        public Book Book { get; set; } = default!;
-        public AppUser AppUser { get; set; } = default!;
-    }
+		public string UserFullName { get; set; } = default!;
+		public string UserType { get; set; } = default!;
+		public string? Class { get; set; }
+		public string? Section { get; set; }
+		public int? RollNumber { get; set; }
 
-    // -------------------------
-    // 19. Notice
-    // -------------------------
-    public class Notice
+		public DateTimeOffset IssueDate { get; set; }
+		public DateTimeOffset? ReturnDate { get; set; }
+
+		public decimal Fine { get; set; }
+
+		public Book Book { get; set; } = default!;
+		public AppUser AppUser { get; set; } = default!;
+	}
+
+	// -------------------------
+	// 19. Notice
+	// -------------------------
+	public class Notice
     {
         [Key]
         public int NoticeId { get; set; }

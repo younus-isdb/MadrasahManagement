@@ -6,7 +6,7 @@ using MadrasahManagement.Models;
 using MadrasahManagement.Services;
 using System.Threading.Tasks;
 
-namespace MadrasahManagement.Controllers
+namespace SchoolManagementSystem.Controllers
 {
     public class BookController : Controller
     {
@@ -49,33 +49,41 @@ namespace MadrasahManagement.Controllers
             return View();
         }
 
-        // POST: BookController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(Book book)
-        {
-            try
-            {
-                if (ModelState.IsValid)
+		// POST: BookController/Create
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<ActionResult> Create(Book book)
+		{
+			if (!ModelState.IsValid)
+				return View(book);
+
+			try
+			{
+				book.AvailableCopies = book.TotalCopies;
+                if (book.ImageFile != null && book.ImageFile.Length > 0)
                 {
-                    book.AvailableCopies = book.TotalCopies;
-                    _db.Books.Add(book);
-                    await _db.SaveChangesAsync();
-
-                    return RedirectToAction(nameof(Index));
+                    book.ImageUrl = await _uploadService.FileSave(book.ImageFile);
                 }
-                return View(book);
-            }
 
-            catch
-            {
-                ModelState.AddModelError("", "Unable to save changes. Please try again.");
-                return View();
-            }
-        }
+                _db.Books.Add(book);
+                await _db.SaveChangesAsync();
 
-        // GET: BookController/Edit/5
-        public async Task<ActionResult> Edit(int id)
+                return RedirectToAction(nameof(Index));
+            }
+			catch (DbUpdateException ex)
+			{
+				ModelState.AddModelError("", "A book with the same title already exists in this category.");
+				return View(book);
+			}
+			catch (Exception ex)
+			{
+				ModelState.AddModelError("", "An error occurred while saving the book. Please try again.");
+				return View(book);
+			}
+		}
+
+		// GET: BookController/Edit/5
+		public async Task<ActionResult> Edit(int id)
         {
             if (id <= 0)
             {
@@ -86,6 +94,7 @@ namespace MadrasahManagement.Controllers
             {
                 return NotFound();
             }
+
             return View(books);
         }
 
@@ -97,62 +106,84 @@ namespace MadrasahManagement.Controllers
             if (id != book.BookId)
             {
                 return NotFound();
-
             }
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    var exixtingbook = await _db.Books.FindAsync(id);
-                    if (exixtingbook == null)
-                    {
-                        return NotFound();
-                    }
-
-                    var currentlyIssued = await _db.IssuedBooks.CountAsync(a => a.BookId == id && a.ReturnDate == null);
-
-                    if (book.TotalCopies < currentlyIssued)
-                    {
-                        ModelState.AddModelError("TotalCopies",
-                $"Cannot reduce total copies to {book.TotalCopies}. There are {currentlyIssued} copies currently issued.");
-                        return View(book);
-                    }
-
-                    var diff = book.TotalCopies - exixtingbook.TotalCopies;
-
-                    exixtingbook.Title = book.Title;
-                    exixtingbook.Author = book.Author;
-                    exixtingbook.ISBN = book.ISBN;
-                    exixtingbook.Category = book.Category;
-                    exixtingbook.TotalCopies = book.TotalCopies;
-                    exixtingbook.AvailableCopies = Math.Max(0, exixtingbook.AvailableCopies + diff);
-
-                    _db.Update(exixtingbook);
-                    await _db.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!Bookexixts(id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                return View(book);
             }
 
-            return View(book);
+            try
+            {
+                var existingBook = await _db.Books.FindAsync(id);
+                if (existingBook == null)
+                {
+                    return NotFound();
+                }
 
+                // Check if reducing total copies below currently issued books
+                var currentlyIssued = await _db.IssuedBooks.CountAsync(a => a.BookId == id && a.ReturnDate == null);
 
+                if (book.TotalCopies < currentlyIssued)
+                {
+                    ModelState.AddModelError("TotalCopies",
+                        $"Cannot reduce total copies to {book.TotalCopies}. There are {currentlyIssued} copies currently issued.");
+                    return View(book);
+                }
+
+                // Calculate available copies difference
+                var diff = book.TotalCopies - existingBook.TotalCopies;
+
+                // Update book properties
+                existingBook.Title = book.Title;
+                existingBook.Author = book.Author;
+                existingBook.ISBN = book.ISBN;
+                existingBook.Category = book.Category;
+                existingBook.TotalCopies = book.TotalCopies;
+                existingBook.AvailableCopies = Math.Max(0, existingBook.AvailableCopies + diff);
+                // Handle image update if new file is provided
+                if (book.ImageFile != null && book.ImageFile.Length > 0)
+                {
+                    // Delete old image if exists
+                    if (!string.IsNullOrEmpty(existingBook.ImageUrl))
+                    {
+                        await _uploadService.FileDelete(existingBook.ImageUrl);
+                    }
+                    // Save new image
+                    existingBook.ImageUrl = await _uploadService.FileSave(book.ImageFile);
+                }
+                _db.Books.Update(existingBook);
+                await _db.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!Exists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError("", "A book with the same title already exists in this category.");
+                return View(book);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while updating the book. Please try again.");
+                return View(book);
+            }
         }
-        private bool Bookexixts(int id)
+
+        private bool Exists(int id)
         {
             return _db.Books.Any(b => b.BookId == id);
         }
-
 
         // GET: BookController/Delete/5
         public async Task<ActionResult> Delete(int id)
