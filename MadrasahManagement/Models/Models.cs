@@ -570,21 +570,28 @@ namespace MadrasahManagement.Models
         [Key]
         public int Id { get; set; }
 
+        [Required]
         [ForeignKey(nameof(Student))]
         public int StudentId { get; set; }
 
+        [Required]
         [ForeignKey(nameof(FeeType))]
         public int FeeTypeId { get; set; }
 
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal AmountPaid { get; set; }
 
-        public DateTimeOffset DatePaid { get; set; }
+        [Required]
+        public DateTime DatePaid { get; set; } = DateTime.Now;
 
         [MaxLength(50)]
-        public string? PaymentMethod { get; set; }
+        public string? PaymentMethod { get; set; }   // Cash / bKash / Bank / etc.
 
-        public PaymentStatus Status { get; set; }
+        [Required]
+        public PaymentStatus Status { get; set; } = PaymentStatus.Paid;
 
+        // Navigation Properties
         public Student Student { get; set; } = default!;
         public FeeType FeeType { get; set; } = default!;
     }

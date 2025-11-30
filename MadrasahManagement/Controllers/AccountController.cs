@@ -28,8 +28,9 @@ namespace MadrasahManagement.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            return View(new RegisterModel());
         }
+
 
         // =======================
         // REGISTER (POST)
@@ -79,7 +80,7 @@ namespace MadrasahManagement.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            return View(new LoginModel());
         }
 
         // =======================
@@ -136,5 +137,6 @@ namespace MadrasahManagement.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
         }
+
     }
 }

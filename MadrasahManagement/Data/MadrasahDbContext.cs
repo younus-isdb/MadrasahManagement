@@ -8,6 +8,8 @@ namespace MadrasahManagement.Models
 {
     public class MadrasahDbContext : IdentityDbContext<AppUser, AppRole, string>
     {
+        internal readonly IEnumerable<object> Feecollections;
+
         public MadrasahDbContext(DbContextOptions<MadrasahDbContext> options) : base(options) { }
 
         // -----------------------

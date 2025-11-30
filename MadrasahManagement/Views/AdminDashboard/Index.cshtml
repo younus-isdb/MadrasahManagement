@@ -1,0 +1,189 @@
+﻿@model MadrasahManagement.ViewModels.AdminDashboardVM
+@using MadrasahManagement.Models
+@inject Microsoft.AspNetCore.Identity.RoleManager<AppRole> RoleManager
+@* @{
+    var cards = new (string Title, object Value, string Color)[]
+    {
+        ("Total Students", Model.TotalStudents, "#0d6efd"),
+        ("Total Teachers", Model.TotalTeachers, "#198754"),
+        ("Total Users", Model.TotalUsers, "#6f42c1"),
+        ("Today's Attendance", Model.TodaysAttendance, "#fd7e14"),
+        ("Pending Fees", Model.PendingFees, "#dc3545"),
+        ("Total Expenses", Model.TotalExpenses, "#20c997"),
+        ("Total Fee Collected", Model.TotalFeeCollected, "#0dcaf0"),
+        ("Active Courses", Model.TotalActiveCourses, "#ffc107")
+    };
+} *@
+
+<h2 class="mb-4 text-center">Admin Dashboard</h2>
+
+@* <!-- ==================== Summary Cards ==================== -->
+
+<div class="row g-3 mb-4">
+    @foreach (var card in Model.Cards)
+    {
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0" style="border-left: 6px solid @card.Color;">
+                <div class="card-body">
+                    <h6>@card.Title</h6>
+                    <h3>@card.Value</h3>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<hr /> *@
+
+<!-- ==================== Quick Actions ==================== -->
+<div class="mb-4">
+    <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#createUserModal">➕ Create User</button>
+    <button class="btn btn-success me-2" onclick="window.location.href='/Student/Create'">➕ Add Student</button>
+    <button class="btn btn-success me-2" onclick="window.location.href='/Teacher/Create'">➕ Add Teacher</button>
+    <button class="btn btn-warning me-2" onclick="window.location.href='/Fee/Collect'">💰 Collect Fee</button>
+    <button class="btn btn-info me-2" onclick="window.location.href='/Expense/Create'">📝 Add Expense</button>
+    <button class="btn btn-dark me-2" onclick="window.location.href='/Attendance/Mark'">📋 Mark Attendance</button>
+</div>
+
+<!-- ==================== Users Management ==================== -->
+<h4>Users Management</h4>
+<div id="usersTableDiv">
+    <partial name="_UsersTablePartial" model="Model.Users" />
+</div>
+
+<!-- ==================== Attendance Overview ==================== -->
+<h4 class="mt-5">Today's Attendance</h4>
+<div id="attendanceTableDiv">
+    <partial name="_AttendanceTablePartial" model="Model.TodaysAttendanceList" />
+</div>
+
+<!-- ==================== Fee Collection ==================== -->
+<h4 class="mt-5">Today's Payments</h4>
+<div id="feeTableDiv">
+    <partial name="_FeeTablePartial" model="Model.TodayPayments" />
+</div>
+
+<hr />
+
+<!-- ==================== Expenses ==================== -->
+<h4>Expenses Overview</h4>
+<div id="expenseTableDiv">
+    <partial name="_ExpenseTablePartial" model="Model.TodayExpenses" />
+</div>
+
+<hr />
+
+<!-- ==================== Charts ==================== -->
+<div class="row">
+    <div class="col-md-6">
+        <h5>Monthly Fee Collection</h5>
+        <canvas id="feeChart" height="120"></canvas>
+    </div>
+    <div class="col-md-6">
+        <h5>Monthly Expenses</h5>
+        <canvas id="expenseChart" height="120"></canvas>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h5>Attendance Pie (Today)</h5>
+        <canvas id="attendancePie" height="120"></canvas>
+    </div>
+    <div class="col-md-6">
+        <h5>Payment Status Donut</h5>
+        <canvas id="paymentDonut" height="120"></canvas>
+    </div>
+</div>
+
+<!-- ==================== Create User Modal ==================== -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createUserForm">
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="UserName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Password</label>
+                        <input type="password" name="Password" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Confirm Password</label>
+                        <input type="password" name="ConfirmPassword" class="form-control" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== Scripts ==================== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // --------------- Chart Data ----------------
+    var feeMonths = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartMonths));
+    var feeTotals = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FeeCollectionTotals));
+    var expenseTotals = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ExpenseTotals));
+    var attendanceData = [@Model.AttendancePresent, @Model.AttendanceAbsent];
+
+    new Chart(document.getElementById("feeChart"), {
+        type: 'line',
+        data: { labels: feeMonths, datasets: [{ label: 'Fee Collected', data: feeTotals, borderColor: 'rgb(75, 192, 192)', fill: false }] }
+    });
+
+    new Chart(document.getElementById("expenseChart"), {
+        type: 'bar',
+        data: { labels: feeMonths, datasets: [{ label: 'Expenses', data: expenseTotals, backgroundColor: 'rgb(255,99,132)' }] }
+    });
+
+    new Chart(document.getElementById("attendancePie"), {
+        type: 'pie',
+        data: { labels: ['Present','Absent'], datasets: [{ data: attendanceData, backgroundColor: ['#198754','#dc3545'] }] }
+    });
+
+    new Chart(document.getElementById("paymentDonut"), {
+        type: 'doughnut',
+        data: { labels: ['Collected','Pending'], datasets: [{ data: [@Model.TotalFeeCollected,@Model.PendingFees], backgroundColor: ['#0dcaf0','#dc3545'] }] }
+    });
+
+    // ---------------- AJAX User Management ----------------
+    $(document).on('click', '.assign-role-btn', function(){
+        var userId = $(this).data('user');
+        var role = $('.assign-role-select[data-user="'+userId+'"]').val();
+        $.post('/UserRole/AssignRole',{ userId:userId, role:role }, function(){ loadUsers(); });
+    });
+
+    $(document).on('click', '.remove-role', function(){
+        var userId = $(this).data('user');
+        var role = $(this).data('role');
+        $.post('/UserRole/RemoveRole',{ userId:userId, role:role }, function(){ loadUsers(); });
+    });
+
+    $(document).on('click', '.delete-user-btn', function(){
+        if(!confirm('Are you sure?')) return;
+        var userId = $(this).data('user');
+        $.post('/UserRole/DeleteUser',{ userId:userId }, function(){ loadUsers(); });
+    });
+
+    $('#createUserForm').submit(function(e){
+        e.preventDefault();
+        $.post('/UserRole/CreateUser', $(this).serialize(), function(){
+            $('#createUserModal').modal('hide'); loadUsers();
+        });
+    });
+
+    function loadUsers(){
+        $('#usersTableDiv').load('/AdminDashboard/UsersPartial');
+    }
+</script>

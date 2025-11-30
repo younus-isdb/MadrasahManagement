@@ -16,10 +16,10 @@
 
     public enum AttendanceStatus
     {
-        Present,
-        Absent,
-        Late,
-        Excused
+        Present = 1,
+        Absent = 2,
+        Late = 3,
+        Excused = 4
     }
 
     public enum FeeFrequency
@@ -29,14 +29,23 @@
         Yearly,
         OneTime
     }
+    public enum PaymentMethodType
+    {
+        Cash,
+        Bkash,
+        Nagad,
+        Bank,
+        Online
+    }
 
     public enum PaymentStatus
     {
-        Pending,
-        Completed,
-        Failed,
-        Refunded
+        Pending = 0,
+        Paid = 1,
+        Failed = 2,
+        Refunded = 3
     }
+
     public enum BloodGroup
     {
         A_Positive,

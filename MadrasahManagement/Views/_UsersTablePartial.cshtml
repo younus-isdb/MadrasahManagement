@@ -1,0 +1,66 @@
+﻿@model IEnumerable<MadrasahManagement.ViewModels.UserRoleViewModel>
+@{
+    var allRoles = ViewBag.AllRoles as List<string> ?? new List<string>();
+}
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Assign Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr id="user-@user.UserId">
+                <td>@user.Email</td>
+                <td id="roles-@user.UserId">
+                    @foreach (var r in user.Roles)
+                    {
+                        <span class="badge bg-info me-1">
+                            @r
+                            <button type="button" class="btn btn-sm btn-danger remove-role" data-user="@user.UserId" data-role="@r">x</button>
+                        </span>
+                    }
+                </td>
+                <td>
+                    <select class="form-select role-select" id="select-@user.UserId">
+                        @foreach (var role in allRoles)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </select>
+                    <button type="button" class="btn btn-success btn-sm assign-role" data-user="@user.UserId">Assign</button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm delete-user" data-user="@user.UserId">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    // AJAX scripts to assign/remove role & delete user
+    $(document).ready(function() {
+        $('.assign-role').click(function() {
+            var userId = $(this).data('user');
+            var role = $('#select-' + userId).val();
+            // call AJAX to assign role
+        });
+
+        $('.remove-role').click(function() {
+            var userId = $(this).data('user');
+            var role = $(this).data('role');
+            // call AJAX to remove role
+        });
+
+        $('.delete-user').click(function() {
+            var userId = $(this).data('user');
+            // call AJAX to delete user
+        });
+    });
+</script>

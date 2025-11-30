@@ -1,0 +1,32 @@
+﻿@model IEnumerable<MadrasahManagement.Models.Attendance>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Student Name</th>
+            <th>Class / Section</th>
+            <th>Status</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.Student.StudentName</td>
+                <td>@a.Student.Class?.ClassName</td>
+                <td>
+                    @if (a.Status == AttendanceStatus.Present)
+                    {
+                        <span class="badge bg-success">Present</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Absent</span>
+                    }
+                </td>
+                <td>@a.Date.ToString("yyyy-MM-dd")</td>
+            </tr>
+        }
+    </tbody>
+</table>
