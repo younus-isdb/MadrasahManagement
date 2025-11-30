@@ -1,0 +1,63 @@
+﻿@model MadrasahManagement.Models.IssuedBook
+
+@{
+    ViewData["Title"] = "Edit Issued Book";
+}
+
+<div class="container">
+    <h1>Edit Issued Book</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <div class="form-group">
+                    <label asp-for="BookId" class="control-label">Book</label>
+                    <select asp-for="BookId" class="form-control" asp-items="ViewBag.Books">
+                        <option value="">-- Select Book --</option>
+                    </select>
+                    <span asp-validation-for="BookId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="IssuedTo" class="control-label">Issued To</label>
+                    <select asp-for="IssuedTo" class="form-control" asp-items="ViewBag.Users">
+                        <option value="">-- Select User --</option>
+                    </select>
+                    <span asp-validation-for="IssuedTo" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="IssueDate" class="control-label"></label>
+                    <input asp-for="IssueDate" class="form-control" />
+                    <span asp-validation-for="IssueDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ReturnDate" class="control-label"></label>
+                    <input asp-for="ReturnDate" class="form-control" />
+                    <span asp-validation-for="ReturnDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Fine" class="control-label"></label>
+                    <input asp-for="Fine" class="form-control" />
+                    <span asp-validation-for="Fine" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

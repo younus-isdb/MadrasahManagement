@@ -1,0 +1,58 @@
+﻿@model MadrasahManagement.Models.IssuedBook
+
+@{
+    ViewData["Title"] = "Return Book";
+}
+
+<div class="container">
+    <h1>Return Book</h1>
+
+    <div class="alert alert-info">
+        <h4>Confirm Book Return</h4>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Book Return Details</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Book:</dt>
+                <dd class="col-sm-9">@Model.Book?.Title</dd>
+
+                <dt class="col-sm-3">Issued To:</dt>
+                <dd class="col-sm-9">@Model.AppUser?.UserName</dd>
+
+                <dt class="col-sm-3">Issue Date:</dt>
+                <dd class="col-sm-9">@Model.IssueDate.ToString("MMM dd, yyyy")</dd>
+
+                <dt class="col-sm-3">Days Issued:</dt>
+                <dd class="col-sm-9">@((DateTimeOffset.Now - Model.IssueDate).Days) days</dd>
+
+                <dt class="col-sm-3">Fine Amount:</dt>
+                <dd class="col-sm-9">
+                    <span class="@(Model.Fine > 0 ? "text-danger" : "text-success")">
+                        @Model.Fine.ToString("C")
+                    </span>
+                </dd>
+            </dl>
+
+            @if (Model.Fine > 0)
+            {
+                <div class="alert alert-warning">
+                    <strong>Overdue Fine:</strong> This book is overdue and has accumulated a fine of @Model.Fine.ToString("C").
+                </div>
+            }
+
+            <form asp-action="Return" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="form-group">
+                    <input type="submit" value="Confirm Return" class="btn btn-success" />
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

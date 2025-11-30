@@ -1,0 +1,172 @@
+﻿@{
+    ViewData["Title"] = "Issue Books";
+    var bookCount = ViewBag.BookCount ?? 1;
+    var selectedBookIds = ViewBag.SelectedBookIds as List<int> ?? new List<int>();
+}
+
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+<div class="container">
+    <h1>Issue Books</h1>
+    <div class="mb-3">
+        <a asp-action="index" class="btn btn-primary">Issued Book list</a>
+
+    </div>
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+
+        <!-- User Information Section -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">User Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Username</label>
+                            <input type="text" name="UserSearch" value="@ViewBag.UserSearch" class="form-control"
+                                   placeholder="Enter username..." required />
+                            <small class="form-text text-muted">Enter the exact username of the student or teacher</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">User Type</label>
+                            <select name="UserType" class="form-control" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="Student" selected="@(ViewBag.UserType == "Student")">Student</option>
+                                <option value="Teacher" selected="@(ViewBag.UserType == "Teacher")">Teacher</option>
+                                <option value="Admin" selected="@(ViewBag.UserType == "Admin")">Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Specific Fields -->
+                @if (ViewBag.UserType == "Student")
+                {
+                    <div id="studentFields">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label">Class</label>
+                                    <input type="text" name="Class" value="@ViewBag.Class" class="form-control"
+                                           placeholder="Enter class..." />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label">Section</label>
+                                    <input type="text" name="Section" value="@ViewBag.Section" class="form-control"
+                                           placeholder="Enter section..." />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label">Roll Number</label>
+                                    <input type="number" name="RollNumber" value="@ViewBag.RollNumber" class="form-control"
+                                           placeholder="Enter roll number..." />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Search User Button -->
+                <div class="form-group">
+                    <button type="submit" name="operation" value="searchuser" class="btn btn-info">
+                        Verify User
+                    </button>
+                    <small class="form-text text-muted">
+                        Click "Verify User" to check if the username exists before issuing books
+                    </small>
+                </div>
+
+                @if (ViewBag.UserVerified != null)
+                {
+                    <div class="alert @(ViewBag.UserVerified == true ? "alert-success" : "alert-danger")">
+                        @if (ViewBag.UserVerified == true)
+                        {
+                            <strong>User Verified:</strong>
+                            // @ViewBag.UserSearch
+                            // -Ready to issue books
+                        }
+                        else
+                        {
+                            <strong>User Not Found:</strong>
+                            // Please check the username and try again
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Books Selection Section -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Books to Issue</h5>
+                <button type="submit" name="operation" value="add" class="btn btn-success btn-sm">
+                    Add Another Book
+                </button>
+            </div>
+            <div class="card-body">
+                @for (int i = 0; i < bookCount; i++)
+                {
+                    <div class="form-group row book-selection mb-3">
+                        <div class="col-md-8">
+                            <select name="BookIds[@i]" class="form-control" required>
+                                <option value="">-- Select Book --</option>
+                                @if (ViewBag.Books != null)
+                                {
+                                    foreach (var book in ViewBag.Books)
+                                    {
+                                        var isSelected = selectedBookIds.Count > i && selectedBookIds[i] == book.BookId;
+                                        <option value="@book.BookId" selected="@isSelected">
+                                            @book.Title - @book.Author (Available: @book.AvailableCopies)
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            @if (i > 0)
+                            {
+                                <button type="submit" name="operation" value="delete-@i" class="btn btn-danger btn-sm">
+                                    Remove
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <input type="hidden" name="bookCount" value="@bookCount" />
+
+        <div class="form-group mt-3">
+            <button type="submit" name="operation" value="submit" class="btn btn-primary">
+                Issue Books
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .book-selection {
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+        margin-bottom: 10px;
+    }
+</style>

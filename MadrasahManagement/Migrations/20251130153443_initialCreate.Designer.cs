@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    [Migration("20251130122824_m1")]
-    partial class m1
+    [Migration("20251130153443_initialCreate")]
+    partial class initialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,7 +53,7 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ActivityLogs", (string)null);
+                    b.ToTable("ActivityLogs");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.AppRole", b =>
@@ -316,8 +316,7 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.HasIndex("Date", "StudentId")
-                        .HasDatabaseName("IX_Attendance_Date_Student");
+                    b.HasIndex("Date", "StudentId");
 
                     b.ToTable("Attendances", (string)null);
                 });
@@ -345,6 +344,9 @@ namespace MadrasahManagement.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -354,6 +356,16 @@ namespace MadrasahManagement.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("BookId");
+
+                    b.HasIndex("Title")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Books_Title_NoCategory")
+                        .HasFilter("[Category] is null");
+
+                    b.HasIndex("Title", "Category")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Books_Title_Category")
+                        .HasFilter("[Category] is not null");
 
                     b.ToTable("Books", (string)null);
                 });
@@ -396,7 +408,7 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("TeacherId")
                         .HasColumnType("int");
 
-                    b.HasKey("ClassId", "SubjectId", "TeacherId");
+                    b.HasKey("ClassId", "SubjectId");
 
                     b.HasIndex("SubjectId");
 
@@ -442,10 +454,10 @@ namespace MadrasahManagement.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
-                    b.Property<DateTimeOffset?>("EndDateTime")
+                    b.Property<DateTimeOffset>("EndDateTime")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsAllDay")
@@ -714,6 +726,9 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("BookId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Class")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("Fine")
                         .HasColumnType("decimal(18,2)");
 
@@ -726,6 +741,20 @@ namespace MadrasahManagement.Migrations
 
                     b.Property<DateTimeOffset?>("ReturnDate")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("RollNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Section")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserFullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -759,7 +788,7 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("LoginLogs", (string)null);
+                    b.ToTable("LoginLogs");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Message", b =>
@@ -794,8 +823,7 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("ReceiverId");
 
-                    b.HasIndex("SenderId", "ReceiverId", "Timestamp")
-                        .HasDatabaseName("IX_Message_SenderReceiverTime");
+                    b.HasIndex("SenderId");
 
                     b.ToTable("Messages", (string)null);
                 });
@@ -898,7 +926,7 @@ namespace MadrasahManagement.Migrations
                     b.Property<DateTimeOffset>("AdmissionDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("AdmissionNumber")
                         .HasMaxLength(50)
@@ -923,6 +951,9 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ClassId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Country")
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
@@ -930,7 +961,7 @@ namespace MadrasahManagement.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<DateTimeOffset>("DOB")
                         .HasColumnType("datetimeoffset");
@@ -1019,15 +1050,17 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("SectionId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("SectionId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("StudentName")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<string>("TranslatedNamesJson")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)")
-                        .HasColumnName("TranslatedNamesJson");
+                    b.Property<string>("TranslatedNames")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("datetimeoffset");
@@ -1040,6 +1073,8 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("ClassId");
 
+                    b.HasIndex("ClassId1");
+
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("RollNo")
@@ -1047,12 +1082,14 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("SectionId");
 
+                    b.HasIndex("SectionId1");
+
                     b.HasIndex("StudentName")
                         .HasDatabaseName("IX_StudentName");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Subject", b =>
@@ -1235,7 +1272,7 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Timetables", (string)null);
+                    b.ToTable("Timetables");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.TransportAssignment", b =>
@@ -1617,13 +1654,13 @@ namespace MadrasahManagement.Migrations
                     b.HasOne("MadrasahManagement.Models.AppUser", "Receiver")
                         .WithMany("ReceiveMessages")
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.AppUser", "Sender")
                         .WithMany("SendMessages")
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Receiver");
@@ -1666,22 +1703,30 @@ namespace MadrasahManagement.Migrations
             modelBuilder.Entity("MadrasahManagement.Models.Student", b =>
                 {
                     b.HasOne("MadrasahManagement.Models.Class", "Class")
-                        .WithMany("Students")
+                        .WithMany()
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.Class", null)
+                        .WithMany("Students")
+                        .HasForeignKey("ClassId1");
+
                     b.HasOne("MadrasahManagement.Models.Department", "Department")
                         .WithMany("Students")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Section", "Section")
-                        .WithMany("Students")
+                        .WithMany()
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Section", null)
+                        .WithMany("Students")
+                        .HasForeignKey("SectionId1");
 
                     b.HasOne("MadrasahManagement.Models.AppUser", "AppUser")
                         .WithMany()
@@ -1747,7 +1792,7 @@ namespace MadrasahManagement.Migrations
                     b.HasOne("MadrasahManagement.Models.AppUser", "AppUser")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AppUser");

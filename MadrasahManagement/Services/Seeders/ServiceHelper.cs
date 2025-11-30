@@ -1,4 +1,6 @@
-﻿namespace MadrasahManagement.Services
+﻿using MadrasahManagement.Services;
+
+namespace MadrasahManagement.Services
 {
 	public static class ServiceHelper
 	{

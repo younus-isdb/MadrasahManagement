@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MadrasahManagement.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -95,7 +95,8 @@ namespace MadrasahManagement.Migrations
                     ISBN = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Category = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     TotalCopies = table.Column<int>(type: "int", nullable: false),
-                    AvailableCopies = table.Column<int>(type: "int", nullable: false)
+                    AvailableCopies = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -123,9 +124,9 @@ namespace MadrasahManagement.Migrations
                     EventId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
                     StartDateTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EndDateTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    EndDateTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     IsAllDay = table.Column<bool>(type: "bit", nullable: false),
                     Location = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
                     Audience = table.Column<int>(type: "int", nullable: false),
@@ -376,14 +377,12 @@ namespace MadrasahManagement.Migrations
                         name: "FK_Messages_AspNetUsers_ReceiverId",
                         column: x => x.ReceiverId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Messages_AspNetUsers_SenderId",
                         column: x => x.SenderId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -394,6 +393,11 @@ namespace MadrasahManagement.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BookId = table.Column<int>(type: "int", nullable: false),
                     IssuedTo = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserFullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Class = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Section = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RollNumber = table.Column<int>(type: "int", nullable: true),
                     IssueDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     ReturnDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Fine = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
@@ -456,7 +460,7 @@ namespace MadrasahManagement.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Teachers_Departments_DepartmentId",
                         column: x => x.DepartmentId,
@@ -619,7 +623,7 @@ namespace MadrasahManagement.Migrations
                     RollNo = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
                     AdmissionNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     NationalId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    AdmissionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    AdmissionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "GETDATE()"),
                     Gender = table.Column<int>(type: "int", nullable: true),
                     DOB = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     BloodGroup = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: true),
@@ -643,9 +647,11 @@ namespace MadrasahManagement.Migrations
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     LeavingDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     LeavingReason = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    TranslatedNames = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "GETDATE()"),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    TranslatedNamesJson = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true)
+                    ClassId1 = table.Column<int>(type: "int", nullable: true),
+                    SectionId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -663,17 +669,27 @@ namespace MadrasahManagement.Migrations
                         principalColumn: "ClassId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_Students_Classes_ClassId1",
+                        column: x => x.ClassId1,
+                        principalTable: "Classes",
+                        principalColumn: "ClassId");
+                    table.ForeignKey(
                         name: "FK_Students_Departments_DepartmentId",
                         column: x => x.DepartmentId,
                         principalTable: "Departments",
                         principalColumn: "DepartmentId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Students_Sections_SectionId",
                         column: x => x.SectionId,
                         principalTable: "Sections",
                         principalColumn: "SectionId",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Students_Sections_SectionId1",
+                        column: x => x.SectionId1,
+                        principalTable: "Sections",
+                        principalColumn: "SectionId");
                 });
 
             migrationBuilder.CreateTable(
@@ -722,7 +738,7 @@ namespace MadrasahManagement.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClassSubjects", x => new { x.ClassId, x.SubjectId, x.TeacherId });
+                    table.PrimaryKey("PK_ClassSubjects", x => new { x.ClassId, x.SubjectId });
                     table.ForeignKey(
                         name: "FK_ClassSubjects_Classes_ClassId",
                         column: x => x.ClassId,
@@ -859,7 +875,7 @@ namespace MadrasahManagement.Migrations
                     StudentId = table.Column<int>(type: "int", nullable: false),
                     FeeTypeId = table.Column<int>(type: "int", nullable: false),
                     AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DatePaid = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DatePaid = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
@@ -1025,7 +1041,7 @@ namespace MadrasahManagement.Migrations
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Attendance_Date_Student",
+                name: "IX_Attendances_Date_StudentId",
                 table: "Attendances",
                 columns: new[] { "Date", "StudentId" });
 
@@ -1038,6 +1054,20 @@ namespace MadrasahManagement.Migrations
                 name: "IX_Attendances_TeacherId",
                 table: "Attendances",
                 column: "TeacherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Books_Title_Category",
+                table: "Books",
+                columns: new[] { "Title", "Category" },
+                unique: true,
+                filter: "[Category] is not null");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Books_Title_NoCategory",
+                table: "Books",
+                column: "Title",
+                unique: true,
+                filter: "[Category] is null");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Classes_DepartmentId",
@@ -1115,14 +1145,14 @@ namespace MadrasahManagement.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Message_SenderReceiverTime",
-                table: "Messages",
-                columns: new[] { "SenderId", "ReceiverId", "Timestamp" });
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Messages_ReceiverId",
                 table: "Messages",
                 column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_SenderId",
+                table: "Messages",
+                column: "SenderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notices_VisibleToRoleId",
@@ -1150,6 +1180,11 @@ namespace MadrasahManagement.Migrations
                 column: "ClassId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Students_ClassId1",
+                table: "Students",
+                column: "ClassId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Students_DepartmentId",
                 table: "Students",
                 column: "DepartmentId");
@@ -1164,6 +1199,11 @@ namespace MadrasahManagement.Migrations
                 name: "IX_Students_SectionId",
                 table: "Students",
                 column: "SectionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Students_SectionId1",
+                table: "Students",
+                column: "SectionId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_UserId",

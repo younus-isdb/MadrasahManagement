@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SchoolManagementSystem.Models;
-using SchoolManagementSystem.Services;
+using MadrasahManagement.Models;
+using MadrasahManagement.Services;
 using System.Drawing.Drawing2D;
 
 namespace SchoolManagementSystem.Controllers
 {
     public class IssuedBookController : Controller
     {
-        private readonly SchoolDbContext _db;
+        private readonly MadrasahDbContext _db;
 
 
-        public IssuedBookController(SchoolDbContext db)
+        public IssuedBookController(MadrasahDbContext db)
         {
             _db = db;
 
