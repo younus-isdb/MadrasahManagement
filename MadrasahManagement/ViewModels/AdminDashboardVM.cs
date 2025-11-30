@@ -31,7 +31,8 @@ namespace MadrasahManagement.ViewModels
         public int AttendanceAbsent { get; set; }
 
         // ---------------- Users ----------------
-        public IEnumerable<AppUser>? Users { get; set; }
+        public IEnumerable<UserRoleViewModel> Users { get; set; }
+
         public IEnumerable<AppRole>? Roles { get; set; }
 
         // ---------------- Quick Actions & Notifications ----------------

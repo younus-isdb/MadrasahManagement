@@ -138,5 +138,39 @@ namespace MadrasahManagement.Controllers
             return RedirectToAction("Login");
         }
 
+        //ForgotPassword
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                // ইউজার না থাকলেও success দেখাও (security best practice)
+                return RedirectToAction("ForgotPasswordConfirmation");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetLink = Url.Action("ResetPassword", "Account",
+                new { email = user.Email, token = token }, Request.Scheme);
+
+            // এখানে email service দিয়ে resetLink পাঠাবে
+            Console.WriteLine(resetLink);
+
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+
     }
 }

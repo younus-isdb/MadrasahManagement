@@ -1,10 +1,12 @@
 ﻿using MadrasahManagement.Models;
 using MadrasahManagement.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MadrasahManagement.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminDashboardController : Controller
     {
         private readonly MadrasahDbContext _context;
@@ -94,8 +96,29 @@ namespace MadrasahManagement.Controllers
             model.AttendanceAbsent = attendanceToday.Count(a => a.Status == AttendanceStatus.Absent);
 
             // ---------------- Users & Roles ----------------
-            model.Users = await _context.Users.AsNoTracking().ToListAsync();
-            model.Roles = await _context.Roles.AsNoTracking().ToListAsync();
+            var users = await _context.Users.AsNoTracking().ToListAsync();
+            var userRoleList = new List<UserRoleViewModel>();
+
+            foreach (var user in users)
+            {
+                var roles = await _context.UserRoles
+                    .Where(ur => ur.UserId == user.Id)
+                    .Join(_context.Roles,
+                          ur => ur.RoleId,
+                          r => r.Id,
+                          (ur, r) => r.Name)
+                    .ToListAsync();
+
+                userRoleList.Add(new UserRoleViewModel
+                {
+                    UserId = user.Id,
+                    Email = user.Email,
+                    Roles = roles.ToList()
+                });
+            }
+
+            model.Users = userRoleList;
+
 
             // ---------------- Alerts ----------------
             model.PendingFeeAlerts = model.PendingFeesList
