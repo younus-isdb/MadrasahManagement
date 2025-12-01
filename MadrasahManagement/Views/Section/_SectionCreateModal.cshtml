@@ -1,0 +1,64 @@
+﻿@model MadrasahManagement.Models.Section
+
+<!-- Section Create Modal -->
+<div class="modal fade" id="sectionCreateModal" tabindex="-1" aria-labelledby="sectionCreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sectionCreateModalLabel">Create New Section</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sectionCreateForm" asp-action="Create" method="post">
+                    <div class="mb-3">
+                        <label asp-for="ClassId" class="form-label"></label>
+                        <select asp-for="ClassId" class="form-select" asp-items="@(new SelectList(ViewBag.Classes, "ClassId", "ClassName"))" required>
+                            <option value="">-- Select Class --</option>
+                        </select>
+                        <span asp-validation-for="ClassId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SectionName" class="form-label"></label>
+                        <input asp-for="SectionName" class="form-control" placeholder="Enter Section Name" required />
+                        <span asp-validation-for="SectionName" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            // AJAX form submission
+            $('#sectionCreateForm').submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            // Close modal
+                            $('#sectionCreateModal').modal('hide');
+                            // Optional: refresh the section dropdown in student create form
+                            $('#SectionId').append(new Option(response.sectionName, response.sectionId, true, true));
+                        } else {
+                            // Replace modal body with returned form (with validation errors)
+                            $('#sectionCreateModal .modal-body').html(response);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

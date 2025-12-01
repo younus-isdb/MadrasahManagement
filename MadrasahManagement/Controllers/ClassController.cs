@@ -1,51 +1,28 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MadrasahManagement.Models;
 
 public class ClassController : Controller
 {
-	
 	private readonly MadrasahDbContext _context;
 
 	public ClassController(MadrasahDbContext context)
 	{
 		_context = context;
 	}
-	[HttpPost]
-	public async Task<IActionResult> CreateFromModal(Class model)
-	{
-		if (ModelState.IsValid)
-		{
-			_context.Classes.Add(model);
-			await _context.SaveChangesAsync();
 
-			return Json(new { success = true });
-		}
+	// ===========================
+	//  MAIN CREATE VIEW (Normal)
+	// ===========================
 
-		// validation fail হলে আবার partial return
-		return PartialView("_CreateClassModal", model);
-	}
-
-
-	// GET: Class
-	public async Task<IActionResult> Index()
-	{
-		var data = await _context.Classes
-			.Include(c => c.Department)
-			.ToListAsync();
-
-		return View(data);
-	}
-	//[Authorize]
-	// GET: Create
+	// GET: /Class/Create
 	public IActionResult Create()
 	{
 		ViewBag.DepartmentList = _context.Departments.ToList();
-		return View();
+		return View(new Class());
 	}
 
-	// POST: Create
+	// POST: /Class/Create  (Normal Form Submit)
 	[HttpPost]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Create(Class model)
@@ -57,12 +34,55 @@ public class ClassController : Controller
 			return RedirectToAction(nameof(Index));
 		}
 
-		// Required again when validation fails
 		ViewBag.DepartmentList = _context.Departments.ToList();
 		return View(model);
 	}
 
-	// GET: Edit
+
+	// ===========================
+	//  MODAL CREATE (AJAX)
+	// ===========================
+
+	// GET: /Class/CreateModal
+	[HttpGet]
+	public IActionResult CreateModal()
+	{
+		ViewBag.DepartmentList = _context.Departments.ToList();
+		return PartialView("_CreateClassModal", new Class());
+	}
+
+	// POST: /Class/CreateModalPost (AJAX)
+	[HttpPost]
+	public async Task<IActionResult> CreateModalPost(Class model)
+	{
+		if (ModelState.IsValid)
+		{
+			_context.Classes.Add(model);
+			await _context.SaveChangesAsync();
+
+			return Json(new { success = true });
+		}
+
+		return Json(new { success = false });
+	}
+
+
+	// ===========================
+	//  INDEX
+	// ===========================
+	public async Task<IActionResult> Index()
+	{
+		var data = await _context.Classes
+			.Include(c => c.Department)
+			.ToListAsync();
+
+		return View(data);
+	}
+
+
+	// ===========================
+	//  EDIT
+	// ===========================
 	public async Task<IActionResult> Edit(int id)
 	{
 		var data = await _context.Classes.FindAsync(id);
@@ -72,7 +92,6 @@ public class ClassController : Controller
 		return View(data);
 	}
 
-	// POST: Edit
 	[HttpPost]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Edit(Class model)
@@ -81,6 +100,7 @@ public class ClassController : Controller
 		{
 			_context.Classes.Update(model);
 			await _context.SaveChangesAsync();
+
 			return RedirectToAction(nameof(Index));
 		}
 
@@ -88,7 +108,10 @@ public class ClassController : Controller
 		return View(model);
 	}
 
-	// GET: Details
+
+	// ===========================
+	//  DETAILS
+	// ===========================
 	public async Task<IActionResult> Details(int id)
 	{
 		var data = await _context.Classes
@@ -100,7 +123,10 @@ public class ClassController : Controller
 		return View(data);
 	}
 
-	// GET: Delete
+
+	// ===========================
+	//  DELETE
+	// ===========================
 	public async Task<IActionResult> Delete(int id)
 	{
 		var data = await _context.Classes
@@ -112,12 +138,12 @@ public class ClassController : Controller
 		return View(data);
 	}
 
-	// POST: Delete
 	[HttpPost, ActionName("Delete")]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> DeleteConfirmed(int id)
 	{
 		var data = await _context.Classes.FindAsync(id);
+
 		if (data != null)
 		{
 			_context.Classes.Remove(data);
