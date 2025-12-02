@@ -2,28 +2,107 @@
 
 @{
     ViewData["Title"] = "Create Section";
-
-    Layout = null;
 }
-}
-<form id="modalForm" asp-action="Create" method="post">
-    <div class="mb-3">
-        <label asp-for="ClassId" class="form-label"></label>
-        <select asp-for="ClassId" class="form-select" asp-items="@(new SelectList(ViewBag.Classes, "ClassId", "ClassName"))" required>
-            <option value="">-- Select Class --</option>
-        </select>
-        <span asp-validation-for="ClassId" class="text-danger"></span>
+
+<h2 class="mb-4">Create New Section</h2>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Class Dropdown -->
+                    <div class="mb-3">
+                        <label asp-for="ClassId" class="form-label"></label>
+
+                        <div class="input-group">
+                            <select asp-for="ClassId"
+                                    asp-items="@(new SelectList(ViewBag.ClassList, "ClassId", "ClassName"))"
+                                    class="form-control" required>
+                                <option value="">-- Select Class --</option>
+                            </select>
+
+                            <!-- + Button -->
+                            <button type="button"
+                                    class="btn btn-success"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#classModal">
+                                +
+                            </button>
+                        </div>
+
+                        <span asp-validation-for="ClassId" class="text-danger"></span>
+                    </div>
+
+                    <!-- Section Name -->
+                    <div class="mb-3">
+                        <label asp-for="SectionName" class="form-label"></label>
+                        <input asp-for="SectionName" class="form-control" placeholder="Enter Section Name" />
+                        <span asp-validation-for="SectionName" class="text-danger"></span>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create
+                        </button>
+
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left-circle"></i> Back
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label asp-for="SectionName" class="form-label"></label>
-        <input asp-for="SectionName" class="form-control" placeholder="Enter Section Name" required />
-        <span asp-validation-for="SectionName" class="text-danger"></span>
+
+<!-- 🔥 Bootstrap Modal for Class Create -->
+<div class="modal fade" id="classModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Class</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="classModalBody">
+                <!-- AJAX দিয়ে Class Create form লোড হবে -->
+                Loading...
+            </div>
+
+        </div>
     </div>
+</div>
 
-    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Create</button>
-</form>
 
-@section Scripts {
+@section Scripts 
+{
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // 🚀 Modal ওপেন হলেই AJAX দিয়ে Class Create Form লোড হবে
+        $('#classModal').on('show.bs.modal', function () {
+            $("#classModalBody").load('/Class/CreateModal');
+        });
+
+        // 🚀 Class তৈরি হয়ে গেলে Section Form এর dropdown রিফ্রেশ
+        function RefreshClassList() {
+            $.get('/Class/GetAll', function (data) {
+                let ddl = $('#ClassId');
+                ddl.empty();
+                ddl.append('<option value="">-- Select Class --</option>');
+
+                $.each(data, function (i, cls) {
+                    ddl.append(`<option value="${cls.classId}">${cls.className}</option>`);
+                });
+            });
+        }
+    </script>
 }
