@@ -381,7 +381,11 @@
 			$("#sectionModalBody").load('/Section/CreateModal');
 		});
 
-
+		function OpenSectionCreateModal() {
+			$("#sectionFormBody").load("/Section/CreateForm", function () {
+				$("#sectionModal").modal("show");
+			});
+		}
 
 
 		// 🚀 Department তৈরি হওয়ার পর select list রিফ্রেশ

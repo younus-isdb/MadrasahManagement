@@ -1,0 +1,48 @@
+﻿@model MadrasahManagement.Models.Section
+@{
+    Layout = null;
+}
+
+<div class="container">
+
+    <div class="mb-3">
+        <label class="form-label">Class</label>
+        <select asp-for="ClassId" class="form-select">
+            <option value="">-- Select Class --</option>
+            @foreach (var cls in ViewBag.ClassList)
+            {
+                <option value="@cls.ClassId">@cls.ClassName</option>
+            }
+        </select>
+        <span asp-validation-for="ClassId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Section Name</label>
+        <input asp-for="SectionName" class="form-control" placeholder="Enter Section Name" />
+        <span asp-validation-for="SectionName" class="text-danger"></span>
+    </div>
+
+    <button id="btnSaveSection" class="btn btn-primary w-100">
+        <i class="fas fa-save"></i> Save Section
+    </button>
+
+</div>
+
+<script>
+    $("#btnSaveSection").click(function () {
+        $.ajax({
+            url: "/Section/Create",
+            type: "POST",
+            data: $('form').serialize(),
+            success: function (res) {
+                if (res.success) {
+                    $("#SectionModal").modal("hide");
+                    location.reload();
+                } else {
+                    $("#ModalBody").html(res);
+                }
+            }
+        });
+    });
+</script>

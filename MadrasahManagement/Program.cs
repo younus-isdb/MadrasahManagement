@@ -23,6 +23,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddFileUploader();
 
+
+
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

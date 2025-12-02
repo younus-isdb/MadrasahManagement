@@ -4,7 +4,7 @@ using MadrasahManagement.Models;
 using MadrasahManagement.Services;
 using System.Drawing.Drawing2D;
 
-namespace SchoolManagementSystem.Controllers
+namespace MadrasahManagement.Controllers
 {
     public class IssuedBookController : Controller
     {

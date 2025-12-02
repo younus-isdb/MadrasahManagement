@@ -1,12 +1,9 @@
-﻿using AspNetCoreGeneratedDocument;
-using Microsoft.AspNetCore.Http;
+﻿using MadrasahManagement.Models;
+using MadrasahManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MadrasahManagement.Models;
-using MadrasahManagement.Services;
-using System.Threading.Tasks;
 
-namespace SchoolManagementSystem.Controllers
+namespace MadrasahManagement.Controllers
 {
     public class BookController : Controller
     {
@@ -49,17 +46,17 @@ namespace SchoolManagementSystem.Controllers
             return View();
         }
 
-		// POST: BookController/Create
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<ActionResult> Create(Book book)
-		{
-			if (!ModelState.IsValid)
-				return View(book);
+        // POST: BookController/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Create(Book book)
+        {
+            if (!ModelState.IsValid)
+                return View(book);
 
-			try
-			{
-				book.AvailableCopies = book.TotalCopies;
+            try
+            {
+                book.AvailableCopies = book.TotalCopies;
                 if (book.ImageFile != null && book.ImageFile.Length > 0)
                 {
                     book.ImageUrl = await _uploadService.FileSave(book.ImageFile);
@@ -70,20 +67,20 @@ namespace SchoolManagementSystem.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-			catch (DbUpdateException ex)
-			{
-				ModelState.AddModelError("", "A book with the same title already exists in this category.");
-				return View(book);
-			}
-			catch (Exception ex)
-			{
-				ModelState.AddModelError("", "An error occurred while saving the book. Please try again.");
-				return View(book);
-			}
-		}
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError("", "A book with the same title already exists in this category.");
+                return View(book);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while saving the book. Please try again.");
+                return View(book);
+            }
+        }
 
-		// GET: BookController/Edit/5
-		public async Task<ActionResult> Edit(int id)
+        // GET: BookController/Edit/5
+        public async Task<ActionResult> Edit(int id)
         {
             if (id <= 0)
             {
@@ -98,19 +95,13 @@ namespace SchoolManagementSystem.Controllers
             return View(books);
         }
 
-        // POST: BookController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, Book book)
+        public async Task<ActionResult> Edit(int id, Book book, int newCopiesToAdd = 0)
         {
             if (id != book.BookId)
             {
                 return NotFound();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View(book);
             }
 
             try
@@ -121,26 +112,32 @@ namespace SchoolManagementSystem.Controllers
                     return NotFound();
                 }
 
+                // Calculate new total after adding copies
+                var newTotalCopies = existingBook.TotalCopies + newCopiesToAdd;
+
                 // Check if reducing total copies below currently issued books
                 var currentlyIssued = await _db.IssuedBooks.CountAsync(a => a.BookId == id && a.ReturnDate == null);
 
-                if (book.TotalCopies < currentlyIssued)
+                if (newTotalCopies < currentlyIssued)
                 {
-                    ModelState.AddModelError("TotalCopies",
-                        $"Cannot reduce total copies to {book.TotalCopies}. There are {currentlyIssued} copies currently issued.");
-                    return View(book);
+                    ModelState.AddModelError("",
+                        $"Cannot reduce total copies. There are {currentlyIssued} copies currently issued.");
+
+                    // Return to view with current book data
+                    return View(existingBook);
                 }
 
                 // Calculate available copies difference
-                var diff = book.TotalCopies - existingBook.TotalCopies;
+                var diff = newCopiesToAdd;
 
                 // Update book properties
                 existingBook.Title = book.Title;
                 existingBook.Author = book.Author;
                 existingBook.ISBN = book.ISBN;
                 existingBook.Category = book.Category;
-                existingBook.TotalCopies = book.TotalCopies;
+                existingBook.TotalCopies = newTotalCopies;
                 existingBook.AvailableCopies = Math.Max(0, existingBook.AvailableCopies + diff);
+
                 // Handle image update if new file is provided
                 if (book.ImageFile != null && book.ImageFile.Length > 0)
                 {
@@ -152,6 +149,16 @@ namespace SchoolManagementSystem.Controllers
                     // Save new image
                     existingBook.ImageUrl = await _uploadService.FileSave(book.ImageFile);
                 }
+
+                //// Validate the model state for required fields
+                //if (string.IsNullOrEmpty(existingBook.Title) ||
+                //    string.IsNullOrEmpty(existingBook.Author) ||
+                //    string.IsNullOrEmpty(existingBook.ISBN))
+                //{
+                //    ModelState.AddModelError("", "Title, Author, and ISBN are required fields.");
+                //    return View(existingBook);
+                //}
+
                 _db.Books.Update(existingBook);
                 await _db.SaveChangesAsync();
 
@@ -170,7 +177,7 @@ namespace SchoolManagementSystem.Controllers
             }
             catch (DbUpdateException ex)
             {
-                ModelState.AddModelError("", "A book with the same title already exists in this category.");
+                ModelState.AddModelError("", "A book with the same title already exists .");
                 return View(book);
             }
             catch (Exception ex)
@@ -184,6 +191,8 @@ namespace SchoolManagementSystem.Controllers
         {
             return _db.Books.Any(b => b.BookId == id);
         }
+
+
 
         // GET: BookController/Delete/5
         public async Task<ActionResult> Delete(int id)
@@ -239,9 +248,6 @@ namespace SchoolManagementSystem.Controllers
             }
         }
 
-        private bool BookExists(int id)
-        {
-            return  _db.Books.Any(a => a.BookId == id);
-        }
+
     }
 }

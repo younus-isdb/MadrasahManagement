@@ -3,16 +3,19 @@
     ViewData["Title"] = "Sections";
 }
 
-<h2 class="mb-4">Sections List</h2>
+<h2 class="mb-4 fw-bold text-center text-primary">Sections List</h2>
 
-<div class="mb-3">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sectionModal" onclick="openCreateModal()">
-        <i class="bi bi-plus-circle"></i> Create New Section
+<div class="mb-3 text-end">
+    <button type="button" class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#sectionModal"
+            onclick="openCreateModal()">
+        <i class="bi bi-plus-circle"></i> Add New Section
     </button>
 </div>
 
 <div id="sectionTable" class="table-responsive">
-    <table class="table table-bordered table-striped align-middle">
+    <table class="table table-bordered table-hover align-middle shadow-sm">
         <thead class="table-dark">
             <tr>
                 <th>#</th>
@@ -20,7 +23,7 @@
                 <th>Section Name</th>
                 <th>Students</th>
                 <th>Timetables</th>
-                <th>Actions</th>
+                <th class="text-center">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -32,9 +35,20 @@
                     <td>@item.SectionName</td>
                     <td>@item.Students.Count</td>
                     <td>@item.Timetables.Count</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" onclick="openEditModal(@item.SectionId)"><i class="bi bi-pencil-square"></i></button>
-                        <a asp-action="Delete" asp-route-id="@item.SectionId" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></a>
+                    <td class="text-center">
+                        <button class="btn btn-warning btn-sm"
+                                onclick="openEditModal(@item.SectionId)"
+                                data-bs-toggle="modal"
+                                data-bs-target="#sectionModal">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <a asp-action="Delete"
+                           asp-route-id="@item.SectionId"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure you want to delete this section?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
                     </td>
                 </tr>
             }
@@ -42,55 +56,67 @@
     </table>
 </div>
 
-<!-- Modal -->
+
+<!-- ======================= Modal ======================= -->
 <div class="modal fade" id="sectionModal" tabindex="-1" aria-labelledby="sectionModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="sectionModalLabel">Create Section</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title fw-bold" id="sectionModalLabel">Loading...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div id="modalBodyContent">
-                    <!-- AJAX-loaded form will be injected here -->
+
+            <div class="modal-body" id="modalBodyContent">
+                <!-- Content loaded via AJAX -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+
 @section Scripts {
     <script>
+
+        // ============= CREATE MODAL LOAD =============
         function openCreateModal() {
             $('#sectionModalLabel').text('Create Section');
+
             $.get('@Url.Action("Create")', function (data) {
                 $('#modalBodyContent').html(data);
             });
         }
 
+        // ============= EDIT MODAL LOAD =============
         function openEditModal(id) {
             $('#sectionModalLabel').text('Edit Section');
+
             $.get('@Url.Action("Edit")/' + id, function (data) {
                 $('#modalBodyContent').html(data);
             });
         }
 
-        // AJAX submit for modal forms
+        // ============= FORM SUBMIT (AJAX) =============
         $(document).on('submit', '#modalForm', function (e) {
             e.preventDefault();
+
             var form = $(this);
+
             $.ajax({
                 type: form.attr('method'),
                 url: form.attr('action'),
                 data: form.serialize(),
+
                 success: function (response) {
-                    // Reload table or replace row
-                    location.reload(); // simple approach; can be optimized to update table row via AJAX
+                    location.reload();
                 },
                 error: function () {
                     alert('Error occurred. Please try again.');
                 }
             });
         });
+
     </script>
 }

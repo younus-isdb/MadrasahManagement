@@ -1,5 +1,11 @@
 ﻿@model MadrasahManagement.Models.Section
 
+@{
+    ViewData["Title"] = "Create Section";
+
+    Layout = null;
+}
+}
 <form id="modalForm" asp-action="Create" method="post">
     <div class="mb-3">
         <label asp-for="ClassId" class="form-label"></label>
