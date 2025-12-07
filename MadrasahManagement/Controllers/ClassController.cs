@@ -10,6 +10,15 @@ public class ClassController : Controller
 	{
 		_context = context;
 	}
+	[HttpGet]
+	public IActionResult GetAll()
+	{
+		var data = _context.Classes
+			.Select(c => new { c.ClassId, c.ClassName })
+			.ToList();
+
+		return Json(data);
+	}
 
 	// ===========================
 	//  MAIN CREATE VIEW (Normal)

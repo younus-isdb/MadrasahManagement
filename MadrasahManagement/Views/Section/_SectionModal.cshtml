@@ -1,0 +1,55 @@
+﻿@model Section
+
+<div class="modal-header">
+    <h5 class="modal-title">Create Section</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+    <form id="sectionCreateForm">
+
+        <div class="mb-3">
+            <label>Class</label>
+            <select class="form-control" asp-for="ClassId">
+                <option value="">Select Class</option>
+                @foreach (var c in ViewBag.ClassList)
+                {
+                    <option value="@c.ClassId">@c.ClassName</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Section Name</label>
+            <input asp-for="SectionName" class="form-control" />
+        </div>
+
+    </form>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-primary" id="btnSaveSection">Save</button>
+</div>
+
+<script>
+    $("#btnSaveSection").click(function () {
+        var data = $("#sectionCreateForm").serialize();
+
+        $.post("/Section/CreateModalPost", data, function (res) {
+
+            if (res.success) {
+
+                $("#sectionModal").modal("hide");
+
+                // 🚀 এখন Student Create Page এর dropdown রিফ্রেশ করবো
+                let classId = $("#ClassId").val();
+                RefreshSectionList(classId);
+            
+            }
+            else {
+                alert("Failed to Create Section");
+            }
+        });
+    });
+</script>

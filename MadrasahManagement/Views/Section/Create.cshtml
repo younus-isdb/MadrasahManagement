@@ -13,7 +13,13 @@
 
                 <form asp-action="Create" method="post">
                     @Html.AntiForgeryToken()
-
+                    
+                    <!-- Section Name -->
+                    <div class="mb-3">
+                        <label asp-for="SectionName" class="form-label"></label>
+                        <input asp-for="SectionName" class="form-control" placeholder="Enter Section Name" />
+                        <span asp-validation-for="SectionName" class="text-danger"></span>
+                    </div>
                     <!-- Class Dropdown -->
                     <div class="mb-3">
                         <label asp-for="ClassId" class="form-label"></label>
@@ -37,12 +43,7 @@
                         <span asp-validation-for="ClassId" class="text-danger"></span>
                     </div>
 
-                    <!-- Section Name -->
-                    <div class="mb-3">
-                        <label asp-for="SectionName" class="form-label"></label>
-                        <input asp-for="SectionName" class="form-control" placeholder="Enter Section Name" />
-                        <span asp-validation-for="SectionName" class="text-danger"></span>
-                    </div>
+                   
 
                     <!-- Buttons -->
                     <div class="d-flex justify-content-between">
