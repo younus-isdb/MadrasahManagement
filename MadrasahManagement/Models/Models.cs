@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -146,7 +147,8 @@ namespace MadrasahManagement.Models
         [Required]
         [ForeignKey(nameof(AppUser))]
         public string UserId { get; set; } = default!;
-        public AppUser AppUser { get; set; } = default!;
+		[ValidateNever]
+		public AppUser AppUser { get; set; } = default!;
 
         // -------------------------
         // Multilingual Names
@@ -166,15 +168,18 @@ namespace MadrasahManagement.Models
         // -------------------------
         [ForeignKey(nameof(Department))]
         public int DepartmentId { get; set; }
-        public Department Department { get; set; } = default!;
+		[ValidateNever]
+		public Department Department { get; set; } = default!;
 
         [ForeignKey(nameof(Class))]
         public int ClassId { get; set; }
-        public Class Class { get; set; } = default!;
+		[ValidateNever]
+		public Class Class { get; set; } = default!;
 
         [ForeignKey(nameof(Section))]
         public int SectionId { get; set; }
-        public Section Section { get; set; } = default!;
+		[ValidateNever]
+		public Section Section { get; set; } = default!;
 
 
         // -------------------------
@@ -390,7 +395,7 @@ namespace MadrasahManagement.Models
         [Required, MaxLength(50)]
         public string SectionName { get; set; } = default!;
 
-        public Class Class { get; set; } = default!;
+        public Class? Class { get; set; } = default!;
         public ICollection<Student> Students { get; set; } = new HashSet<Student>();
         public ICollection<Timetable> Timetables { get; set; } = new HashSet<Timetable>();
     }

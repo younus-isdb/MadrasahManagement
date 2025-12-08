@@ -28,13 +28,15 @@ namespace MadrasahManagement.Controllers
         // ---------------------------------------------------
         // POST: Student/Create
         // ---------------------------------------------------
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Student model,
-            IFormFile ProfileImage,
-            IFormFile DocumentFile)
-        {
-            if (!ModelState.IsValid)
+        	[HttpPost]
+			[ValidateAntiForgeryToken]
+			public async Task<IActionResult> Create(Student model, IFormFile ProfileImage, IFormFile DocumentFile)
+			{
+				// ⭐ Auto UserId Set
+				model.UserId = Guid.NewGuid().ToString();
+
+			
+				if (!ModelState.IsValid)
             {
                 await LoadDropdowns();
                 return View(model);
