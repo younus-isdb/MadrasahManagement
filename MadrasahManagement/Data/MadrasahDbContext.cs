@@ -131,7 +131,7 @@ namespace MadrasahManagement.Models
 				builder.HasKey(s => s.StudentId);
 
 				// Unique Constraints
-				builder.HasIndex(s => s.RollNo).IsUnique();  // Roll No should be unique
+				builder.HasIndex(s => s.RegNo).IsUnique();  // Roll No should be unique
 
 				// Relationships
 				builder.HasOne(s => s.AppUser)
@@ -160,7 +160,7 @@ namespace MadrasahManagement.Models
 				builder.Property(s => s.BanglaStudentName)
 						  .HasMaxLength(150);
 
-				builder.Property(s => s.RollNo)
+				builder.Property(s => s.RegNo)
 						  .IsRequired()
 						  .HasMaxLength(20)
 						  .IsUnicode(false);  // Ensuring ASCII-based Roll No

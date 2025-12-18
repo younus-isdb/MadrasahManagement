@@ -186,17 +186,11 @@ namespace MadrasahManagement.Models
         // Identity & Admission
         // -------------------------
         [Required, MaxLength(20)]
-        [RegularExpression(@"^[A-Za-z0-9\-]+$",
-            ErrorMessage = "Invalid Roll No format.")]
-        public string RollNo { get; set; } = default!;
-
-        [MaxLength(50)]
-        public string? AdmissionNumber { get; set; }
-
+        public string RegNo { get; set; } = default!;
         [MaxLength(50)]
         public string? NationalId { get; set; }
 
-        public DateTimeOffset AdmissionDate { get; set; }
+        public DateOnly AdmissionDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
 
         // -------------------------
@@ -204,9 +198,10 @@ namespace MadrasahManagement.Models
         // -------------------------
         public Gender? Gender { get; set; }
 
-        public DateTimeOffset DOB { get; set; }
+		public DateTime DOB { get; set; } = DateTime.Today.AddYears(-5);
 
-        [MaxLength(5)]
+
+		[MaxLength(5)]
         public string? BloodGroup { get; set; }
 
 
@@ -267,7 +262,7 @@ namespace MadrasahManagement.Models
         [MaxLength(250)]
         public string? PreviousSchoolName { get; set; }
 
-        public double? PreviousGPA { get; set; }
+        public double? PreviousResult { get; set; }
 
 
         // -------------------------

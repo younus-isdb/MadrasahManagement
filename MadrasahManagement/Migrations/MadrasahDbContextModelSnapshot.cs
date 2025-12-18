@@ -920,14 +920,10 @@ namespace MadrasahManagement.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTimeOffset>("AdmissionDate")
+                    b.Property<DateOnly>("AdmissionDate")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
+                        .HasColumnType("date")
                         .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("AdmissionNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ArabicStudentName")
                         .HasMaxLength(150)
@@ -960,8 +956,8 @@ namespace MadrasahManagement.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasDefaultValueSql("GETDATE()");
 
-                    b.Property<DateTimeOffset>("DOB")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("DOB")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("DepartmentId")
                         .HasColumnType("int");
@@ -1027,7 +1023,7 @@ namespace MadrasahManagement.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<double?>("PreviousGPA")
+                    b.Property<double?>("PreviousResult")
                         .HasColumnType("float");
 
                     b.Property<string>("PreviousSchoolName")
@@ -1038,7 +1034,7 @@ namespace MadrasahManagement.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
-                    b.Property<string>("RollNo")
+                    b.Property<string>("RegNo")
                         .IsRequired()
                         .HasMaxLength(20)
                         .IsUnicode(false)
@@ -1074,7 +1070,7 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("RollNo")
+                    b.HasIndex("RegNo")
                         .IsUnique();
 
                     b.HasIndex("SectionId");

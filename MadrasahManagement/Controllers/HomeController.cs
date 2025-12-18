@@ -6,12 +6,13 @@ namespace MadrasahManagement.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+		public IActionResult Index()
+		{
+			return View();
+		}
 
-        public IActionResult Privacy()
+
+		public IActionResult Privacy()
         {
             return View();
         }

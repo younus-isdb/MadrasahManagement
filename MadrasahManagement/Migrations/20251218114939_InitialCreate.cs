@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MadrasahManagement.Migrations
 {
     /// <inheritdoc />
-    public partial class initialCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -620,12 +620,11 @@ namespace MadrasahManagement.Migrations
                     DepartmentId = table.Column<int>(type: "int", nullable: false),
                     ClassId = table.Column<int>(type: "int", nullable: false),
                     SectionId = table.Column<int>(type: "int", nullable: false),
-                    RollNo = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
-                    AdmissionNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    RegNo = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
                     NationalId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    AdmissionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "GETDATE()"),
+                    AdmissionDate = table.Column<DateOnly>(type: "date", nullable: false, defaultValueSql: "GETDATE()"),
                     Gender = table.Column<int>(type: "int", nullable: true),
-                    DOB = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DOB = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BloodGroup = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: true),
                     FatherName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
                     FatherPhone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
@@ -641,7 +640,7 @@ namespace MadrasahManagement.Migrations
                     EmergencyPhone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     MedicalNotes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     PreviousSchoolName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    PreviousGPA = table.Column<double>(type: "float", nullable: true),
+                    PreviousResult = table.Column<double>(type: "float", nullable: true),
                     ProfileImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     DocumentUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -1190,9 +1189,9 @@ namespace MadrasahManagement.Migrations
                 column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Students_RollNo",
+                name: "IX_Students_RegNo",
                 table: "Students",
-                column: "RollNo",
+                column: "RegNo",
                 unique: true);
 
             migrationBuilder.CreateIndex(
