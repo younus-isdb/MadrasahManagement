@@ -1,8 +1,64 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<div class="container mt-5">
+    <h3 class="text-center mb-4">সিস্টেমে প্রবেশ করুন</h3>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <div class="accordion" id="roleAccordion">
+
+        <div  class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#admin">
+                    Admin
+                </button>
+            </h2>
+            <div id="admin"
+                 class="accordion-collapse"
+                 data-bs-parent="#roleAccordion">
+                <div class="accordion-body">
+                    <p>সিস্টেম পরিচালনা, ইউজার ম্যানেজমেন্ট, রিপোর্ট।</p>
+                    <a href="/Account/RegisterAdmin" class="btn btn-primary">Enter</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#teacher">
+                    Teacher
+                </button>
+            </h2>
+            <div id="teacher"
+                 class="accordion-collapse"
+                 data-bs-parent="#roleAccordion">
+                <div class="accordion-body">
+                    <p>ক্লাস, উপস্থিতি, রেজাল্ট ব্যবস্থাপনা।</p>
+                    <a href="/Account/RegisterTeacher" class="btn btn-success">Enter</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#student">
+                    Student
+                </button>
+            </h2>
+            <div id="student"
+                 class="accordion-collapse collapse"
+                 data-bs-parent="#roleAccordion">
+                <div class="accordion-body">
+                    <p>ভর্তি, প্রোফাইল, ফলাফল, ফি।</p>
+                    <a href="/Account/RegisterStudent" class="btn btn-warning">Enter</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>

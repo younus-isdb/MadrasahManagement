@@ -1,5 +1,17 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model MadrasahManagement.ViewModels.RegisterStudentViewModel
+
+<h2>Student Registration</h2>
+
+<form method="post">
+    <label asp-for="FullName"></label>
+    <input asp-for="FullName" class="form-control" />
+    <span asp-validation-for="FullName"></span>
+
+    <label asp-for="Password"></label>
+    <input asp-for="Password" class="form-control" />
+
+    <label asp-for="ConfirmPassword"></label>
+    <input asp-for="ConfirmPassword" class="form-control" />
+
+    <button class="btn btn-primary mt-3">Register Student</button>
+</form>

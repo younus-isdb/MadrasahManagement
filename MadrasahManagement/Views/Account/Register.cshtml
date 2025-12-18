@@ -9,6 +9,15 @@
                     <p class="text-center mb-4">Sign in to access your Info</p>
 
                     <form method="post">
+                        <div>
+                            <label>Select Role</label>
+                            <select asp-for="Role" class="form-control">
+                                <option value="Student">Student</option>
+                                <option value="Teacher">Teacher</option>
+                            </select>
+                            <span asp-validation-for="Role" class="text-danger"></span>
+                        </div>
+
                         <div class="validation-summary">
                             <div asp-validation-summary="All"></div>
                         </div>

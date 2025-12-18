@@ -1,0 +1,11 @@
+﻿@model IEnumerable<Student>
+
+@foreach (var s in Model)
+{
+    <tr>
+        <td>@s.RegNo</td>
+        <td>@s.StudentName</td>
+        <td>@(s.Class?.ClassName ?? "-")</td>
+        <td>@s.FatherName</td>
+    </tr>
+}

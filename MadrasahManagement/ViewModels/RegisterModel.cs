@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace MadrasahManagement.ViewModels
 {
@@ -9,6 +10,8 @@ namespace MadrasahManagement.ViewModels
         [Required(AllowEmptyStrings = false)]
         public string UserName { get; set; } = default!;
 
+        [Required]
+        public string Role { get; set; }
 
         [DataType(DataType.Password)]
         [StringLength(50, MinimumLength = 4)]
@@ -19,7 +22,7 @@ namespace MadrasahManagement.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password")]
         public string ConfirmPassword { get; set; } = default!;
-
+        
         public string ReturnUrl { get; set; } = "/";
 
 

@@ -43,7 +43,7 @@ namespace MadrasahManagement.Controllers
             }
 
             // Auto Roll No
-            model.RollNo = await GenerateRollNo(model.ClassId, model.SectionId);
+            model.RegNo = await GenerateRegNo(model.ClassId, model.SectionId);
 
             _context.Students.Add(model);
             await _context.SaveChangesAsync(); // প্রথমে StudentId পাবার জন্য সেভ
@@ -115,7 +115,7 @@ namespace MadrasahManagement.Controllers
         // ---------------------------------------------------
         // Auto Roll Generator
         // ---------------------------------------------------
-        private async Task<string> GenerateRollNo(int classId, int sectionId)
+        private async Task<string> GenerateRegNo(int classId, int sectionId)
         {
             int count = await _context.Students
                 .CountAsync(s => s.ClassId == classId && s.SectionId == sectionId);
