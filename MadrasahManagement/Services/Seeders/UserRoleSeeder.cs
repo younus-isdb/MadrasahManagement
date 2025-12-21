@@ -12,7 +12,7 @@ namespace MadrasahManagement.Services.Seeders
             // ===========================
             // 1️⃣ Create Roles
             // ===========================
-            string[] roles = { "Admin", "Teacher", "Student" };
+            string[] roles = { "SuperAdmin","Admin", "Teacher", "Student" };
 
             foreach (var role in roles)
             {
@@ -21,6 +21,17 @@ namespace MadrasahManagement.Services.Seeders
                     await roleManager.CreateAsync(new AppRole(role));
                 }
             }
+
+
+            // ===========================
+            // 2️⃣ Default SuperAdmin Create
+            // ===========================
+            await CreateUserAsync(
+                userManager,
+                email: "superadmin@gmail.com",
+                password: "SuperAdmin@123",
+                role: "SuperAdmin"
+            );
 
             // ===========================
             // 2️⃣ Default Admin Create
