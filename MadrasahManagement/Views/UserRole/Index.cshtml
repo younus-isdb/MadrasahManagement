@@ -1,7 +1,14 @@
 ﻿@using MadrasahManagement.ViewModels
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
 @model List<UserRoleViewModel>
 @inject RoleManager<AppRole> RoleManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var isSuperAdmin = currentUser != null && await UserManager.IsInRoleAsync(currentUser, "SuperAdmin");
+}
 
 <div class="container mt-4">
     <h3 class="mb-4 text-primary">🌟 User Role Management </h3>
@@ -53,9 +60,15 @@
                                     <select class="form-select role-select" id="select-@user.UserId">
                                         @foreach (var role in RoleManager.Roles)
                                         {
+                                            if (role.Name == "SuperAdmin" && !isSuperAdmin)
+                                            {
+                                                continue; // SuperAdmin হলে তবেই দেখাবে
+                                            }
+
                                             <option value="@role.Name">@role.Name</option>
                                         }
                                     </select>
+
                                     <button class="btn btn-success btn-sm assign-role" data-user="@user.UserId">
                                         <i class="bi bi-plus-circle"></i> Assign
                                     </button>
