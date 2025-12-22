@@ -1,0 +1,29 @@
+﻿@model ExamFee
+
+<h2>Edit Exam Fee</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="ExamFeeId" />
+
+    <div class="form-group">
+        <label>Education Year</label>
+        <input asp-for="EducationYear" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Class</label>
+        <select asp-for="ClassId" asp-items="ViewBag.ClassId" class="form-control"></select>
+    </div>
+
+    <div class="form-group">
+        <label>Exam</label>
+        <select asp-for="ExamId" asp-items="ViewBag.ExamId" class="form-control"></select>
+    </div>
+
+    <div class="form-group">
+        <label>Exam Fee</label>
+        <input asp-for="ExamFees" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>

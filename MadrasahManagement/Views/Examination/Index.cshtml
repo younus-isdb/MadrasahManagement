@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Examination>
+
+@{
+    ViewData["Title"] = "Examination List";
+}
+
+<h3 class="mb-3">Examination List</h3>
+
+<a asp-action="Create" class="btn btn-primary mb-3">
+    + Add New Exam
+</a>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Exam Name</th>
+            <th style="width:150px;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int sl = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@sl</td>
+                    <td>@item.ExamName</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ExamId"
+                           class="btn btn-sm btn-warning">Edit</a>
+
+                        <a asp-action="Delete" asp-route-id="@item.ExamId"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Are you sure?');">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                sl++;
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3" class="text-center text-danger">
+                    No exam found
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

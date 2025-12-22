@@ -374,6 +374,8 @@ namespace MadrasahManagement.Models
         public ICollection<Timetable> Timetables { get; set; } = new HashSet<Timetable>();
         public ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
         public ICollection<FeeType> FeeTypes { get; set; } = new HashSet<FeeType>();
+        public ICollection<ExamFee>? ExamFees { get; set; }
+
     }
 
     // -------------------------

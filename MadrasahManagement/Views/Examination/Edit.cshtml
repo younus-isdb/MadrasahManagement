@@ -1,0 +1,32 @@
+﻿@model Examination
+
+@{
+    ViewData["Title"] = "Edit Examination";
+}
+
+<h4 class="mb-3">Edit Examination</h4>
+
+<form asp-action="Edit" method="post">
+    @* Hidden field for Id *@
+    <input type="hidden" asp-for="ExamId" />
+
+    <div class="form-group mb-3">
+        <label asp-for="ExamName" class="form-label"></label>
+        <input asp-for="ExamName" class="form-control" />
+        <span asp-validation-for="ExamName" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Update
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary ms-2">
+        Back
+    </a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
