@@ -24,32 +24,84 @@ namespace MadrasahManagement.Controllers
             var issued = await _db.IssuedBooks
                 .Include(a => a.Book)
                 .Include(a => a.AppUser)
-                .OrderByDescending(a => a.IssueDate).ToListAsync();
+                .OrderByDescending(a => a.IssueDate).Where(i => i.ReturnDate == null).ToListAsync();
             return View(issued);
         }
 
         // GET: IssuedBookController/Details/5
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(string userId)
         {
-            if (id <= 0)
+            //if (id <= 0)
+            //{
+            //    return NotFound();
+            //}
+
+            //var issued = await _db.IssuedBooks.Include(a => a.Book).Include(a => a.AppUser).FirstOrDefaultAsync(a => a.Id == id);
+            //if (issued == null)
+            //{
+            //    return NotFound();
+            //}
+            //return View(issued);
+
+            if (string.IsNullOrEmpty(userId))
             {
                 return NotFound();
             }
 
-            var issued = await _db.IssuedBooks.Include(a => a.Book).Include(a => a.AppUser).FirstOrDefaultAsync(a => a.Id == id);
-            if (issued == null)
+            if (!Guid.TryParse(userId, out Guid userGuid))
             {
                 return NotFound();
             }
-            return View(issued);
+
+            // Get ONLY ACTIVE (not returned) issued books for this user
+            var issuedBooks = await _db.IssuedBooks
+                .Include(b => b.Book)
+                .Include(b => b.AppUser)
+                .Where(b => b.IssuedTo == userGuid.ToString() && b.ReturnDate == null) // Only active issues
+                .ToListAsync();
+
+
+
+            if (!issuedBooks.Any())
+            {
+                return NotFound();
+            }
+
+            var firstBook = issuedBooks.First();
+
+            // Get book IDs currently ACTIVE for this user
+            var bookIds = issuedBooks.Select(b => b.BookId).ToList();
+
+            //// Setup ViewBag
+            //ViewBag.UserSearch = firstBook.UserFullName;
+            //ViewBag.UserType = firstBook.UserType;
+            //ViewBag.Class = firstBook.Class;
+            //ViewBag.Section = firstBook.Section;
+            //ViewBag.RollNumber = firstBook.RollNumber;
+            ViewBag.SelectedBookIds = bookIds;
+            ViewBag.BookCount = issuedBooks.Count;
+            ViewBag.UserIdString = userId;
+
+            // Load books that are available OR currently issued to this user
+            ViewBag.Books = await _db.Books
+                .Where(b => b.AvailableCopies > 0 || bookIds.Contains(b.BookId))
+                .ToListAsync();
+
+            return View(issuedBooks);
+
+
+
+
         }
 
         // GET: IssuedBookController/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            ViewBag.Books = await _db.Books.Where(b => b.AvailableCopies > 0).ToListAsync();
-            ViewBag.BookCount = 1;
+            ViewBag.BookCount = 0;
+            ViewBag.SelectedBookIds = new List<int>();
+            ViewBag.Books = _db.Books.ToList();
             return View();
+
         }
 
         [HttpPost]
@@ -81,25 +133,18 @@ namespace MadrasahManagement.Controllers
 
             if (operation == "add")
             {
-                ViewBag.BookCount = bookCount + 1;
-                return View();
+                bookCount++;
+            }
+            else if (operation != null && operation.StartsWith("delete"))
+            {
+                var index = int.Parse(operation.Split('-')[1]);
+                BookIds.RemoveAt(index);
+                bookCount--;
             }
 
-            if (operation.StartsWith("delete-"))
-            {
-                int.TryParse(operation.Replace("delete-", ""), out int index);
-                if (index >= 0 && bookCount > 1)
-                {
-                    bookCount--;
-                    ViewBag.BookCount = bookCount;
-                    if (BookIds != null && BookIds.Count > index)
-                    {
-                        BookIds.RemoveAt(index);
-                        ViewBag.SelectedBookIds = BookIds;
-                    }
-                }
-                return View();
-            }
+            ViewBag.BookCount = bookCount;
+            ViewBag.SelectedBookIds = BookIds ?? new List<int>();
+            ViewBag.Books = _db.Books.ToList();
 
             if (operation == "submit")
             {
@@ -146,8 +191,9 @@ namespace MadrasahManagement.Controllers
                             Class = Class,
                             Section = Section,
                             RollNumber = RollNumber,
-                            IssueDate = DateTime.Now,
-                            ReturnDate = null,
+                            IssueDate = DateTimeOffset.Now,
+
+                            // ReturnDate = null,
                             Fine = 0
                         };
 
@@ -169,57 +215,275 @@ namespace MadrasahManagement.Controllers
         }
 
 
-        // GET: IssuedBookController/Edit/5
-        public async Task<IActionResult> Edit(int id)
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(string userId)
         {
-            if (id <= 0)
-            {
-                return NotFound();
-            }
-            var issuedbook = await _db.IssuedBooks.Include(b => b.Book).Include(b => b.AppUser).FirstOrDefaultAsync(b => b.Id == id);
-            if (issuedbook == null)
+            if (string.IsNullOrEmpty(userId))
             {
                 return NotFound();
             }
 
-            ViewBag.Books = await _db.Books.ToListAsync();
-            ViewBag.Users = await _db.Users.ToListAsync();
+            if (!Guid.TryParse(userId, out Guid userGuid))
+            {
+                return NotFound();
+            }
 
-            return View(issuedbook);
+            //only for active users
+            var issuedBooks = await _db.IssuedBooks
+                .Include(b => b.Book)
+                .Include(b => b.AppUser)
+                .Where(b => b.IssuedTo == userGuid.ToString() && b.ReturnDate == null) // Only active issues
+                .ToListAsync();
+
+            if (!issuedBooks.Any())
+            {
+                return NotFound();
+            }
+
+            var firstBook = issuedBooks.First();
+
+            //  book ids for current user
+            var bookIds = issuedBooks.Select(b => b.BookId).ToList();
+
+            // Setup ViewBag
+            ViewBag.UserSearch = firstBook.UserFullName;
+            ViewBag.UserType = firstBook.UserType;
+            ViewBag.Class = firstBook.Class;
+            ViewBag.Section = firstBook.Section;
+            ViewBag.RollNumber = firstBook.RollNumber;
+            ViewBag.SelectedBookIds = bookIds;
+            ViewBag.BookCount = issuedBooks.Count;
+            ViewBag.UserIdString = userId;
+
+            // Load books that are available or currently issued to this user
+            ViewBag.Books = await _db.Books
+                .Where(b => b.AvailableCopies > 0 || bookIds.Contains(b.BookId))
+                .ToListAsync();
+
+            return View(firstBook);
         }
 
-
-        // POST: IssuedBookController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, IssuedBook issuedBook)
+        public async Task<IActionResult> Edit(string userId, string operation, int bookCount,
+     string UserSearch, string UserType, string Class, string Section, int? RollNumber, List<int> BookIds)
         {
-            if (id!=issuedBook.Id)
+            // Convert userId to Guid
+            if (!Guid.TryParse(userId, out Guid userGuid))
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            // Get active issued books
+            var activeIssuedBooks = await _db.IssuedBooks
+                .Include(b => b.Book)
+                .Where(b => b.IssuedTo == userGuid.ToString() && b.ReturnDate == null)
+                .ToListAsync();
+
+            if (!activeIssuedBooks.Any())
             {
+                return NotFound();
+            }
+
+            var firstBook = activeIssuedBooks.First();
+
+            // Handle null BookIds
+            var currentBookIds = BookIds ?? activeIssuedBooks.Select(b => b.BookId).ToList();
+
+            // Setup ViewBag
+            ViewBag.UserSearch = UserSearch ?? firstBook.UserFullName;
+            ViewBag.UserType = UserType ?? firstBook.UserType;
+            ViewBag.Class = Class ?? firstBook.Class;
+            ViewBag.Section = Section ?? firstBook.Section;
+            ViewBag.RollNumber = RollNumber ?? firstBook.RollNumber;
+            ViewBag.SelectedBookIds = currentBookIds;
+            ViewBag.BookCount = bookCount > 0 ? bookCount : activeIssuedBooks.Count;
+            ViewBag.UserIdString = userId;
+
+            // Load books
+            var activeBookIds = activeIssuedBooks.Select(b => b.BookId).ToList();
+            ViewBag.Books = await _db.Books
+                .Where(b => b.AvailableCopies > 0 || activeBookIds.Contains(b.BookId))
+                .ToListAsync();
+
+            if (operation == "add")
+            {
+                currentBookIds.Add(0);
+                ViewBag.SelectedBookIds = currentBookIds;
+                ViewBag.BookCount = bookCount + 1;
+                return View(firstBook);
+            }
+
+            if (operation.StartsWith("delete-"))
+            {
+                int.TryParse(operation.Replace("delete-", ""), out int index);
+
+                if (index >= 0 && currentBookIds.Count > index)
+                {
+                    currentBookIds.RemoveAt(index);
+                    ViewBag.SelectedBookIds = currentBookIds;
+                    ViewBag.BookCount = bookCount - 1;
+                }
+
+                return View(firstBook);
+            }
+
+            if (operation == "searchuser")
+            {
+                if (!string.IsNullOrEmpty(UserSearch))
+                {
+                    var user = await _db.Users
+                        .Where(u => u.UserName == UserSearch || u.NormalizedUserName == UserSearch.ToUpper())
+                        .FirstOrDefaultAsync();
+                    ViewBag.UserVerified = user != null;
+                }
+                return View(firstBook);
+            }
+
+            if (operation == "submit")
+            {
+                ModelState.Clear();
+
+                if (string.IsNullOrEmpty(UserSearch))
+                    ModelState.AddModelError("UserSearch", "Username is required.");
+
+                if (string.IsNullOrEmpty(UserType))
+                    ModelState.AddModelError("UserType", "User type is required.");
+
+                // Student validation
+                if (UserType == "Student")
+                {
+                    if (string.IsNullOrEmpty(Class))
+                        ModelState.AddModelError("Class", "Class is required for students.");
+
+                    if (string.IsNullOrEmpty(Section))
+                        ModelState.AddModelError("Section", "Section is required for students.");
+                }
+                else
+                {
+                    Class = "";
+                    Section = "";
+                    RollNumber = null;
+                    ViewBag.Class = "";
+                    ViewBag.Section = "";
+                    ViewBag.RollNumber = null;
+                }
+
+                var validBookIds = currentBookIds.Where(id => id > 0).Distinct().ToList();
+
+                if (!validBookIds.Any())
+                {
+                    ModelState.AddModelError("", "Please select at least one book.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return View(firstBook);
+                }
+
                 try
                 {
-                    _db.Update(issuedBook);
+
+                    var user = await _db.Users
+                        .Where(u => u.UserName == UserSearch || u.NormalizedUserName == UserSearch.ToUpper())
+                        .FirstOrDefaultAsync();
+
+                    if (user == null)
+                    {
+                        ModelState.AddModelError("", "User not found.");
+                        ViewBag.UserVerified = false;
+                        return View(firstBook);
+                    }
+
+                    var allExistingBooks = await _db.IssuedBooks
+                        .Where(b => b.IssuedTo == userGuid.ToString() && b.ReturnDate == null)
+                        .ToListAsync();
+
+                    var bookIdsToKeep = allExistingBooks
+                        .Where(b => validBookIds.Contains(b.BookId))
+                        .Select(b => b.BookId)
+                        .ToList();
+
+                    var bookIdsToAdd = validBookIds
+                        .Where(id => !allExistingBooks.Any(b => b.BookId == id))
+                        .ToList();
+
+                    var bookIdsToRemove = allExistingBooks
+                        .Where(b => !validBookIds.Contains(b.BookId))
+                        .Select(b => b.BookId)
+                        .ToList();
+
+                    foreach (var bookId in bookIdsToRemove)
+                    {
+                        var book = await _db.Books.FindAsync(bookId);
+                        if (book != null)
+                        {
+                            book.AvailableCopies++;
+                            _db.Books.Update(book);
+                        }
+
+                        var issuedBookToRemove = allExistingBooks.FirstOrDefault(b => b.BookId == bookId);
+                        if (issuedBookToRemove != null)
+                        {
+                            _db.IssuedBooks.Remove(issuedBookToRemove);
+                        }
+                    }
+
+                    foreach (var bookId in bookIdsToAdd)
+                    {
+                        var book = await _db.Books.FindAsync(bookId);
+                        if (book == null || book.AvailableCopies <= 0)
+                        {
+                            ModelState.AddModelError("", $"Book is not available.");
+                            return View(firstBook);
+                        }
+
+                        var newIssuedBook = new IssuedBook
+                        {
+                            BookId = bookId,
+                            IssuedTo = user.Id,
+                            UserFullName = user.UserName,
+                            UserType = UserType,
+                            Class = UserType == "Student" ? Class : "",
+                            Section = UserType == "Student" ? Section : "",
+                            RollNumber = UserType == "Student" ? RollNumber : null,
+                            IssueDate = DateTimeOffset.Now,
+                            Fine = 0,
+                            ReturnDate = null
+                        };
+
+                        _db.IssuedBooks.Add(newIssuedBook);
+
+                        book.AvailableCopies--;
+                        _db.Books.Update(book);
+                    }
+
+                    foreach (var bookId in bookIdsToKeep)
+                    {
+                        var existingBook = allExistingBooks.FirstOrDefault(b => b.BookId == bookId);
+                        if (existingBook != null)
+                        {
+                            existingBook.UserFullName = user.UserName;
+                            existingBook.UserType = UserType;
+                            existingBook.Class = UserType == "Student" ? Class : "";
+                            existingBook.Section = UserType == "Student" ? Section : "";
+                            existingBook.RollNumber = UserType == "Student" ? RollNumber : null;
+                            _db.IssuedBooks.Update(existingBook);
+                        }
+                    }
+
                     await _db.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-
-                    if (!IssuedBookExists(id))
-                    {
-                        return NotFound();
-                    }
+                    ModelState.AddModelError("", $"Error: {ex.Message}");
+                    return View(firstBook);
                 }
             }
-            ViewBag.Books = await _db.Books.ToListAsync();
-            ViewBag.Users = await _db.Users.ToListAsync();
 
-            return View(issuedBook);
+            return View(firstBook);
         }
 
 
@@ -241,23 +505,30 @@ namespace MadrasahManagement.Controllers
                 return NotFound();
             }
 
-         
+
             if (issuedBook.ReturnDate == null)
             {
-                var dueDate = issuedBook.IssueDate.AddDays(14);
-                if (DateTimeOffset.Now > dueDate)
+                //var dueDate = issuedBook.IssueDate.AddDays(14).Date;
+                //if (DateTimeOffset.Now.Date > dueDate)
+                //{
+                //    var daysLate = (DateTimeOffset.Now.Date - dueDate).Days;
+                //    issuedBook.Fine = daysLate * 10; // 10 per day
+                //}
+
+                var dueDate = issuedBook.IssueDate.AddDays(14).Date;
+                if (DateTimeOffset.Now.Date > dueDate)
                 {
-                    var daysLate = (DateTimeOffset.Now - dueDate).Days;
-                    issuedBook.Fine = daysLate * 10; // 10 per day
+                    var daysLate = (DateOnly.FromDateTime(DateTime.Now).DayNumber - dueDate.Day);
+                    issuedBook.Fine = daysLate * 10; // 10 per day   ,,later i will do every 5 days after 
                 }
+
             }
 
             return View(issuedBook);
         }
 
         // POST: IssuedBookController/Return/5
-        [HttpPost]
-        [ActionName("Return")]
+        [HttpPost, ActionName("Return")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReturnConfirmed(int id)
         {
@@ -265,6 +536,7 @@ namespace MadrasahManagement.Controllers
             {
                 var issuedBook = await _db.IssuedBooks
                     .Include(ib => ib.Book)
+                                .Include(ib => ib.AppUser)
                     .FirstOrDefaultAsync(ib => ib.Id == id);
 
                 if (issuedBook == null)
@@ -275,22 +547,28 @@ namespace MadrasahManagement.Controllers
                 if (issuedBook.ReturnDate != null)
                 {
                     ModelState.AddModelError("", "This book has already been returned.");
-                    return View(issuedBook);
+                    return View("Return", issuedBook);
                 }
 
-               
+                var dueDate = issuedBook.IssueDate.AddDays(14);
+
+                //if (DateTimeOffset.Now > dueDate)
+                //{
+                //    var daysLate = (DateTimeOffset.Now - dueDate).Days;
+
+                //    issuedBook.Fine = daysLate * 10; 
+                //}
+                //  issuedBook.ReturnDate = DateTimeOffset.Now;
+
+                if (DateTimeOffset.Now > dueDate)
+                    {
+                    var daysLate = (DateOnly.FromDateTime(DateTime.Now).DayNumber - dueDate.Day);
+
+                    issuedBook.Fine = daysLate * 10;
+                }
                 issuedBook.ReturnDate = DateTimeOffset.Now;
 
-              
-                var dueDate = issuedBook.IssueDate.AddDays(14);
-                if (issuedBook.ReturnDate > dueDate)
-                {
-                    var daysLate = (issuedBook.ReturnDate.Value - dueDate).Days;
 
-                    issuedBook.Fine = daysLate * 10; 
-                }
-
-               
                 if (issuedBook.Book != null)
                 {
                     issuedBook.Book.ReturnBook();
@@ -304,10 +582,13 @@ namespace MadrasahManagement.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "An error occurred while processing the return.");
-                return View(await _db.IssuedBooks
+
+                var issue = await _db.IssuedBooks
                     .Include(ib => ib.Book)
                     .Include(ib => ib.AppUser)
-                    .FirstOrDefaultAsync(ib => ib.Id == id));
+                    .FirstOrDefaultAsync(ib => ib.Id == id);
+
+                return View("Return", issue);
             }
         }
 
@@ -349,7 +630,7 @@ namespace MadrasahManagement.Controllers
                     return NotFound();
                 }
 
-                
+
                 if (issuedBook.ReturnDate == null && issuedBook.Book != null)
                 {
                     issuedBook.Book.AvailableCopies++;
@@ -369,7 +650,18 @@ namespace MadrasahManagement.Controllers
             }
         }
 
+        public async Task<IActionResult> ReturnedBooks()
+        {
 
+            var returnedBooks = await _db.IssuedBooks
+                .Include(i => i.Book)
+                .Include(i => i.AppUser)
+                .Where(i => i.ReturnDate != null)
+                .OrderByDescending(i => i.ReturnDate)
+                .ToListAsync();
+
+            return View(returnedBooks);
+        }
 
         private bool IssuedBookExists(int id)
         {

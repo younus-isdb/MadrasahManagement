@@ -2,125 +2,240 @@
 
 @{
     ViewData["Title"] = "Delete Book";
+
+    // Calculate active issues
+    var activeIssues = Model.IssuedBooks?.Count(ib => ib.ReturnDate == null) ?? 0;
+    var canDelete = activeIssues == 0;
+    var totalIssued = Model.IssuedBooks?.Count ?? 0;
+    var returnedCount = totalIssued - activeIssues;
 }
 
-<div class="container-fluid py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
-            <!-- Header -->
-            <div class="text-center mb-4">
-                <h1 class="h2 text-danger mb-2">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Book
-                </h1>
-                <p class="text-muted">Permanently remove this book from the library system</p>
-            </div>
-
-            <!-- Warning Alert -->
-            <div class="alert alert-warning border-0 shadow-sm">
-                <div class="d-flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-circle fa-2x"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h4 class="alert-heading">Confirm Deletion</h4>
-                        <p class="mb-0">This action will permanently delete the book record and cannot be undone.</p>
-                    </div>
+<div class="container py-4">
+    <!-- Error Display -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle fa-lg me-3"></i>
+                <div>
+                    <h5 class="mb-1">Cannot Delete Book</h5>
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <p class="mb-1">@error.ErrorMessage</p>
+                    }
                 </div>
             </div>
+        </div>
+    }
 
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-light py-3">
-                    <h5 class="card-title mb-0 text-dark">
-                        <i class="fas fa-book me-2"></i>Book Information
-                    </h5>
-                </div>
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-6 fw-bold mb-3">
+            @if (canDelete)
+            {
+                <span class="text-danger">
+                    <i class="fas fa-trash me-3"></i>Delete Book
+                </span>
+            }
+            else
+            {
+                <span class="text-warning">
+                    <i class="fas fa-ban me-3"></i>Delete Restricted
+                </span>
+            }
+        </h1>
+        <p class="lead text-muted mb-0">Review book details before proceeding</p>
+    </div>
+
+    <div class="row">
+        <!-- Left: Book Cover & Quick Info -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
-                    <div class="row">
-                        <!-- Book Cover -->
+                    <!-- Book Cover -->
+                    <div class="text-center mb-4">
                         @if (!string.IsNullOrEmpty(Model.ImageUrl))
                         {
-                            <div class="col-md-4 text-center mb-4">
-                                <div class="bg-light rounded p-3">
-                                    <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid rounded" style="max-height: 180px;">
+                            <img src="@Model.ImageUrl" alt="@Model.Title"
+                                 class="img-fluid rounded border" style="max-height: 220px; width: auto;">
+                        }
+                        else
+                        {
+                            <div class="bg-light rounded border d-flex align-items-center justify-content-center p-5">
+                                <i class="fas fa-book text-muted fa-5x"></i>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted mb-3">Inventory Summary</h6>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="border rounded p-3 text-center bg-light">
+                                    <div class="text-primary fw-bold fs-4">@Model.TotalCopies</div>
+                                    <small class="text-muted">Total Copies</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="border rounded p-3 text-center bg-light">
+                                    <div class="@(Model.AvailableCopies > 0 ? "text-success" : "text-danger") fw-bold fs-4">
+                                        @Model.AvailableCopies
+                                    </div>
+                                    <small class="text-muted">Available</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Book Details Grid -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted mb-1">ISBN</label>
+                            <div class="fw-medium">
+                                <code>@Model.ISBN</code>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted mb-1">Category</label>
+                            <div>
+                                <span class="badge bg-secondary px-3 py-2">@Model.Category</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Book Details & Actions -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+
+
+                    <!-- Issuance Status -->
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted mb-3">Issuance Status</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 text-center">
+                                    <div class="text-primary fw-bold fs-3">@totalIssued</div>
+                                    <small class="text-muted">Times Issued</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 text-center">
+                                    <div class="text-success fw-bold fs-3">@returnedCount</div>
+                                    <small class="text-muted">Returned</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 text-center @(activeIssues > 0 ? "bg-warning bg-opacity-10" : "")">
+                                    <div class="@(activeIssues > 0 ? "text-warning" : "text-muted") fw-bold fs-3">
+                                        @activeIssues
+                                    </div>
+                                    <small class="text-muted">Currently Issued</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Section -->
+                    <div class="mt-5 pt-4 border-top">
+                        @if (canDelete)
+                        {
+                            <!-- Ready for Deletion -->
+                            <div class="mb-4">
+                                <div class="alert alert-success border-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                                        <div>
+                                            <h5 class="mb-1">Ready for Deletion</h5>
+                                            <p class="mb-0">All copies are available. You can proceed with deletion.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delete Form -->
+                            <form asp-action="Delete" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="BookId" />
+
+                                <div class="alert alert-danger border-0">
+                                    <h5 class="mb-3">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>Final Warning
+                                    </h5>
+                                    <p class="mb-4">
+                                        This will permanently delete "<strong>@Model.Title</strong>" and all related records.
+                                        This action cannot be undone.
+                                    </p>
+                                    <div class="d-flex gap-3 justify-content-between align-items-center">
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-danger px-4 py-2"
+                                                    onclick="return confirm('Are you absolutely sure you want to delete this book? This cannot be undone.')">
+                                                <i class="fas fa-trash me-2"></i>Confirm Delete
+                                            </button>
+                                            <a asp-action="Edit" asp-route-id="@Model.BookId" class="btn btn-outline-primary px-4 py-2">
+                                                <i class="fas fa-edit me-2"></i>Edit Instead
+                                            </a>
+                                        </div>
+
+                                        <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">
+                                            <i class="fas fa-arrow-left me-2"></i>Back to List
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <!-- Cannot Delete Warning -->
+                            <div class="alert alert-warning border-0">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-lock fa-2x me-3"></i>
+                                    <div>
+                                        <h5 class="mb-2">Delete Action Restricted</h5>
+                                        <p class="mb-3">
+                                            This book has <strong>@activeIssues copy(s)</strong> currently issued.
+                                            All copies must be returned before deletion.
+                                        </p>
+                                        <div class="d-flex gap-2">
+                                            <a asp-action="Index" asp-controller="IssuedBook" class="btn btn-primary">
+                                                <i class="fas fa-external-link-alt me-2"></i>View Issued Books
+                                            </a>
+                                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                                <i class="fas fa-times me-2"></i>Cancel
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         }
-
-                        <!-- Book Details -->
-                        <div class="@(string.IsNullOrEmpty(Model.ImageUrl) ? "col-12" : "col-md-8")">
-                            <div class="row g-3">
-                                <div class="col-sm-6">
-                                    <label class="form-label text-muted small fw-semibold mb-1">Title</label>
-                                    <div class="fw-semibold text-dark">@Model.Title</div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label class="form-label text-muted small fw-semibold mb-1">Author</label>
-                                    <div class="text-dark">@Model.Author</div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label class="form-label text-muted small fw-semibold mb-1">ISBN</label>
-                                    <div><code class="text-dark">@Model.ISBN</code></div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label class="form-label text-muted small fw-semibold mb-1">Category</label>
-                                    <div>
-                                        <span class="badge bg-secondary">@Model.Category</span>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label class="form-label text-muted small fw-semibold mb-1">Total Copies</label>
-                                    <div class="text-dark">@Model.TotalCopies</div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label class="form-label text-muted small fw-semibold mb-1">Available Copies</label>
-                                    <div class="text-dark">@Model.AvailableCopies</div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-
-                    <!-- Issued Books Warning -->
-                    @if (Model.IssuedBooks.Any(ib => ib.ReturnDate == null))
-                    {
-                        <div class="alert alert-danger border-0 mt-4">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-exclamation-triangle me-3"></i>
-                                <div>
-                                    <strong>Warning:</strong> This book has @(Model.TotalCopies - Model.AvailableCopies)
-                                    copies currently issued to students. Deleting this book may affect active borrow records.
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Delete Form -->
-                    <form asp-action="Delete" method="post">
-                        <input type="hidden" asp-for="BookId" />
-
-                        <div class="border-top pt-4 mt-4">
-                            <div class="d-flex gap-2 justify-content-end">
-                                <button type="submit" class="btn btn-danger px-4"
-                                        onclick="return confirm('Are you absolutely sure you want to delete this book? This action cannot be undone.')">
-                                    <i class="fas fa-trash me-2"></i>Delete Book
-                                </button>
-                                <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Additional Warning -->
-            <div class="alert alert-light border mt-4">
-                <div class="text-center text-muted">
-                    <small>
-                        <i class="fas fa-info-circle me-1"></i>
-                        Deleting this book will remove it from the library catalog and all associated records.
-                    </small>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        transition: transform 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+    .border-bottom {
+        border-bottom: 2px solid #f0f0f0 !important;
+    }
+
+    .border-top {
+        border-top: 2px solid #f0f0f0 !important;
+    }
+</style>

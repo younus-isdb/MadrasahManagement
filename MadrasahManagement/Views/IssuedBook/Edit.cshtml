@@ -1,63 +1,220 @@
 ﻿@model MadrasahManagement.Models.IssuedBook
 
 @{
-    ViewData["Title"] = "Edit Issued Book";
+    ViewData["Title"] = "Edit Issued Books";
+    var bookCount = ViewBag.BookCount ?? 1;
+    var selectedBookIds = ViewBag.SelectedBookIds as List<int> ?? new List<int>();
+    var books = ViewBag.Books as List<Book> ?? new List<Book>();
 }
 
 <div class="container">
-    <h1>Edit Issued Book</h1>
-
-    <div class="row">
-        <div class="col-md-6">
-            <form asp-action="Edit">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="Id" />
-
-                <div class="form-group">
-                    <label asp-for="BookId" class="control-label">Book</label>
-                    <select asp-for="BookId" class="form-control" asp-items="ViewBag.Books">
-                        <option value="">-- Select Book --</option>
-                    </select>
-                    <span asp-validation-for="BookId" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="IssuedTo" class="control-label">Issued To</label>
-                    <select asp-for="IssuedTo" class="form-control" asp-items="ViewBag.Users">
-                        <option value="">-- Select User --</option>
-                    </select>
-                    <span asp-validation-for="IssuedTo" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="IssueDate" class="control-label"></label>
-                    <input asp-for="IssueDate" class="form-control" />
-                    <span asp-validation-for="IssueDate" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="ReturnDate" class="control-label"></label>
-                    <input asp-for="ReturnDate" class="form-control" />
-                    <span asp-validation-for="ReturnDate" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="Fine" class="control-label"></label>
-                    <input asp-for="Fine" class="form-control" />
-                    <span asp-validation-for="Fine" class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-primary" />
-                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
+    <h1 class="text-center fw-bold" style="color:green" >Edit Issued Books</h1>
+    <br />
+    <!-- Display Model Errors -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <h5>Please fix the following errors:</h5>
+            <ul>
+                @foreach (var key in ViewData.ModelState.Keys)
+                {
+                    foreach (var error in ViewData.ModelState[key].Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                }
+            </ul>
         </div>
-    </div>
+    }
+
+    <form method="post" asp-action="Edit" asp-route-userId="@ViewBag.UserIdString">
+        @Html.AntiForgeryToken()
+
+        <!-- Hidden fields -->
+        <input type="hidden" name="userId" value="@ViewBag.UserIdString" />
+        <input type="hidden" name="bookCount" value="@bookCount" />
+
+        <!-- User Information -->
+        <div class="card mb-3">
+            <div class="card-header ">
+                <h5 class="mb-0 fw-bold " style="color:green">User Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Username *</label>
+                            <input type="text" name="UserSearch" value="@ViewBag.UserSearch" class="form-control @(ViewData.ModelState["UserSearch"]?.Errors.Any() == true ? "is-invalid" : "")" required />
+                            @if (ViewData.ModelState["UserSearch"]?.Errors.Any() == true)
+                            {
+                                <div class="invalid-feedback">
+                                    @ViewData.ModelState["UserSearch"].Errors.First().ErrorMessage
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>User Type *</label>
+                            <select name="UserType" class="form-control @(ViewData.ModelState["UserType"]?.Errors.Any() == true ? "is-invalid" : "")" required onchange="toggleStudentFields()">
+                                <option value="">-- Select Type --</option>
+                                <option value="Student" selected='@(ViewBag.UserType == "Student" ? "selected" : null)'>Student</option>
+                                <option value="Teacher" selected='@(ViewBag.UserType == "Teacher" ? "selected" : null)'>Teacher</option>
+                                <option value="Admin" selected='@(ViewBag.UserType == "Admin" ? "selected" : null)'>Admin</option>
+                            </select>
+                            @if (ViewData.ModelState["UserType"]?.Errors.Any() == true)
+                            {
+                                <div class="invalid-feedback">
+                                    @ViewData.ModelState["UserType"].Errors.First().ErrorMessage
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Fields (show/hide based on UserType) -->
+                <div id="studentFields" style="@(ViewBag.UserType == "Student" ? "display:block" : "display:none")">
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Class @(ViewBag.UserType == "Student" ? "*" : "")</label>
+                                <input type="text" name="Class" value="@ViewBag.Class" class="form-control @(ViewData.ModelState["Class"]?.Errors.Any() == true ? "is-invalid" : "")" />
+                                @if (ViewData.ModelState["Class"]?.Errors.Any() == true)
+                                {
+                                    <div class="invalid-feedback">
+                                        @ViewData.ModelState["Class"].Errors.First().ErrorMessage
+                                    </div>
+                                }
+                                @if (ViewBag.UserType != "Student")
+                                {
+                                    <small class="text-muted">(Optional for non-students)</small>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Section @(ViewBag.UserType == "Student" ? "*" : "")</label>
+                                <input type="text" name="Section" value="@ViewBag.Section" class="form-control @(ViewData.ModelState["Section"]?.Errors.Any() == true ? "is-invalid" : "")" />
+                                @if (ViewData.ModelState["Section"]?.Errors.Any() == true)
+                                {
+                                    <div class="invalid-feedback">
+                                        @ViewData.ModelState["Section"].Errors.First().ErrorMessage
+                                    </div>
+                                }
+                                @if (ViewBag.UserType != "Student")
+                                {
+                                    <small class="text-muted">(Optional for non-students)</small>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Roll Number</label>
+                                <input type="number" name="RollNumber" value="@ViewBag.RollNumber" class="form-control" />
+                                @if (ViewBag.UserType != "Student")
+                                {
+                                    <small class="text-muted">(Optional for non-students)</small>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <button type="submit" name="operation" value="searchuser" class="btn btn-info">
+                        Verify User
+                    </button>
+                </div>
+
+                @if (ViewBag.UserVerified != null)
+                {
+                    <div class="alert @(ViewBag.UserVerified == true ? "alert-success" : "alert-danger") mt-3">
+                        @if (ViewBag.UserVerified == true)
+                        {
+                            <strong>✓ User Verified</strong>
+                        }
+                        else
+                        {
+                            <strong>✗ User Not Found</strong>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Books Selection -->
+     
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold " style="color:green">Selected Books (@bookCount)</h5>
+                <button type="submit" name="operation" value="add" class="btn btn-success btn-sm">
+                    + Add Book
+                </button>
+            </div>
+            <div class="card-body">
+                @for (int i = 0; i < bookCount; i++)
+                {
+                    <div class="form-group row mb-3 align-items-center">
+                        <div class="col-md-10">
+                            <label>Book @(i + 1) *</label>
+                            <select name="BookIds" class="form-control @(ViewData.ModelState[""]?.Errors.Any() == true ? "is-invalid" : "")" required>
+                                <option value="0">-- Select a Book --</option>
+                                @foreach (var book in books)
+                                {
+                                    bool isSelected = false;
+
+                                    // Check if this position has a selected book
+                                    if (i < selectedBookIds.Count)
+                                    {
+                                        isSelected = selectedBookIds[i] == book.BookId;
+                                    }
+
+                                    <option value="@book.BookId" selected='@(isSelected ? "selected" : null)'>
+                                        @book.Title by @book.Author (Available: @book.AvailableCopies)
+                                    </option>
+                                }
+                            </select>
+                            @if (ViewData.ModelState[""]?.Errors.Any() == true && i == 0)
+                            {
+                                <div class="invalid-feedback">
+                                    @ViewData.ModelState[""].Errors.First().ErrorMessage
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-2">
+                            @if (i >= 0)
+                            {
+                                <button type="submit" name="operation" value="delete-@i" class="btn btn-danger btn-sm mt-3">
+                                    ✕ Remove
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-group mt-4">
+            <button type="submit" name="operation" value="submit" class="btn btn-success ">
+                💾 Save Changes
+            </button>
+            <a asp-action="Index" class="btn btn-secondary ">← Back to List</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+        function toggleStudentFields() {
+            const userType = document.querySelector('select[name="UserType"]').value;
+            const studentFields = document.getElementById('studentFields');
+
+            if (userType === 'Student') {
+                studentFields.style.display = 'block';
+            } else {
+                studentFields.style.display = 'none';
+            }
+        }
+    </script>
 }

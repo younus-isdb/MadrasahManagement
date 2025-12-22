@@ -724,7 +724,7 @@ namespace MadrasahManagement.Models
 
 		public Book Book { get; set; } = default!;
 		public AppUser AppUser { get; set; } = default!;
-	}
+        }
 
 	// -------------------------
 	// 19. Notice

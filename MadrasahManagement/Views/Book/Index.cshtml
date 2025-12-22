@@ -1,22 +1,20 @@
-﻿<!-- Improved Book Inventory Design -->
-@model IEnumerable<MadrasahManagement.Models.Book>
+﻿@model IEnumerable<MadrasahManagement.Models.Book>
 
 @{
     ViewData["Title"] = "Book Inventory";
 }
 
-<div class="container mt-5">
+<div class="container ">
 
-    <!-- Header Section -->
-    <div class="text-center mb-5">
-        <h3 class="fw-bold text-dark display-4 position-relative">
-            <span class="px-4 py-2 rounded-3 shadow-sm bg-light border-start border-4 border-primary">
+    <div class="text-center mb-4">
+        <h3 class="fw-bold text-dark display-6 position-relative">
+            <span class="px-2 py-1 rounded-3 shadow-sm bg-light border-start border-2 border-primary">
                 📚 Book Inventory
             </span>
         </h3>
     </div>
 
-    <!-- Action Buttons -->
+   
     <div class="d-flex justify-content-end gap-3 mb-4">
         <a asp-action="Create" class="btn btn-success rounded-pill px-4 shadow-sm">
             <i class="fas fa-plus-circle me-2"></i> Add New Book
@@ -26,70 +24,6 @@
         </a>
     </div>
 
-    <style>
-        .book-card {
-            transition: all 0.3s ease;
-            border-radius: 14px;
-            border: none;
-            overflow: hidden;
-        }
-
-            .book-card:hover {
-                transform: translateY(-6px) scale(1.02);
-                box-shadow: 0 15px 25px rgba(0,0,0,0.15);
-            }
-
-        .book-cover {
-            height: 230px;
-            object-fit: cover;
-            width: 100%;
-            border-bottom: 1px solid #eee;
-        }
-
-        .book-cover-placeholder {
-            height: 230px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6c757d;
-            font-size: 2.5rem;
-        }
-
-        .availability-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 6px 12px;
-            font-size: 0.85rem;
-        }
-
-        .book-title {
-            font-weight: 700;
-            color: #202224;
-            min-height: 48px;
-        }
-
-        .book-author {
-            color: #6c757d;
-            font-style: italic;
-        }
-
-        .action-buttons .btn {
-            border-radius: 30px;
-            font-size: 0.9rem;
-            padding: 6px 14px;
-        }
-
-        .empty-state {
-            padding: 80px 20px;
-        }
-
-            .empty-state i {
-                opacity: 0.3;
-            }
-
-    </style>
 
     @if (Model != null && Model.Any())
     {
@@ -148,3 +82,69 @@
         </div>
     }
 </div>
+
+
+<style>
+    .book-card {
+        transition: all 0.3s ease;
+        border-radius: 14px;
+        border: none;
+        overflow: hidden;
+    }
+
+        .book-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+        }
+
+    .book-cover {
+        height: 230px;
+        object-fit: cover;
+        width: 100%;
+        border-bottom: 1px solid #eee;
+    }
+
+    .book-cover-placeholder {
+        height: 230px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 2.5rem;
+    }
+
+    .availability-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+
+    .book-title {
+        font-weight: 700;
+        color: #202224;
+        min-height: 48px;
+    }
+
+    .book-author {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .action-buttons .btn {
+        border-radius: 30px;
+        font-size: 0.9rem;
+        padding: 6px 14px;
+    }
+
+    .empty-state {
+        padding: 80px 20px;
+    }
+
+        .empty-state i {
+            opacity: 0.3;
+        }
+
+</style>
