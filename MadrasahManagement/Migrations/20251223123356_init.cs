@@ -574,11 +574,10 @@ namespace MadrasahManagement.Migrations
                 {
                     ExamFeeId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EducationYear = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EducationYear = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     ClassId = table.Column<int>(type: "int", nullable: false),
                     ExamId = table.Column<int>(type: "int", nullable: false),
-                    ExaminationExamId = table.Column<int>(type: "int", nullable: true),
-                    ExamFees = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    ExamAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -590,10 +589,11 @@ namespace MadrasahManagement.Migrations
                         principalColumn: "ClassId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ExamFees_Examinations_ExaminationExamId",
-                        column: x => x.ExaminationExamId,
+                        name: "FK_ExamFees_Examinations_ExamId",
+                        column: x => x.ExamId,
                         principalTable: "Examinations",
-                        principalColumn: "ExamId");
+                        principalColumn: "ExamId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1216,9 +1216,9 @@ namespace MadrasahManagement.Migrations
                 column: "ClassId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExamFees_ExaminationExamId",
+                name: "IX_ExamFees_ExamId",
                 table: "ExamFees",
-                column: "ExaminationExamId");
+                column: "ExamId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ExamResults_ExamId",

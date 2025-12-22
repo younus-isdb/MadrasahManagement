@@ -538,22 +538,20 @@ namespace MadrasahManagement.Migrations
 
                     b.Property<string>("EducationYear")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
-                    b.Property<decimal>("ExamFees")
+                    b.Property<decimal>("ExamAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ExamId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ExaminationExamId")
                         .HasColumnType("int");
 
                     b.HasKey("ExamFeeId");
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("ExaminationExamId");
+                    b.HasIndex("ExamId");
 
                     b.ToTable("ExamFees");
                 });
@@ -1720,7 +1718,9 @@ namespace MadrasahManagement.Migrations
 
                     b.HasOne("MadrasahManagement.Models.Examination", "Examination")
                         .WithMany("ExamFees")
-                        .HasForeignKey("ExaminationExamId");
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Class");
 

@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MadrasahManagement.Models
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
     public class Examination
     {
         [Key]
@@ -10,32 +13,33 @@ namespace MadrasahManagement.Models
 
         [Required, MaxLength(150)]
         public string ExamName { get; set; } = string.Empty;
-        public ICollection<ExamFee>? ExamFees { get; set; }
 
-
+        // Initialize to prevent null reference errors
+        public virtual ICollection<ExamFee> ExamFees { get; set; } = new List<ExamFee>();
     }
+
     public class ExamFee
     {
         [Key]
         public int ExamFeeId { get; set; }
 
-        [Required]
+        [Required, MaxLength(10)] // e.g., "2024-2025"
         public string EducationYear { get; set; } = string.Empty;
 
-        // 🔹 Class Table Relation
         [Required]
         public int ClassId { get; set; }
-        public Class? Class { get; set; }
+        [ForeignKey("ClassId")]
+        public virtual Class? Class { get; set; }
 
-        // 🔹 Examination Table Relation
         [Required]
         public int ExamId { get; set; }
-        public Examination? Examination { get; set; }
+        [ForeignKey("ExamId")]
+        public virtual Examination? Examination { get; set; }
 
         [Required]
-        public decimal ExamFees { get; set; }
+        [Column(TypeName = "decimal(18,2)")] 
+        public decimal ExamAmount { get; set; }
     }
-
     public class SubClassGroup
     {
         [Key]

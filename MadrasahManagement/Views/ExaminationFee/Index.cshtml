@@ -1,36 +1,58 @@
 ﻿@model IEnumerable<MadrasahManagement.Models.ExamFee>
 
-<table class="table table-bordered">
-    <a asp-action="Create" class="btn btn-primary mb-2">Add New</a>
-    <thead>
+@* Move the button outside the table for valid HTML *@
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary">Add New</a>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-light">
         <tr>
-            
             <th>Education Year</th>
             <th>Class</th>
             <th>Exam Name</th>
             <th>Exam Fees</th>
+            <th class="text-center">Action</th>
         </tr>
     </thead>
     <tbody>
         @if (Model != null && Model.Any())
         {
-            int serial = 1;
             foreach (var fee in Model)
             {
                 <tr>
-                    
                     <td>@fee.EducationYear</td>
-                    <td>@fee.Class?.ClassName</td>        <!-- Null-safe -->
-                    <td>@fee.Examination?.ExamName</td>   <!-- Null-safe -->
-                    <td>@fee.ExamFees.ToString("0.00")</td>
+                    @* Safe navigation operator ensures no crash if Class is null *@
+                    <td>@(fee.Class?.ClassName ?? "N/A")</td>
+                    <td>
+                        @* Display Exam Name or 'No Exam' placeholder *@
+                        @(fee.Examination != null ? fee.Examination.ExamName : "No Exam")
+                    </td>
+                    <td>@fee.ExamAmount.ToString("0.00")</td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a asp-controller="ExaminationFee"
+                               asp-action="Edit"
+                               asp-route-id="@fee.ExamFeeId"
+                               class="btn btn-warning btn-sm">
+                                Edit
+                            </a>
+                            <a asp-controller="ExaminationFee"
+                               asp-action="Delete"
+                               asp-route-id="@fee.ExamFeeId"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Are you sure you want to delete this?')">
+                                Delete
+                            </a>
+                        </div>
+                    </td>
                 </tr>
-                serial++;
             }
         }
         else
         {
             <tr>
-                <td colspan="5" class="text-center">No data available</td>
+                <td colspan="5" class="text-center text-muted">No fee records found.</td>
             </tr>
         }
     </tbody>
