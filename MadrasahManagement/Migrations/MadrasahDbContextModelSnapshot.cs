@@ -533,23 +533,27 @@ namespace MadrasahManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamFeeId"));
 
-                    b.Property<string>("Class")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
 
                     b.Property<string>("EducationYear")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ExamFees")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("ExamFees")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("ExamName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ExamId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ExaminationExamId")
+                        .HasColumnType("int");
 
                     b.HasKey("ExamFeeId");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("ExaminationExamId");
 
                     b.ToTable("ExamFees");
                 });
@@ -1706,6 +1710,23 @@ namespace MadrasahManagement.Migrations
                     b.Navigation("Class");
                 });
 
+            modelBuilder.Entity("MadrasahManagement.Models.ExamFee", b =>
+                {
+                    b.HasOne("MadrasahManagement.Models.Class", "Class")
+                        .WithMany("ExamFees")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Examination", "Examination")
+                        .WithMany("ExamFees")
+                        .HasForeignKey("ExaminationExamId");
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Examination");
+                });
+
             modelBuilder.Entity("MadrasahManagement.Models.ExamResult", b =>
                 {
                     b.HasOne("MadrasahManagement.Models.Exam", "Exam")
@@ -2102,6 +2123,8 @@ namespace MadrasahManagement.Migrations
 
                     b.Navigation("ClassSubjects");
 
+                    b.Navigation("ExamFees");
+
                     b.Navigation("Exams");
 
                     b.Navigation("FeeTypes");
@@ -2127,6 +2150,11 @@ namespace MadrasahManagement.Migrations
             modelBuilder.Entity("MadrasahManagement.Models.Exam", b =>
                 {
                     b.Navigation("ExamResults");
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.Examination", b =>
+                {
+                    b.Navigation("ExamFees");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Hostel", b =>

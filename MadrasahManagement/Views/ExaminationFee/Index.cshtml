@@ -1,0 +1,37 @@
+﻿@model IEnumerable<MadrasahManagement.Models.ExamFee>
+
+<table class="table table-bordered">
+    <a asp-action="Create" class="btn btn-primary mb-2">Add New</a>
+    <thead>
+        <tr>
+            
+            <th>Education Year</th>
+            <th>Class</th>
+            <th>Exam Name</th>
+            <th>Exam Fees</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int serial = 1;
+            foreach (var fee in Model)
+            {
+                <tr>
+                    
+                    <td>@fee.EducationYear</td>
+                    <td>@fee.Class?.ClassName</td>        <!-- Null-safe -->
+                    <td>@fee.Examination?.ExamName</td>   <!-- Null-safe -->
+                    <td>@fee.ExamFees.ToString("0.00")</td>
+                </tr>
+                serial++;
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center">No data available</td>
+            </tr>
+        }
+    </tbody>
+</table>

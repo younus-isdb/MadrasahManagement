@@ -156,22 +156,6 @@ namespace MadrasahManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ExamFees",
-                columns: table => new
-                {
-                    ExamFeeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EducationYear = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Class = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExamName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExamFees = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExamFees", x => x.ExamFeeId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Examinations",
                 columns: table => new
                 {
@@ -582,6 +566,34 @@ namespace MadrasahManagement.Migrations
                         principalTable: "Departments",
                         principalColumn: "DepartmentId",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExamFees",
+                columns: table => new
+                {
+                    ExamFeeId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EducationYear = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClassId = table.Column<int>(type: "int", nullable: false),
+                    ExamId = table.Column<int>(type: "int", nullable: false),
+                    ExaminationExamId = table.Column<int>(type: "int", nullable: true),
+                    ExamFees = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamFees", x => x.ExamFeeId);
+                    table.ForeignKey(
+                        name: "FK_ExamFees_Classes_ClassId",
+                        column: x => x.ClassId,
+                        principalTable: "Classes",
+                        principalColumn: "ClassId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ExamFees_Examinations_ExaminationExamId",
+                        column: x => x.ExaminationExamId,
+                        principalTable: "Examinations",
+                        principalColumn: "ExamId");
                 });
 
             migrationBuilder.CreateTable(
@@ -1199,6 +1211,16 @@ namespace MadrasahManagement.Migrations
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExamFees_ClassId",
+                table: "ExamFees",
+                column: "ClassId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamFees_ExaminationExamId",
+                table: "ExamFees",
+                column: "ExaminationExamId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ExamResults_ExamId",
                 table: "ExamResults",
                 column: "ExamId");
@@ -1433,9 +1455,6 @@ namespace MadrasahManagement.Migrations
                 name: "ExamFees");
 
             migrationBuilder.DropTable(
-                name: "Examinations");
-
-            migrationBuilder.DropTable(
                 name: "ExamIncomeExpenses");
 
             migrationBuilder.DropTable(
@@ -1488,6 +1507,9 @@ namespace MadrasahManagement.Migrations
 
             migrationBuilder.DropTable(
                 name: "TransportAssignments");
+
+            migrationBuilder.DropTable(
+                name: "Examinations");
 
             migrationBuilder.DropTable(
                 name: "Exams");

@@ -10,6 +10,7 @@ namespace MadrasahManagement.Models
 
         [Required, MaxLength(150)]
         public string ExamName { get; set; } = string.Empty;
+        public ICollection<ExamFee>? ExamFees { get; set; }
 
 
     }
@@ -17,11 +18,24 @@ namespace MadrasahManagement.Models
     {
         [Key]
         public int ExamFeeId { get; set; }
-        public string EducationYear { get; set; } = default!;
-        public string Class { get; set; }
-        public string ExamName { get; set; } = string.Empty;
-        public string ExamFees { get; set; }
+
+        [Required]
+        public string EducationYear { get; set; } = string.Empty;
+
+        // 🔹 Class Table Relation
+        [Required]
+        public int ClassId { get; set; }
+        public Class? Class { get; set; }
+
+        // 🔹 Examination Table Relation
+        [Required]
+        public int ExamId { get; set; }
+        public Examination? Examination { get; set; }
+
+        [Required]
+        public decimal ExamFees { get; set; }
     }
+
     public class SubClassGroup
     {
         [Key]
