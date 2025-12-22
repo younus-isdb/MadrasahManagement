@@ -27,7 +27,20 @@ namespace MadrasahManagement.Models
 		public DbSet<Exam> Exams { get; set; } = default!;
 		public DbSet<ExamResult> ExamResults { get; set; } = default!;
 		public DbSet<Attendance> Attendances { get; set; } = default!;
-		public DbSet<TeacherAttendance> TeacherAttendances { get; set; } = default!;
+        // ===== Examination =====
+        public DbSet<Examination> Examinations { get; set; }
+        public DbSet<ExamFee> ExamFees { get; set; }
+        public DbSet<ExamRoutine> ExamRoutines { get; set; }
+
+        // ===== Result / Academic =====
+        public DbSet<PointCondition> PointConditions { get; set; }
+        public DbSet<MeritCondition> MeritConditions { get; set; }
+        public DbSet<SubClassGroup> SubClassGroups { get; set; }
+
+        // ===== Finance =====
+        public DbSet<ExamFeeCollection> ExamFeeCollections { get; set; }
+        public DbSet<ExamIncomeExpense> ExamIncomeExpenses { get; set; }
+        public DbSet<TeacherAttendance> TeacherAttendances { get; set; } = default!;
 		public DbSet<FeeType> FeeTypes { get; set; } = default!;
 		public DbSet<FeeCollection> FeeCollections { get; set; } = default!;
 		public DbSet<Salary> Salaries { get; set; } = default!;

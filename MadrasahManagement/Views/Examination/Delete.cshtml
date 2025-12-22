@@ -1,0 +1,32 @@
+﻿@model Examination
+
+@{
+    ViewData["Title"] = "Delete Examination";
+}
+
+<h4 class="mb-3 text-danger">Delete Examination</h4>
+
+<div class="alert alert-warning">
+    <strong>Warning!</strong>
+    Are you sure you want to delete this examination?
+</div>
+
+<table class="table table-bordered">
+    <tr>
+        <th style="width:200px;">Exam Name</th>
+        <td>@Model.ExamName</td>
+    </tr>
+</table>
+
+<form asp-action="Delete" method="post">
+    @* Hidden Id *@
+    <input type="hidden" asp-for="ExamId" />
+
+    <button type="submit" class="btn btn-danger">
+        Yes, Delete
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary ms-2">
+        Cancel
+    </a>
+</form>

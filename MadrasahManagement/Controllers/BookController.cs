@@ -209,42 +209,67 @@ namespace MadrasahManagement.Controllers
             return View(book);
         }
 
-        // POST: BookController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
             try
             {
-                var book = await _db.Books.
-                    Include(b => b.IssuedBooks).FirstOrDefaultAsync(b => b.BookId == id);
+                var book = await _db.Books
+                    .Include(b => b.IssuedBooks)
+                    .FirstOrDefaultAsync(b => b.BookId == id);
+
                 if (book == null)
                 {
                     return NotFound();
                 }
 
-                bool hasActIssued = book.IssuedBooks.Any(a => a.ReturnDate == null);
-                if (hasActIssued)
+                // Check if book has ANY ACTIVE (not returned) issues
+                bool hasActiveIssues = book.IssuedBooks.Any(ib => ib.ReturnDate == null);
+
+                if (hasActiveIssues)
                 {
-                    ModelState.AddModelError("", "Cannot delete book. There are active issued copies that haven't been returned yet.");
+                    // Book is currently issued - cannot delete
+                    int activeCount = book.IssuedBooks.Count(ib => ib.ReturnDate == null);
+                    ModelState.AddModelError("",
+                        $"Cannot delete book. There are {activeCount} copy(s) currently issued to students. " +
+                        "Please ensure all copies are returned before deleting.");
+
                     return View("Delete", book);
                 }
 
+                // Book has NO ACTIVE issues (all returned or never issued) - safe to delete
+
+                // Also delete all related IssuedBook records (past history)
+                if (book.IssuedBooks.Any())
+                {
+                    _db.IssuedBooks.RemoveRange(book.IssuedBooks);
+                }
+
+                // Delete the image file if exists
+                if (!string.IsNullOrEmpty(book.ImageUrl))
+                {
+                    await _uploadService.FileDelete(book.ImageUrl);
+                }
+
+                // Delete the book
                 _db.Books.Remove(book);
                 await _db.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Book deleted successfully!";
                 return RedirectToAction(nameof(Index));
             }
-
             catch (DbUpdateException ex)
             {
                 ModelState.AddModelError("", "Unable to delete book. It may have related records in the system.");
-                return View("Delete", await _db.Books.FindAsync(id));
+                var book = await _db.Books.FindAsync(id);
+                return View("Delete", book);
             }
-
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "An error occurred while deleting the book.");
-                return View(await _db.Books.FindAsync(id));
+                var book = await _db.Books.FindAsync(id);
+                return View("Delete", book);
             }
         }
 

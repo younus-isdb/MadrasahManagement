@@ -1,0 +1,87 @@
+﻿@model IEnumerable<MadrasahManagement.Models.IssuedBook>
+
+@{
+    ViewData["Title"] = "Returned Books History";
+    var groupedIssues = Model.Where(i => i.ReturnDate != null).GroupBy(i => i.IssuedTo);
+}
+
+<div class="container text-center">
+ 
+    <h1 style="color:green" class="fw-bold">Returned Books History</h1>
+    <br />
+    <div class="mb-3">
+        
+        <a asp-action="Index" class="btn btn-primary">View Current Issues</a>
+        <a asp-action="Create" class="btn btn-success ms-2">Issue New Book</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <h5>No returned books found</h5>
+            <p>All books are currently issued or no books have been returned yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-dark">
+                            <tr class="text-center">
+                                <th>Issued To</th>
+                                <th>Book Title</th>
+                                <th>Issue Date</th>
+                                <th>Return Date</th>
+                                <th>Days Issued</th>
+                                <th>Fine</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var userGroup in groupedIssues)
+                            {
+                                var bookCount = userGroup.Count();
+                                var firstIssue = userGroup.First();
+
+                                @for (int i = 0; i < bookCount; i++)
+                                {
+                                    var issue = userGroup.ElementAt(i);
+                                    <tr class="text-center">
+                                        @if (i == 0)
+                                        {
+                                            <td rowspan="@bookCount" style="vertical-align: middle;">
+                                                <strong>@firstIssue.AppUser?.UserName</strong>
+                                            </td>
+                                        }
+
+                                        <td class="text-start">@issue.Book?.Title</td>
+                                        <td>@issue.IssueDate.ToString("MMM dd, yyyy")</td>
+                                        <td>@issue.ReturnDate?.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            @if (issue.ReturnDate.HasValue)
+                                            {
+                                                var daysIssued =
+                                                issue.ReturnDate.Value.Day - issue.IssueDate.Day;
+
+                                                <span class="badge bg-info">@daysIssued days</span>
+                                            }
+
+                                        </td>
+                                        <td class="@(issue.Fine > 0 ? "text-danger fw-bold" : "text-success")">
+                                            @issue.Fine.ToString("C")
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">Returned</span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

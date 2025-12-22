@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MadrasahManagement.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -141,6 +141,80 @@ namespace MadrasahManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ExamFeeCollections",
+                columns: table => new
+                {
+                    FeeCollectionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    PaidAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaidDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamFeeCollections", x => x.FeeCollectionId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExamFees",
+                columns: table => new
+                {
+                    ExamFeeId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EducationYear = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Class = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExamName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExamFees = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamFees", x => x.ExamFeeId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Examinations",
+                columns: table => new
+                {
+                    ExamId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ExamName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Examinations", x => x.ExamId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExamIncomeExpenses",
+                columns: table => new
+                {
+                    IncomeExpenseId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ExamId = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamIncomeExpenses", x => x.IncomeExpenseId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExamRoutines",
+                columns: table => new
+                {
+                    ExamRoutineId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ExamId = table.Column<int>(type: "int", nullable: false),
+                    ExamDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamRoutines", x => x.ExamRoutineId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Expenses",
                 columns: table => new
                 {
@@ -169,6 +243,47 @@ namespace MadrasahManagement.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Hostels", x => x.HostelId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MeritConditions",
+                columns: table => new
+                {
+                    MeritConditionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FromMerit = table.Column<int>(type: "int", nullable: false),
+                    ToMerit = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MeritConditions", x => x.MeritConditionId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PointConditions",
+                columns: table => new
+                {
+                    PointConditionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ObtainedMarks = table.Column<int>(type: "int", nullable: false),
+                    Grade = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PointConditions", x => x.PointConditionId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubClassGroups",
+                columns: table => new
+                {
+                    SubClassGroupId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubClassGroups", x => x.SubClassGroupId);
                 });
 
             migrationBuilder.CreateTable(
@@ -1312,7 +1427,22 @@ namespace MadrasahManagement.Migrations
                 name: "Events");
 
             migrationBuilder.DropTable(
+                name: "ExamFeeCollections");
+
+            migrationBuilder.DropTable(
+                name: "ExamFees");
+
+            migrationBuilder.DropTable(
+                name: "Examinations");
+
+            migrationBuilder.DropTable(
+                name: "ExamIncomeExpenses");
+
+            migrationBuilder.DropTable(
                 name: "ExamResults");
+
+            migrationBuilder.DropTable(
+                name: "ExamRoutines");
 
             migrationBuilder.DropTable(
                 name: "Expenses");
@@ -1330,13 +1460,22 @@ namespace MadrasahManagement.Migrations
                 name: "LoginLogs");
 
             migrationBuilder.DropTable(
+                name: "MeritConditions");
+
+            migrationBuilder.DropTable(
                 name: "Messages");
 
             migrationBuilder.DropTable(
                 name: "Notices");
 
             migrationBuilder.DropTable(
+                name: "PointConditions");
+
+            migrationBuilder.DropTable(
                 name: "Salaries");
+
+            migrationBuilder.DropTable(
+                name: "SubClassGroups");
 
             migrationBuilder.DropTable(
                 name: "Submissions");

@@ -27,7 +27,13 @@
                 <dd class="col-sm-9">@Model.IssueDate.ToString("MMM dd, yyyy")</dd>
 
                 <dt class="col-sm-3">Days Issued:</dt>
-                <dd class="col-sm-9">@((DateTimeOffset.Now - Model.IssueDate).Days) days</dd>
+                @{
+                    var today = DateOnly.FromDateTime(DateTime.Now);
+                    var daysIssued = today.DayNumber - Model.IssueDate.Day;
+                }
+
+                <dd class="col-sm-9">@daysIssued days</dd>
+
 
                 <dt class="col-sm-3">Fine Amount:</dt>
                 <dd class="col-sm-9">
