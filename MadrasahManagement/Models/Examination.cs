@@ -55,45 +55,71 @@ namespace MadrasahManagement.Models
     {
         [Key]
         public int PointConditionId { get; set; }
+
+        [Required]
         public string EducationYear { get; set; } = string.Empty;
 
         [Required]
         public int ClassId { get; set; }
-        [ForeignKey("ClassId")]
-        public virtual Class? Class { get; set; }
+        [ForeignKey(nameof(ClassId))]
+        public Class? Class { get; set; }
 
         [Required]
         public int ExamId { get; set; }
-        [ForeignKey("ExamId")]
-        public virtual Examination? Examination { get; set; }
-        public int SubjectId { get; set; }
-        [ForeignKey("SubjectId")]
-        public virtual Subject? Subject { get; set; }
+        [ForeignKey(nameof(ExamId))]
+        public Examination? Examination { get; set; }
 
+        [Required]
+        public int SubjectId { get; set; }
+        [ForeignKey(nameof(SubjectId))]
+        public Subject? Subject { get; set; }
 
         [Required]
         public int PassMarks { get; set; }
+
+        [Required]
         public int HighestMark { get; set; }
-        public int ConditonMark { get; set; }
-        public string Division { get; set; }
-        public bool isRedColor { get; set; }
 
+        // Navigation
+        public ICollection<PointConditionDetail> Details { get; set; } = new List<PointConditionDetail>();
+    }
+    public class PointConditionDetail
+    {
+        [Key]
+        public int PointConditionDetailId { get; set; }
 
+        [Required]
+        public int PointConditionId { get; set; }
+        [ForeignKey(nameof(PointConditionId))]
+        public PointCondition? PointCondition { get; set; }
 
-        public string? Grade { get; set; }
-        private string CalculateGrade(int marks)
-        {
-            if (marks >= 80) return "A+";
-            if (marks >= 70) return "A";
-            if (marks >= 60) return "A-";
-            if (marks >= 50) return "B";
-            if (marks >= 40) return "C";
-            return "F";
-        }
+        [Required]
+        public int FromMark { get; set; }   // >=
+        [Required]
+        public int ToMark { get; set; }     // <=
 
+        [Required]
+        public string Division { get; set; } = string.Empty;
+
+        public bool IsSilverColor { get; set; }
     }
 
-    public class MeritCondition
+
+
+    //public string? Grade { get; set; }
+    //private string CalculateGrade(int marks)
+    //{
+    //    if (marks >= 80) return "A+";
+    //    if (marks >= 70) return "A";
+    //    if (marks >= 60) return "A-";
+    //    if (marks >= 50) return "B";
+    //    if (marks >= 40) return "C";
+    //    return "F";
+    //}
+
+
+
+public class MeritCondition
     {
         [Key]
         public int MeritConditionId { get; set; }
