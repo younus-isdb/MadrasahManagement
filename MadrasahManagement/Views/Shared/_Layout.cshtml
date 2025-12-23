@@ -141,6 +141,28 @@
 
                 </ul>
             </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle fw-bold"
+                   href="#"
+                   id="examDropdown"
+                   role="button"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">
+                    Results
+                </a>
+
+
+                <ul class="dropdown-menu shadow" aria-labelledby="examDropdown">
+
+                    <li><a class="dropdown-item" asp-controller="Examination" asp-action="Index">Point Based Results Entry</a></li>
+                    <li><a class="dropdown-item" asp-controller="ExaminationFee" asp-action="Index">Present/Absent</a></li>
+                    <li><a class="dropdown-item" asp-controller="Examination" asp-action="SubClassGroup">Point Based MarkSheet </a></li>
+                    <li><a class="dropdown-item" asp-controller="Examination" asp-action="PointCondition">Point Based Report</a></li>
+                    <li><a class="dropdown-item" asp-controller="Examination" asp-action="MeritCondition">Online Result Published</a></li>
+                
+
+                </ul>
+            </li>
 
             <ul class="nav flex-column">
 

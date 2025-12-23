@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    [Migration("20251223123356_init")]
+    [Migration("20251223202115_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -849,15 +849,15 @@ namespace MadrasahManagement.Migrations
                     b.Property<decimal>("Fine")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTimeOffset>("IssueDate")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateOnly>("IssueDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("IssuedTo")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTimeOffset?>("ReturnDate")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateOnly?>("ReturnDate")
+                        .HasColumnType("date");
 
                     b.Property<int?>("RollNumber")
                         .HasColumnType("int");
@@ -875,9 +875,11 @@ namespace MadrasahManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookId");
-
                     b.HasIndex("IssuedTo");
+
+                    b.HasIndex("BookId", "IssuedTo")
+                        .IsUnique()
+                        .HasFilter("[ReturnDate] IS NULL");
 
                     b.ToTable("IssuedBooks", (string)null);
                 });

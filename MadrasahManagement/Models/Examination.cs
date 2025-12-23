@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MadrasahManagement.Models
 {
+    using System.Collections.Specialized;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,6 +17,8 @@ namespace MadrasahManagement.Models
 
         // Initialize to prevent null reference errors
         public virtual ICollection<ExamFee> ExamFees { get; set; } = new List<ExamFee>();
+        public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
+
     }
 
     public class ExamFee
@@ -52,9 +55,28 @@ namespace MadrasahManagement.Models
     {
         [Key]
         public int PointConditionId { get; set; }
+        public string EducationYear { get; set; } = string.Empty;
 
         [Required]
-        public int ObtainedMarks { get; set; }
+        public int ClassId { get; set; }
+        [ForeignKey("ClassId")]
+        public virtual Class? Class { get; set; }
+
+        [Required]
+        public int ExamId { get; set; }
+        [ForeignKey("ExamId")]
+        public virtual Examination? Examination { get; set; }
+        public int SubjectId { get; set; }
+        [ForeignKey("SubjectId")]
+        public virtual Subject? Subject { get; set; }
+
+
+        [Required]
+        public int PassMarks { get; set; }
+        public int HighestMark { get; set; }
+        public int ConditonMark { get; set; }
+        public string Division { get; set; }
+        public bool isRedColor { get; set; }
 
 
 

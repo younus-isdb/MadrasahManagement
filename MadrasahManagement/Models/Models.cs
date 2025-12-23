@@ -1,9 +1,9 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace MadrasahManagement.Models
@@ -147,8 +147,8 @@ namespace MadrasahManagement.Models
         [Required]
         [ForeignKey(nameof(AppUser))]
         public string UserId { get; set; } = default!;
-		[ValidateNever]
-		public AppUser AppUser { get; set; } = default!;
+        [ValidateNever]
+        public AppUser AppUser { get; set; } = default!;
 
         // -------------------------
         // Multilingual Names
@@ -168,18 +168,18 @@ namespace MadrasahManagement.Models
         // -------------------------
         [ForeignKey(nameof(Department))]
         public int DepartmentId { get; set; }
-		[ValidateNever]
-		public Department Department { get; set; } = default!;
+        [ValidateNever]
+        public Department Department { get; set; } = default!;
 
         [ForeignKey(nameof(Class))]
         public int ClassId { get; set; }
-		[ValidateNever]
-		public Class Class { get; set; } = default!;
+        [ValidateNever]
+        public Class Class { get; set; } = default!;
 
         [ForeignKey(nameof(Section))]
         public int SectionId { get; set; }
-		[ValidateNever]
-		public Section Section { get; set; } = default!;
+        [ValidateNever]
+        public Section Section { get; set; } = default!;
 
 
         // -------------------------
@@ -198,10 +198,10 @@ namespace MadrasahManagement.Models
         // -------------------------
         public Gender? Gender { get; set; }
 
-		public DateTime DOB { get; set; } = DateTime.Today.AddYears(-5);
+        public DateTime DOB { get; set; } = DateTime.Today.AddYears(-5);
 
 
-		[MaxLength(5)]
+        [MaxLength(5)]
         public string? BloodGroup { get; set; }
 
 
@@ -375,6 +375,7 @@ namespace MadrasahManagement.Models
         public ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
         public ICollection<FeeType> FeeTypes { get; set; } = new HashSet<FeeType>();
         public ICollection<ExamFee>? ExamFees { get; set; }
+        public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
 
     }
 
@@ -425,6 +426,7 @@ namespace MadrasahManagement.Models
 
         public ICollection<ClassSubject> ClassSubjects { get; set; } = new HashSet<ClassSubject>();
         public ICollection<Timetable> Timetables { get; set; } = new HashSet<Timetable>();
+        public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
     }
 
     // -------------------------
@@ -639,99 +641,99 @@ namespace MadrasahManagement.Models
         public DateTimeOffset Date { get; set; }
     }
 
-	// -------------------------
-	// 17. Book
-	// -------------------------
-	public class Book
-	{
-		[Key]
-		public int BookId { get; set; }
+    // -------------------------
+    // 17. Book
+    // -------------------------
+    public class Book
+    {
+        [Key]
+        public int BookId { get; set; }
 
-		[Required, MaxLength(250)]
-		public string Title { get; set; } = default!;
+        [Required, MaxLength(250)]
+        public string Title { get; set; } = default!;
 
-		[MaxLength(150)]
-		public string? Author { get; set; }
+        [MaxLength(150)]
+        public string? Author { get; set; }
 
-		[MaxLength(20)]
-		public string? ISBN { get; set; }
+        [MaxLength(20)]
+        public string? ISBN { get; set; }
 
-		[MaxLength(100)]
-		public string? Category { get; set; }
+        [MaxLength(100)]
+        public string? Category { get; set; }
 
-		[Range(1, int.MaxValue, ErrorMessage = "Total copies must be at least 1")]
-		public int TotalCopies { get; set; }
-		public int AvailableCopies { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Total copies must be at least 1")]
+        public int TotalCopies { get; set; }
+        public int AvailableCopies { get; set; }
 
-		[DataType(DataType.ImageUrl)]
-		public string? ImageUrl { get; set; }
+        [DataType(DataType.ImageUrl)]
+        public string? ImageUrl { get; set; }
 
-		[NotMapped, DisplayName("Image")]
-		public IFormFile? ImageFile { get; set; }
+        [NotMapped, DisplayName("Image")]
+        public IFormFile? ImageFile { get; set; }
 
-		public ICollection<IssuedBook> IssuedBooks { get; set; } = new HashSet<IssuedBook>();
-		public bool CanBeIssued()
-		{
-			return AvailableCopies > 0;
-		}
-
-		// Method to issue a book
-		public void IssueBook()
-		{
-			if (AvailableCopies <= 0)
-				throw new InvalidOperationException("No copies available for issuing");
-
-			AvailableCopies--;
-		}
-
-		// Method to return a book
-		public void ReturnBook()
-		{
-			if (AvailableCopies >= TotalCopies)
-				throw new InvalidOperationException("Cannot return more copies than total");
-
-			AvailableCopies++;
-		}
-
-	}
-
-
-	// -------------------------
-	// 18. IssuedBook
-	// -------------------------
-	public class IssuedBook
-	{
-		[Key]
-		public int Id { get; set; }
-
-		[ForeignKey(nameof(Book))]
-		[Required(ErrorMessage = "Please select a book")]
-		public int BookId { get; set; }
-
-		[ForeignKey(nameof(AppUser))]
-		[Required(ErrorMessage = "Please select a user")]
-		public string? IssuedTo { get; set; }
-
-
-		public string UserFullName { get; set; } = default!;
-		public string UserType { get; set; } = default!;
-		public string? Class { get; set; }
-		public string? Section { get; set; }
-		public int? RollNumber { get; set; }
-
-		public DateTimeOffset IssueDate { get; set; }
-		public DateTimeOffset? ReturnDate { get; set; }
-
-		public decimal Fine { get; set; }
-
-		public Book Book { get; set; } = default!;
-		public AppUser AppUser { get; set; } = default!;
+        public ICollection<IssuedBook> IssuedBooks { get; set; } = new HashSet<IssuedBook>();
+        public bool CanBeIssued()
+        {
+            return AvailableCopies > 0;
         }
 
-	// -------------------------
-	// 19. Notice
-	// -------------------------
-	public class Notice
+        // Method to issue a book
+        public void IssueBook()
+        {
+            if (AvailableCopies <= 0)
+                throw new InvalidOperationException("No copies available for issuing");
+
+            AvailableCopies--;
+        }
+
+        // Method to return a book
+        public void ReturnBook()
+        {
+            if (AvailableCopies >= TotalCopies)
+                throw new InvalidOperationException("Cannot return more copies than total");
+
+            AvailableCopies++;
+        }
+
+    }
+
+    // -------------------------
+    // 18. IssuedBook
+    // -------------------------
+    public class IssuedBook
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [ForeignKey(nameof(Book))]
+        [Required(ErrorMessage = "Please select a book")]
+        public int BookId { get; set; }
+
+        [ForeignKey(nameof(AppUser))]
+        [Required(ErrorMessage = "Please select a user")]
+        public string IssuedTo { get; set; }
+
+
+        public string UserFullName { get; set; } = default!;
+        public string UserType { get; set; } = default!;
+        public string? Class { get; set; }
+        public string? Section { get; set; }
+        public int? RollNumber { get; set; }
+
+        public DateOnly IssueDate { get; set; }
+        public DateOnly? ReturnDate { get; set; }
+
+        public decimal Fine { get; set; }
+
+        public Book Book { get; set; } = default!;
+        public AppUser AppUser { get; set; } = default!;
+    }
+
+
+    // -------------------------
+    // 19. Notice
+    // -------------------------
+    public class Notice
     {
         [Key]
         public int NoticeId { get; set; }
@@ -743,7 +745,7 @@ namespace MadrasahManagement.Models
         public string Content { get; set; } = default!;
 
         [ForeignKey(nameof(AppRole))]
-        public string? VisibleToRoleId { get; set; } 
+        public string? VisibleToRoleId { get; set; }
 
         public DateTimeOffset DatePosted { get; set; } = DateTimeOffset.UtcNow;
 
@@ -874,7 +876,7 @@ namespace MadrasahManagement.Models
 
         [ForeignKey(nameof(Receiver))]
 
-		public string ReceiverId { get; set; } = default!;
+        public string ReceiverId { get; set; } = default!;
 
         [Required, MaxLength(2000)]
         public string Content { get; set; } = default!;
@@ -885,12 +887,12 @@ namespace MadrasahManagement.Models
         public string? Status { get; set; }
 
         [InverseProperty(nameof(AppUser.SendMessages))]
-		[DeleteBehavior(DeleteBehavior.NoAction)]
-		public AppUser Sender { get; set; } = default!;
+        [DeleteBehavior(DeleteBehavior.NoAction)]
+        public AppUser Sender { get; set; } = default!;
 
         [InverseProperty(nameof(AppUser.ReceiveMessages))]
-		[DeleteBehavior(DeleteBehavior.NoAction)]
-		public AppUser Receiver { get; set; } = default!;
+        [DeleteBehavior(DeleteBehavior.NoAction)]
+        public AppUser Receiver { get; set; } = default!;
     }
 
     // -------------------------

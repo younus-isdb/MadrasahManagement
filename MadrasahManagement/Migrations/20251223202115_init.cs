@@ -497,8 +497,8 @@ namespace MadrasahManagement.Migrations
                     Class = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Section = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RollNumber = table.Column<int>(type: "int", nullable: true),
-                    IssueDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    ReturnDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    IssueDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    ReturnDate = table.Column<DateOnly>(type: "date", nullable: true),
                     Fine = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
@@ -1266,9 +1266,11 @@ namespace MadrasahManagement.Migrations
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IssuedBooks_BookId",
+                name: "IX_IssuedBooks_BookId_IssuedTo",
                 table: "IssuedBooks",
-                column: "BookId");
+                columns: new[] { "BookId", "IssuedTo" },
+                unique: true,
+                filter: "[ReturnDate] IS NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IssuedBooks_IssuedTo",
