@@ -4,6 +4,7 @@ using MadrasahManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    partial class MadrasahDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251222070556_Math")]
+    partial class Math
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -525,82 +528,6 @@ namespace MadrasahManagement.Migrations
                     b.ToTable("Exams", (string)null);
                 });
 
-            modelBuilder.Entity("MadrasahManagement.Models.ExamFee", b =>
-                {
-                    b.Property<int>("ExamFeeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamFeeId"));
-
-                    b.Property<int>("ClassId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EducationYear")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<decimal>("ExamAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ExamId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ExamFeeId");
-
-                    b.HasIndex("ClassId");
-
-                    b.HasIndex("ExamId");
-
-                    b.ToTable("ExamFees");
-                });
-
-            modelBuilder.Entity("MadrasahManagement.Models.ExamFeeCollection", b =>
-                {
-                    b.Property<int>("FeeCollectionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeeCollectionId"));
-
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("PaidDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("FeeCollectionId");
-
-                    b.ToTable("ExamFeeCollections");
-                });
-
-            modelBuilder.Entity("MadrasahManagement.Models.ExamIncomeExpense", b =>
-                {
-                    b.Property<int>("IncomeExpenseId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IncomeExpenseId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ExamId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("IncomeExpenseId");
-
-                    b.ToTable("ExamIncomeExpenses");
-                });
-
             modelBuilder.Entity("MadrasahManagement.Models.ExamResult", b =>
                 {
                     b.Property<int>("ResultId")
@@ -638,47 +565,6 @@ namespace MadrasahManagement.Migrations
                     b.HasIndex("SubjectId");
 
                     b.ToTable("ExamResults", (string)null);
-                });
-
-            modelBuilder.Entity("MadrasahManagement.Models.ExamRoutine", b =>
-                {
-                    b.Property<int>("ExamRoutineId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamRoutineId"));
-
-                    b.Property<DateTime>("ExamDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ExamId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ExamRoutineId");
-
-                    b.ToTable("ExamRoutines");
-                });
-
-            modelBuilder.Entity("MadrasahManagement.Models.Examination", b =>
-                {
-                    b.Property<int>("ExamId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamId"));
-
-                    b.Property<string>("ExamName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.HasKey("ExamId");
-
-                    b.ToTable("Examinations");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Expense", b =>
@@ -907,25 +793,6 @@ namespace MadrasahManagement.Migrations
                     b.ToTable("LoginLogs");
                 });
 
-            modelBuilder.Entity("MadrasahManagement.Models.MeritCondition", b =>
-                {
-                    b.Property<int>("MeritConditionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MeritConditionId"));
-
-                    b.Property<int>("FromMerit")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ToMerit")
-                        .HasColumnType("int");
-
-                    b.HasKey("MeritConditionId");
-
-                    b.ToTable("MeritConditions");
-                });
-
             modelBuilder.Entity("MadrasahManagement.Models.Message", b =>
                 {
                     b.Property<int>("MessageId")
@@ -992,25 +859,6 @@ namespace MadrasahManagement.Migrations
                     b.HasIndex("VisibleToRoleId");
 
                     b.ToTable("Notices", (string)null);
-                });
-
-            modelBuilder.Entity("MadrasahManagement.Models.PointCondition", b =>
-                {
-                    b.Property<int>("PointConditionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PointConditionId"));
-
-                    b.Property<string>("Grade")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ObtainedMarks")
-                        .HasColumnType("int");
-
-                    b.HasKey("PointConditionId");
-
-                    b.ToTable("PointConditions");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Salary", b =>
@@ -1240,23 +1088,6 @@ namespace MadrasahManagement.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Students");
-                });
-
-            modelBuilder.Entity("MadrasahManagement.Models.SubClassGroup", b =>
-                {
-                    b.Property<int>("SubClassGroupId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubClassGroupId"));
-
-                    b.Property<string>("GroupName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("SubClassGroupId");
-
-                    b.ToTable("SubClassGroups");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Subject", b =>
@@ -1710,25 +1541,6 @@ namespace MadrasahManagement.Migrations
                     b.Navigation("Class");
                 });
 
-            modelBuilder.Entity("MadrasahManagement.Models.ExamFee", b =>
-                {
-                    b.HasOne("MadrasahManagement.Models.Class", "Class")
-                        .WithMany("ExamFees")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MadrasahManagement.Models.Examination", "Examination")
-                        .WithMany("ExamFees")
-                        .HasForeignKey("ExamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("Examination");
-                });
-
             modelBuilder.Entity("MadrasahManagement.Models.ExamResult", b =>
                 {
                     b.HasOne("MadrasahManagement.Models.Exam", "Exam")
@@ -2125,8 +1937,6 @@ namespace MadrasahManagement.Migrations
 
                     b.Navigation("ClassSubjects");
 
-                    b.Navigation("ExamFees");
-
                     b.Navigation("Exams");
 
                     b.Navigation("FeeTypes");
@@ -2152,11 +1962,6 @@ namespace MadrasahManagement.Migrations
             modelBuilder.Entity("MadrasahManagement.Models.Exam", b =>
                 {
                     b.Navigation("ExamResults");
-                });
-
-            modelBuilder.Entity("MadrasahManagement.Models.Examination", b =>
-                {
-                    b.Navigation("ExamFees");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Hostel", b =>

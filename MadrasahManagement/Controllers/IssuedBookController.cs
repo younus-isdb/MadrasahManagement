@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MadrasahManagement.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MadrasahManagement.Models;
-using MadrasahManagement.Services;
-using System.Drawing.Drawing2D;
+
 
 namespace MadrasahManagement.Controllers
 {
@@ -191,7 +190,7 @@ namespace MadrasahManagement.Controllers
                             Class = Class,
                             Section = Section,
                             RollNumber = RollNumber,
-                            IssueDate = DateTimeOffset.Now,
+                            IssueDate = DateOnly.FromDateTime(DateTime.Now),
 
                             // ReturnDate = null,
                             Fine = 0
@@ -448,7 +447,7 @@ namespace MadrasahManagement.Controllers
                             Class = UserType == "Student" ? Class : "",
                             Section = UserType == "Student" ? Section : "",
                             RollNumber = UserType == "Student" ? RollNumber : null,
-                            IssueDate = DateTimeOffset.Now,
+                            IssueDate = DateOnly.FromDateTime(DateTime.Now),
                             Fine = 0,
                             ReturnDate = null
                         };
@@ -515,10 +514,10 @@ namespace MadrasahManagement.Controllers
                 //    issuedBook.Fine = daysLate * 10; // 10 per day
                 //}
 
-                var dueDate = issuedBook.IssueDate.AddDays(14).Date;
-                if (DateTimeOffset.Now.Date > dueDate)
+                var dueDate = issuedBook.IssueDate.AddDays(14);
+                if (DateOnly.FromDateTime(DateTime.Now) > dueDate)
                 {
-                    var daysLate = (DateOnly.FromDateTime(DateTime.Now).DayNumber - dueDate.Day);
+                    var daysLate = (DateOnly.FromDateTime(DateTime.Now).DayNumber - dueDate.DayNumber);
                     issuedBook.Fine = daysLate * 10; // 10 per day   ,,later i will do every 5 days after 
                 }
 
@@ -560,13 +559,13 @@ namespace MadrasahManagement.Controllers
                 //}
                 //  issuedBook.ReturnDate = DateTimeOffset.Now;
 
-                if (DateTimeOffset.Now > dueDate)
-                    {
-                    var daysLate = (DateOnly.FromDateTime(DateTime.Now).DayNumber - dueDate.Day);
+                if (DateOnly.FromDateTime(DateTime.Now) > dueDate)
+                {
+                    var daysLate = (DateOnly.FromDateTime(DateTime.Now).DayNumber - dueDate.DayNumber);
 
                     issuedBook.Fine = daysLate * 10;
                 }
-                issuedBook.ReturnDate = DateTimeOffset.Now;
+                issuedBook.ReturnDate = DateOnly.FromDateTime(DateTime.Now);
 
 
                 if (issuedBook.Book != null)
