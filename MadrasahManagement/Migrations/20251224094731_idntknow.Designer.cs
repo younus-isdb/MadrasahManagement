@@ -4,6 +4,7 @@ using MadrasahManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    partial class MadrasahDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251224094731_idntknow")]
+    partial class idntknow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1018,11 +1021,16 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("PassMarks")
                         .HasColumnType("int");
 
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
                     b.HasKey("PointConditionId");
 
                     b.HasIndex("ClassId");
 
                     b.HasIndex("ExamId");
+
+                    b.HasIndex("SubjectId");
 
                     b.ToTable("PointConditions");
                 });
@@ -1923,9 +1931,17 @@ namespace MadrasahManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.Subject", "Subject")
+                        .WithMany("PointConditions")
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Class");
 
                     b.Navigation("Examination");
+
+                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.PointConditionDetail", b =>
@@ -2273,6 +2289,8 @@ namespace MadrasahManagement.Migrations
             modelBuilder.Entity("MadrasahManagement.Models.Subject", b =>
                 {
                     b.Navigation("ClassSubjects");
+
+                    b.Navigation("PointConditions");
 
                     b.Navigation("Timetables");
                 });

@@ -54,12 +54,14 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
+            
+
+            @* <div class="col-md-3">
                 <label>বিষয়</label>
                 <select asp-for="SubjectId" class="form-control" asp-items="ViewBag.SubjectId">
                     <option value="">-- Select --</option>
                 </select>
-            </div>
+            </div> *@
         </div>
 
         <!-- Pass & Highest -->
@@ -119,7 +121,8 @@
                 <input type="number" name="Details[${index}].FromMark" class="form-control" />
                 <input type="number" name="Details[${index}].ToMark" class="form-control" />
                 <input type="text" name="Details[${index}].Division" class="form-control" />
-                <input type="checkbox" name="Details[${index}].IsSilverColor" />
+               <input type="hidden" name="Details[${index}].IsSilverColor" value="false" />
+        <input type="checkbox" name="Details[${index}].IsSilverColor" value="true" />
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button>
             </div>`;
             document.getElementById("conditionContainer").insertAdjacentHTML("beforeend", html);

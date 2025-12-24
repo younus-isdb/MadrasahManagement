@@ -69,10 +69,10 @@ namespace MadrasahManagement.Models
         [ForeignKey(nameof(ExamId))]
         public Examination? Examination { get; set; }
 
-        [Required]
-        public int SubjectId { get; set; }
-        [ForeignKey(nameof(SubjectId))]
-        public Subject? Subject { get; set; }
+        //[Required]
+        //public int SubjectId { get; set; }
+        //[ForeignKey(nameof(SubjectId))]
+        //public Subject? Subject { get; set; }
 
         [Required]
         public int PassMarks { get; set; }

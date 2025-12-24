@@ -426,7 +426,7 @@ namespace MadrasahManagement.Models
 
         public ICollection<ClassSubject> ClassSubjects { get; set; } = new HashSet<ClassSubject>();
         public ICollection<Timetable> Timetables { get; set; } = new HashSet<Timetable>();
-        public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
+        //public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
     }
 
     // -------------------------
