@@ -18,11 +18,11 @@ namespace MadrasahManagement.Controllers
         public async Task<IActionResult> Index()
         {
             var data = await _context.ExamFees
-                            .Include(f => f.Class)       
-                            .Include(f => f.Examination) 
+                            .Include(f => f.Class)
+                            .Include(f => f.Examination)
                             .ToListAsync();
             return View(data);
-           
+
 
         }
 

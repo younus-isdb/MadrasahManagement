@@ -6,6 +6,7 @@ namespace MadrasahManagement.Models
     using System.Collections.Specialized;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
+    using System.Text.Json.Serialization;
 
     public class Examination
     {
@@ -16,8 +17,13 @@ namespace MadrasahManagement.Models
         public string ExamName { get; set; } = string.Empty;
 
         // Initialize to prevent null reference errors
+        [JsonIgnore]
         public virtual ICollection<ExamFee> ExamFees { get; set; } = new List<ExamFee>();
+        [JsonIgnore]
+
         public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
+        [JsonIgnore]
+
         public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } = new List<ExamFeeCollection>();
 
     }
@@ -43,6 +49,7 @@ namespace MadrasahManagement.Models
         [Required]
         [Column(TypeName = "decimal(18,2)")] 
         public decimal ExamAmount { get; set; }
+        [JsonIgnore]
         public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } = new List<ExamFeeCollection>();
     }
     public class SubClassGroup

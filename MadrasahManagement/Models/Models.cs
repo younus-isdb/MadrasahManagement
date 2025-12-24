@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 
 namespace MadrasahManagement.Models
@@ -367,16 +368,36 @@ namespace MadrasahManagement.Models
 
         public Department? Department { get; set; } = default;
 
+        [JsonIgnore]
         public ICollection<Section> Sections { get; set; } = new HashSet<Section>();
+        [JsonIgnore]
+
         public ICollection<Student> Students { get; set; } = new HashSet<Student>();
+        [JsonIgnore]
+
         public ICollection<Subject> Subjects { get; set; } = new HashSet<Subject>();
+        [JsonIgnore]
+
         public ICollection<ClassSubject> ClassSubjects { get; set; } = new HashSet<ClassSubject>();
+        [JsonIgnore]
+
         public ICollection<Exam> Exams { get; set; } = new HashSet<Exam>();
+        [JsonIgnore]
+
         public ICollection<Timetable> Timetables { get; set; } = new HashSet<Timetable>();
+        [JsonIgnore]
+
         public ICollection<Assignment> Assignments { get; set; } = new HashSet<Assignment>();
+        [JsonIgnore]
+
         public ICollection<FeeType> FeeTypes { get; set; } = new HashSet<FeeType>();
+        [JsonIgnore]
         public ICollection<ExamFee>? ExamFees { get; set; }
+        [JsonIgnore]
+
         public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
+        [JsonIgnore]
+
         public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } =new List<ExamFeeCollection>();
     }
 
