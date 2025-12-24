@@ -144,12 +144,36 @@ public class MeritCondition
     {
         [Key]
         public int FeeCollectionId { get; set; }
-        [ForeignKey("Student")]
+        [Required]
+        public string EducationYear { get; set; } = string.Empty;
+        [Required]
+        public int ExamId { get; set; }
+        [ForeignKey(nameof(ExamId))]
+        public Examination? Examination { get; set; }
+
+        public int ClassId { get; set; }
+        [ForeignKey(nameof(ClassId))]
+        public Class? Class { get; set; }
+        public string TotalSubject { get; set; } = string.Empty;
+
+        [Required]
+        public int ExamFeeId { get; set; }
+        [ForeignKey(nameof(ExamFeeId))]
+        public ExamFee? ExamFee { get; set; }
+        [Required]
         public int StudentId { get; set; }
+        [ForeignKey(nameof(StudentId))]
+        public Student? Student { get; set; }
+        
 
-        public decimal PaidAmount { get; set; }
 
-        public DateTime PaidDate { get; set; }
+        //[Required]
+        //public int SubjectId { get; set; }
+        //[ForeignKey(nameof(SubjectId))]
+        //public Subject? Subject { get; set; }
+
+
+        
     }
     public class ExamIncomeExpense
     {

@@ -110,7 +110,22 @@
         <!-- Sidebar -->
         <nav class="sidebar p-3">
             <h1 class="text-center mb-4">Menu</h1>
-            <li class="nav-item dropdown">
+            
+
+            <ul class="nav flex-column">
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                   
+                    <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Index">Students</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Teacher" asp-action="Index">Teachers</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Class" asp-action="Index">Classes</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Subject" asp-action="Index">Subjects</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Exam" asp-action="Index">Exams</a></li>
+                   
+                    <li class="nav-item"><a class="nav-link" asp-controller="IssuedBook" asp-action="Index">Issued Book</a></li>
+                    <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle fw-bold"
                    href="#"
                    id="examDropdown"
@@ -163,20 +178,6 @@
 
                 </ul>
             </li>
-
-            <ul class="nav flex-column">
-
-                @if (User.IsInRole("Admin"))
-                {
-                    <li class="nav-item"><a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-                   
-                    <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Index">Students</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Teacher" asp-action="Index">Teachers</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Class" asp-action="Index">Classes</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Subject" asp-action="Index">Subjects</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Exam" asp-action="Index">Exams</a></li>
-                   
-                    <li class="nav-item"><a class="nav-link" asp-controller="IssuedBook" asp-action="Index">Issued Book</a></li>
                     
                 }
 
