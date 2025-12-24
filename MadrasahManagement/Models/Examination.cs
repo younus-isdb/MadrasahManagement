@@ -18,6 +18,7 @@ namespace MadrasahManagement.Models
         // Initialize to prevent null reference errors
         public virtual ICollection<ExamFee> ExamFees { get; set; } = new List<ExamFee>();
         public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
+        public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } = new List<ExamFeeCollection>();
 
     }
 
@@ -42,6 +43,7 @@ namespace MadrasahManagement.Models
         [Required]
         [Column(TypeName = "decimal(18,2)")] 
         public decimal ExamAmount { get; set; }
+        public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } = new List<ExamFeeCollection>();
     }
     public class SubClassGroup
     {
@@ -156,14 +158,11 @@ public class MeritCondition
         public Class? Class { get; set; }
         public string TotalSubject { get; set; } = string.Empty;
 
-        [Required]
-        public int ExamFeeId { get; set; }
-        [ForeignKey(nameof(ExamFeeId))]
-        public ExamFee? ExamFee { get; set; }
-        [Required]
-        public int StudentId { get; set; }
-        [ForeignKey(nameof(StudentId))]
-        public Student? Student { get; set; }
+       public int ExamFee { get; set; }
+        //[Required]
+        //public int StudentId { get; set; }
+        //[ForeignKey(nameof(StudentId))]
+        //public Student? Student { get; set; }
         
 
 

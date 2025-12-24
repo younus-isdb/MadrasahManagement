@@ -310,6 +310,7 @@ namespace MadrasahManagement.Models
         public ICollection<HostelResident> HostelResidents { get; set; } = new HashSet<HostelResident>();
         public ICollection<TransportAssignment> TransportAssignments { get; set; } = new HashSet<TransportAssignment>();
         public ICollection<Submission> Submissions { get; set; } = new HashSet<Submission>();
+        public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } = new List<ExamFeeCollection>();
     }
 
 
@@ -376,7 +377,7 @@ namespace MadrasahManagement.Models
         public ICollection<FeeType> FeeTypes { get; set; } = new HashSet<FeeType>();
         public ICollection<ExamFee>? ExamFees { get; set; }
         public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
-
+        public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } =new List<ExamFeeCollection>();
     }
 
     // -------------------------

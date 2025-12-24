@@ -141,21 +141,6 @@ namespace MadrasahManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ExamFeeCollections",
-                columns: table => new
-                {
-                    FeeCollectionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentId = table.Column<int>(type: "int", nullable: false),
-                    PaidAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PaidDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExamFeeCollections", x => x.FeeCollectionId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Examinations",
                 columns: table => new
                 {
@@ -241,20 +226,6 @@ namespace MadrasahManagement.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MeritConditions", x => x.MeritConditionId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PointConditions",
-                columns: table => new
-                {
-                    PointConditionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ObtainedMarks = table.Column<int>(type: "int", nullable: false),
-                    Grade = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PointConditions", x => x.PointConditionId);
                 });
 
             migrationBuilder.CreateTable(
@@ -643,6 +614,35 @@ namespace MadrasahManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PointConditions",
+                columns: table => new
+                {
+                    PointConditionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EducationYear = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClassId = table.Column<int>(type: "int", nullable: false),
+                    ExamId = table.Column<int>(type: "int", nullable: false),
+                    PassMarks = table.Column<int>(type: "int", nullable: false),
+                    HighestMark = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PointConditions", x => x.PointConditionId);
+                    table.ForeignKey(
+                        name: "FK_PointConditions_Classes_ClassId",
+                        column: x => x.ClassId,
+                        principalTable: "Classes",
+                        principalColumn: "ClassId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PointConditions_Examinations_ExamId",
+                        column: x => x.ExamId,
+                        principalTable: "Examinations",
+                        principalColumn: "ExamId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Sections",
                 columns: table => new
                 {
@@ -731,6 +731,29 @@ namespace MadrasahManagement.Migrations
                         column: x => x.TeacherId,
                         principalTable: "Teachers",
                         principalColumn: "TeacherId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PointConditionDetails",
+                columns: table => new
+                {
+                    PointConditionDetailId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PointConditionId = table.Column<int>(type: "int", nullable: false),
+                    FromMark = table.Column<int>(type: "int", nullable: false),
+                    ToMark = table.Column<int>(type: "int", nullable: false),
+                    Division = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsSilverColor = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PointConditionDetails", x => x.PointConditionDetailId);
+                    table.ForeignKey(
+                        name: "FK_PointConditionDetails_PointConditions_PointConditionId",
+                        column: x => x.PointConditionId,
+                        principalTable: "PointConditions",
+                        principalColumn: "PointConditionId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -954,6 +977,48 @@ namespace MadrasahManagement.Migrations
                         principalTable: "Teachers",
                         principalColumn: "TeacherId",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExamFeeCollections",
+                columns: table => new
+                {
+                    FeeCollectionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EducationYear = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExamId = table.Column<int>(type: "int", nullable: false),
+                    ClassId = table.Column<int>(type: "int", nullable: false),
+                    TotalSubject = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExamFee = table.Column<int>(type: "int", nullable: false),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    ExamFeeId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamFeeCollections", x => x.FeeCollectionId);
+                    table.ForeignKey(
+                        name: "FK_ExamFeeCollections_Classes_ClassId",
+                        column: x => x.ClassId,
+                        principalTable: "Classes",
+                        principalColumn: "ClassId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ExamFeeCollections_ExamFees_ExamFeeId",
+                        column: x => x.ExamFeeId,
+                        principalTable: "ExamFees",
+                        principalColumn: "ExamFeeId");
+                    table.ForeignKey(
+                        name: "FK_ExamFeeCollections_Examinations_ExamId",
+                        column: x => x.ExamId,
+                        principalTable: "Examinations",
+                        principalColumn: "ExamId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ExamFeeCollections_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "StudentId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1211,6 +1276,26 @@ namespace MadrasahManagement.Migrations
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExamFeeCollections_ClassId",
+                table: "ExamFeeCollections",
+                column: "ClassId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamFeeCollections_ExamFeeId",
+                table: "ExamFeeCollections",
+                column: "ExamFeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamFeeCollections_ExamId",
+                table: "ExamFeeCollections",
+                column: "ExamId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamFeeCollections_StudentId",
+                table: "ExamFeeCollections",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ExamFees_ClassId",
                 table: "ExamFees",
                 column: "ClassId");
@@ -1296,6 +1381,21 @@ namespace MadrasahManagement.Migrations
                 name: "IX_Notices_VisibleToRoleId",
                 table: "Notices",
                 column: "VisibleToRoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PointConditionDetails_PointConditionId",
+                table: "PointConditionDetails",
+                column: "PointConditionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PointConditions_ClassId",
+                table: "PointConditions",
+                column: "ClassId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PointConditions_ExamId",
+                table: "PointConditions",
+                column: "ExamId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Salaries_TeacherId",
@@ -1454,9 +1554,6 @@ namespace MadrasahManagement.Migrations
                 name: "ExamFeeCollections");
 
             migrationBuilder.DropTable(
-                name: "ExamFees");
-
-            migrationBuilder.DropTable(
                 name: "ExamIncomeExpenses");
 
             migrationBuilder.DropTable(
@@ -1490,7 +1587,7 @@ namespace MadrasahManagement.Migrations
                 name: "Notices");
 
             migrationBuilder.DropTable(
-                name: "PointConditions");
+                name: "PointConditionDetails");
 
             migrationBuilder.DropTable(
                 name: "Salaries");
@@ -1511,7 +1608,7 @@ namespace MadrasahManagement.Migrations
                 name: "TransportAssignments");
 
             migrationBuilder.DropTable(
-                name: "Examinations");
+                name: "ExamFees");
 
             migrationBuilder.DropTable(
                 name: "Exams");
@@ -1529,6 +1626,9 @@ namespace MadrasahManagement.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "PointConditions");
+
+            migrationBuilder.DropTable(
                 name: "Assignments");
 
             migrationBuilder.DropTable(
@@ -1536,6 +1636,9 @@ namespace MadrasahManagement.Migrations
 
             migrationBuilder.DropTable(
                 name: "TransportRoutes");
+
+            migrationBuilder.DropTable(
+                name: "Examinations");
 
             migrationBuilder.DropTable(
                 name: "Subjects");
