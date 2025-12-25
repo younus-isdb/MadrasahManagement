@@ -166,11 +166,11 @@ public class MeritCondition
         public string TotalSubject { get; set; } = string.Empty;
 
        public int ExamFee { get; set; }
-        //[Required]
-        //public int StudentId { get; set; }
-        //[ForeignKey(nameof(StudentId))]
-        //public Student? Student { get; set; }
-        
+        [Required]
+        public int StudentId { get; set; }
+        [ForeignKey(nameof(StudentId))]
+        public Student? Student { get; set; }
+
 
 
         //[Required]
@@ -179,7 +179,7 @@ public class MeritCondition
         //public Subject? Subject { get; set; }
 
 
-        
+
     }
     public class ExamIncomeExpense
     {

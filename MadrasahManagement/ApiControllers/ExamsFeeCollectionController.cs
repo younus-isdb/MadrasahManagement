@@ -23,7 +23,7 @@ namespace MadrasahManagement.Controllers.Api
             var data = await _context.ExamFeeCollections
                 .Include(x => x.Examination)
                 .Include(x => x.Class)
-                //.Include(x => x.Student)
+                .Include(x => x.Student)
                 .ToListAsync();
 
             var totalAmount = data.Sum(x => x.ExamFee);
@@ -39,7 +39,7 @@ namespace MadrasahManagement.Controllers.Api
             var data = await _context.ExamFeeCollections
                 .Include(x => x.Examination)
                 .Include(x => x.Class)
-                //.Include(x => x.Student)
+                .Include(x => x.Student)
                 .FirstOrDefaultAsync(x => x.FeeCollectionId == id);
 
             if (data == null)
@@ -76,7 +76,7 @@ namespace MadrasahManagement.Controllers.Api
                 return NotFound();
 
             // Update fields
-            //existing.StudentId = model.StudentId;
+            existing.StudentId = model.StudentId;
             existing.ExamId = model.ExamId;
             existing.ClassId = model.ClassId;
             existing.ExamFee = model.ExamFee;

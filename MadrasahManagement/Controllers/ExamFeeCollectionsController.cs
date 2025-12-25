@@ -16,7 +16,7 @@ public class ExamFeeCollectionsController : Controller
     public async Task<IActionResult> Index()
     {
         var data = await _context.ExamFeeCollections
-            //.Include(x => x.Student)
+            .Include(x => x.Student)
             .Include(x => x.Examination)
             .Include(x => x.Class)
             .ToListAsync();
@@ -62,7 +62,7 @@ public class ExamFeeCollectionsController : Controller
         if (id == null) return NotFound();
 
         var data = await _context.ExamFeeCollections
-            //.Include(x => x.Student)
+            .Include(x => x.Student)
             .FirstOrDefaultAsync(x => x.FeeCollectionId == id);
 
         if (data == null) return NotFound();
