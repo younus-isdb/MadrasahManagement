@@ -56,35 +56,37 @@ namespace MadrasahManagement.Controllers.Api
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _context.ExamFeeCollections.Add(model);
-            await _context.SaveChangesAsync();
+            if (model.SubjectIds == null || model.SubjectIds.Count == 0)
+                return BadRequest("At least one subject is required");
 
-            return CreatedAtAction(nameof(GetById),
-                new { id = model.FeeCollectionId }, model);
-        }
+            var insertedIds = new List<int>();
 
-        // ================= UPDATE =================
-        // PUT: api/ExamFeeCollections/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, ExamFeeCollection model)
-        {
-            if (id != model.FeeCollectionId)
-                return BadRequest("Id mismatch");
+            foreach (var subjectId in model.SubjectIds)
+            {
+                var entity = new ExamFeeCollection
+                {
+                    EducationYear = model.EducationYear,
+                    ExamId = model.ExamId,
+                    ClassId = model.ClassId,
+                    StudentId = model.StudentId,
+                    ExamFee = model.ExamFee,
+                    SubjectId = subjectId,
+                    TotalSubject = model.SubjectIds.Count.ToString()
+                };
 
-            var existing = await _context.ExamFeeCollections.FindAsync(id);
-            if (existing == null)
-                return NotFound();
-
-            // Update fields
-            existing.StudentId = model.StudentId;
-            existing.ExamId = model.ExamId;
-            existing.ClassId = model.ClassId;
-            existing.ExamFee = model.ExamFee;
+                _context.ExamFeeCollections.Add(entity);
+                insertedIds.Add(entity.FeeCollectionId);
+            }
 
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new
+            {
+                message = "Exam fee collection created successfully",
+                totalSubject = model.SubjectIds.Count
+            });
         }
+
 
         // ================= DELETE =================
         // DELETE: api/ExamFeeCollections/5

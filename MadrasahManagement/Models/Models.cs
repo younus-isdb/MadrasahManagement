@@ -399,6 +399,9 @@ namespace MadrasahManagement.Models
         [JsonIgnore]
 
         public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } =new List<ExamFeeCollection>();
+        [JsonIgnore]
+        public virtual ICollection<ExamRoutine> ExamRoutine { get; set; } = new List<ExamRoutine>();
+
     }
 
     // -------------------------
@@ -448,7 +451,13 @@ namespace MadrasahManagement.Models
 
         public ICollection<ClassSubject> ClassSubjects { get; set; } = new HashSet<ClassSubject>();
         public ICollection<Timetable> Timetables { get; set; } = new HashSet<Timetable>();
-        //public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
+        [JsonIgnore]
+        public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
+        [JsonIgnore]
+        public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } = new List<ExamFeeCollection>();
+        [JsonIgnore]
+        public virtual ICollection<ExamRoutine> ExamRoutine { get; set; } = new List<ExamRoutine>();
+
     }
 
     // -------------------------

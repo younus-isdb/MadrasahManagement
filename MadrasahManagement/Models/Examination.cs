@@ -23,8 +23,7 @@ namespace MadrasahManagement.Models
 
         public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
         [JsonIgnore]
-
-        public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } = new List<ExamFeeCollection>();
+        public virtual ICollection<ExamRoutine> ExamRoutine { get; set; } = new List<ExamRoutine>();
 
     }
 
@@ -78,10 +77,10 @@ namespace MadrasahManagement.Models
         [ForeignKey(nameof(ExamId))]
         public Examination? Examination { get; set; }
 
-        //[Required]
-        //public int SubjectId { get; set; }
-        //[ForeignKey(nameof(SubjectId))]
-        //public Subject? Subject { get; set; }
+        
+        public int SubjectId { get; set; }
+        [ForeignKey(nameof(SubjectId))]
+        public Subject? Subject { get; set; }
 
         [Required]
         public int PassMarks { get; set; }
@@ -140,14 +139,30 @@ public class MeritCondition
     {
         [Key]
         public int ExamRoutineId { get; set; }
+        public string EducationYear{ get; set; }
 
+
+        [Required]
+        public int ClassId { get; set; }
+        [ForeignKey("ClassId")]
+        public virtual Class? Class { get; set; }
+
+        [Required]
         public int ExamId { get; set; }
+        [ForeignKey("ExamId")]
+        public virtual Examination? Examination { get; set; }
+
+        public int SubjectId { get; set; }
+        [ForeignKey(nameof(SubjectId))]
+        public Subject? Subject { get; set; }
+        public int RoomNumber { get; set; }
 
         [Required]
         public DateTime ExamDate { get; set; }
+        public string ExamDay {  get; set; }
+        public string ExamStartTime { get; set; }
+        public string ExamEndTime { get; set; }
 
-        [Required]
-        public string Subject { get; set; } = string.Empty;
     }
     public class ExamFeeCollection
     {
@@ -170,15 +185,13 @@ public class MeritCondition
         public int StudentId { get; set; }
         [ForeignKey(nameof(StudentId))]
         public Student? Student { get; set; }
+       
+        public int SubjectId { get; set; }
+        [ForeignKey(nameof(SubjectId))]
+        public Subject? Subject { get; set; }
 
-
-
-        //[Required]
-        //public int SubjectId { get; set; }
-        //[ForeignKey(nameof(SubjectId))]
-        //public Subject? Subject { get; set; }
-
-
+        [NotMapped]
+        public List<int> SubjectIds { get; set; } = new();
 
     }
     public class ExamIncomeExpense

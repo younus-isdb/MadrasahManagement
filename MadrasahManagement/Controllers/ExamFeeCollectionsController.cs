@@ -42,20 +42,42 @@ public class ExamFeeCollectionsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ExamFeeCollection model)
     {
+        if (model.SubjectIds == null || model.SubjectIds.Count == 0)
+        {
+            ModelState.AddModelError("SubjectIds", "Please select at least one subject");
+        }
+
         if (ModelState.IsValid)
         {
-            _context.ExamFeeCollections.Add(model);
+            foreach (var subjectId in model.SubjectIds)
+            {
+                var fee = new ExamFeeCollection
+                {
+                    EducationYear = model.EducationYear,
+                    ExamId = model.ExamId,
+                    ClassId = model.ClassId,
+                    StudentId = model.StudentId,
+                    ExamFee = model.ExamFee,
+                    SubjectId = subjectId,
+                    TotalSubject = model.SubjectIds.Count.ToString()
+                };
+
+                _context.ExamFeeCollections.Add(fee);
+            }
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        ViewData["StudentId"] = new SelectList(_context.Students, "StudentId", "StudentName" /*model.StudentId*/);
+        // ModelState invalid → refill dropdown
+        ViewData["StudentId"] = new SelectList(_context.Students, "StudentId", "StudentName", model.StudentId);
         ViewData["ExamId"] = new SelectList(_context.Examinations, "ExamId", "ExamName", model.ExamId);
         ViewData["ClassId"] = new SelectList(_context.Classes, "ClassId", "ClassName", model.ClassId);
+        var subjects = _context.Subjects.ToList(); // 2,4,5,6 rows from your table
+        ViewBag.SubjectId = new SelectList(subjects, "SubjectId", "SubjectName");
 
         return View(model);
     }
-
     // =============== DELETE =================
     public async Task<IActionResult> Delete(int? id)
     {

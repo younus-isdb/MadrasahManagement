@@ -20,7 +20,7 @@ namespace MadrasahManagement.Controllers
             var data = await _context.PointConditions
                 .Include(x => x.Class)
                 .Include(x => x.Examination)
-                //.Include(x => x.Subject)
+                .Include(x => x.Subject)
                 .Include(x => x.Details)
                 .ToListAsync();
 
