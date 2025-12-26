@@ -1,0 +1,48 @@
+﻿@model IEnumerable<MadrasahManagement.Models.ExamRoutine>
+@{
+    ViewData["Title"] = "Exam Routine List";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Routine</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Education Year</th>
+            <th>Class</th>
+            <th>Exam</th>
+            <th>Subject</th>
+            <th>Room</th>
+            <th>Exam Date</th>
+            <th>Day</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.EducationYear</td>
+                <td>@item.Class?.ClassName</td>
+                <td>@item.Examination?.ExamName</td>
+                <td>@item.Subject?.SubjectName</td>
+                <td>@item.RoomNumber</td>
+                <td>@item.ExamDate.ToString("yyyy-MM-dd")</td>
+                <td>@item.ExamDate.DayOfWeek</td>
+                <td>@item.ExamStartTime</td>
+                <td>@item.ExamEndTime</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ExamRoutineId" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.ExamRoutineId" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.ExamRoutineId" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
