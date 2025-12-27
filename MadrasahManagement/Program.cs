@@ -72,6 +72,7 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapControllers();
 
+
 //app.MapGet("/", context =>
 //{
 //    context.Response.Redirect("/swagger");

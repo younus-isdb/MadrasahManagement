@@ -26,12 +26,22 @@ namespace MadrasahManagement.Dto
     }
     public class IssueRequest
     {
-        public string Username { get; set; }
+        [EmailAddress]
+        public string UserEmail { get; set; }
         public string UserType { get; set; }
         public string Class { get; set; }
         public string Section { get; set; }
         public int? RollNumber { get; set; }
         public List<string> BookTitles { get; set; }
     }
+    public class UpdateIssueRequest
+    {
+        public string UserFullName { get; set; }
+        public string UserType { get; set; }
+        public List<string> BookTitles { get; set; }
 
+        public string Class { get; set; }
+        public string Section { get; set; }
+        public int? RollNumber { get; set; }
+    }
 }
