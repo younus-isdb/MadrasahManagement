@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MadrasahManagement.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Sleep : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -258,6 +258,20 @@ namespace MadrasahManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Staffs",
+                columns: table => new
+                {
+                    StuffId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StaffName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Contact = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Staffs", x => x.StuffId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SubClassGroups",
                 columns: table => new
                 {
@@ -497,8 +511,8 @@ namespace MadrasahManagement.Migrations
                     Class = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Section = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RollNumber = table.Column<int>(type: "int", nullable: true),
-                    IssueDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    ReturnDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    IssueDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    ReturnDate = table.Column<DateOnly>(type: "date", nullable: true),
                     Fine = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
@@ -545,11 +559,14 @@ namespace MadrasahManagement.Migrations
                 {
                     TeacherId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Contact = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     DepartmentId = table.Column<int>(type: "int", nullable: false),
                     JoiningDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     Qualification = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    Designation = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true)
+                    Designation = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -697,14 +714,26 @@ namespace MadrasahManagement.Migrations
                 {
                     SalaryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TeacherId = table.Column<int>(type: "int", nullable: false),
-                    Month = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PaymentStatus = table.Column<int>(type: "int", nullable: false)
+                    TeacherId = table.Column<int>(type: "int", nullable: true),
+                    StaffId = table.Column<int>(type: "int", nullable: true),
+                    PaymentStatus = table.Column<int>(type: "int", nullable: false),
+                    BasicSalary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Allowances = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Deductions = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    NetAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MonthName = table.Column<int>(type: "int", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    PaymentMethod = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Salaries", x => x.SalaryId);
+                    table.ForeignKey(
+                        name: "FK_Salaries_Staffs_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staffs",
+                        principalColumn: "StuffId");
                     table.ForeignKey(
                         name: "FK_Salaries_Teachers_TeacherId",
                         column: x => x.TeacherId,
@@ -1002,8 +1031,10 @@ namespace MadrasahManagement.Migrations
                     FeeTypeId = table.Column<int>(type: "int", nullable: false),
                     AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     DatePaid = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    PaymentMethod = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ReceiptNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Remarks = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1266,9 +1297,11 @@ namespace MadrasahManagement.Migrations
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IssuedBooks_BookId",
+                name: "IX_IssuedBooks_BookId_IssuedTo",
                 table: "IssuedBooks",
-                column: "BookId");
+                columns: new[] { "BookId", "IssuedTo" },
+                unique: true,
+                filter: "[ReturnDate] IS NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IssuedBooks_IssuedTo",
@@ -1296,9 +1329,18 @@ namespace MadrasahManagement.Migrations
                 column: "VisibleToRoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Salaries_TeacherId",
+                name: "IX_SalaryRecord_Staff_Month_Year_Unique",
                 table: "Salaries",
-                column: "TeacherId");
+                columns: new[] { "StaffId", "MonthName", "Year" },
+                unique: true,
+                filter: "[StaffId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SalaryRecord_Teacher_Month_Year_Unique",
+                table: "Salaries",
+                columns: new[] { "TeacherId", "MonthName", "Year" },
+                unique: true,
+                filter: "[TeacherId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sections_ClassId",
@@ -1525,6 +1567,9 @@ namespace MadrasahManagement.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Staffs");
 
             migrationBuilder.DropTable(
                 name: "Assignments");

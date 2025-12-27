@@ -1,0 +1,44 @@
+﻿@using MadrasahManagement.Dto
+@model IEnumerable<OutstandingFeeDto>
+
+<h2>Outstanding Fees</h2>
+
+@if (Model.Any())
+{
+    <div class="alert alert-warning">
+        Total Outstanding: <strong>৳@Model.Sum(f => f.TotalDue)</strong> |
+        Total Students: <strong>@Model.Count()</strong>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Class</th>
+                <th>Parent Contact</th>
+                <th>Due Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.StudentName</td>
+                    <td>@item.ClassName</td>
+                    <td>@item.ParentContact</td>
+                    <td class="text-danger"><strong>৳@item.TotalDue</strong></td>
+                    <td>
+                        <a asp-action="CollectFee" class="btn btn-sm btn-success">
+                            Collect Fee
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-success">No outstanding fees! All fees are paid.</div>
+}

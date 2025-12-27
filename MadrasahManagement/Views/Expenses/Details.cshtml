@@ -1,0 +1,57 @@
+﻿@model Expense
+
+@{
+    ViewData["Title"] = "Expense Details";
+}
+
+<h2>Expense Details</h2>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Expense Information</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Expense ID</dt>
+            <dd class="col-sm-9">@Model.ExpenseId</dd>
+
+            <dt class="col-sm-3">Type</dt>
+            <dd class="col-sm-9">
+                <span class="badge bg-primary">@Model.Type</span>
+            </dd>
+
+            <dt class="col-sm-3">Amount</dt>
+            <dd class="col-sm-9">
+                <h4 class="text-success">৳@Model.Amount</h4>
+            </dd>
+
+            <dt class="col-sm-3">Date & Time</dt>
+            <dd class="col-sm-9">@Model.Date.ToString("dddd, dd MMMM yyyy hh:mm tt")</dd>
+
+            <dt class="col-sm-3">Description</dt>
+            <dd class="col-sm-9">
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div class="border p-3 bg-light">@Model.Description</div>
+                }
+                else
+                {
+                    <span class="text-muted">No description provided</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">Added Date</dt>
+            <dd class="col-sm-9">@Model.Date.ToString("dd-MMM-yyyy HH:mm")</dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Edit" asp-route-id="@Model.ExpenseId" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Edit
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+        
+    </div>
+</div>
+

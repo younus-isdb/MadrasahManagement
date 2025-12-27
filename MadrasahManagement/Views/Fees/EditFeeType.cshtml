@@ -1,0 +1,39 @@
+﻿@model FeeType
+
+<h2>Edit Fee Type</h2>
+
+<form asp-action="EditFeeType" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="FeeTypeId" />
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ClassId"></label>
+        <select asp-for="ClassId" asp-items="ViewBag.Classes" class="form-control">
+            <option value="">-- Select Class --</option>
+        </select>
+        <span asp-validation-for="ClassId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Amount"></label>
+        <input asp-for="Amount" class="form-control" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Frequency"></label>
+        <select asp-for="Frequency" class="form-control" asp-items="Html.GetEnumSelectList<FeeFrequency>()">
+            <option value="">-- Select Frequency --</option>
+        </select>
+        <span asp-validation-for="Frequency" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="FeeTypes" class="btn btn-secondary">Cancel</a>
+</form>

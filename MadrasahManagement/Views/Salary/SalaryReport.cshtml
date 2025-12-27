@@ -1,0 +1,232 @@
+﻿@model IEnumerable<Salary>
+
+@{
+    ViewData["Title"] = "Employee Salary Report";
+}
+
+<h2>Employee Salary Report</h2>
+
+<!-- Search Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Search & Filter</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <!-- Search by Name -->
+            <div class="col-md-4">
+                <label class="form-label">Search by Name</label>
+                <input type="text" name="searchName" class="form-control"
+                       placeholder="Enter employee name..."
+                       value="@ViewBag.SearchName" />
+            </div>
+
+            <!-- Filter by Employee Type -->
+            <div class="col-md-4">
+                <label class="form-label">Employee Type</label>
+                <div class="d-flex gap-2">
+                    <select name="employeeType" class="form-control" onchange="this.form.submit()">
+                        <option value="">All Employees</option>
+                        <option value="teacher" selected="@(ViewBag.EmployeeType == "teacher")">Teachers Only</option>
+                        <option value="staff" selected="@(ViewBag.EmployeeType == "staff")">Staff Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Filter by Month -->
+            <div class="col-md-2">
+                <label class="form-label">Month</label>
+                <select name="month" class="form-control">
+                    <option value="">All Months</option>
+                    @foreach (var month in Enum.GetValues(typeof(Month)).Cast<Month>())
+                    {
+                        <option value="@((int)month)"
+                                selected="@(ViewBag.SelectedMonth == (int)month)">
+                            @month
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <!-- Filter by Year -->
+            <div class="col-md-2">
+                <label class="form-label">Year</label>
+                <input type="number" name="year" class="form-control"
+                       placeholder="Year"
+                       value="@DateTime.Now.Year" />
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a asp-action="SalaryReport" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+@if (Model.Any())
+{
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Salary Records</h5>
+            <div>
+                <span class="badge bg-info">Total: @Model.Count() records</span>
+                <span class="badge bg-success ms-2">
+                    Total Amount: ৳@Model.Sum(s => s.NetAmount)
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Employee</th>
+                        <th>Type</th>
+                        <th>Month</th>
+                        <th>Payment Date</th>
+                        <th>Basic</th>
+                        <th>Allowances</th>
+                        <th>Deductions</th>
+                        <th>Net Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int counter = 1;
+                        decimal totalBasic = 0;
+                        decimal totalAllowances = 0;
+                        decimal totalDeductions = 0;
+                        decimal totalNet = 0;
+                    }
+
+                    @foreach (var item in Model)
+                    {
+                        totalBasic += item.BasicSalary;
+                        totalAllowances += item.Allowances;
+                        totalDeductions += item.Deductions;
+                        totalNet += item.NetAmount;
+
+                        <tr>
+                            <td>@counter</td>
+                            <td>
+                                @if (item.Teacher != null)
+                                {
+                                    <strong>@item.Teacher.Name</strong>
+                                    <div class="text-muted small">@item.Teacher.Contact</div>
+                                }
+                                else if (item.Staff != null)
+                                {
+                                    <strong>@item.Staff.StaffName</strong>
+                                    <div class="text-muted small">@item.Staff.Contact</div>
+                                }
+                            </td>
+                            <td>
+                                @if (item.Teacher != null)
+                                {
+                                    <span class="badge bg-primary">Teacher</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Staff</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-info">@item.MonthName</span>
+                            </td>
+                            <td>@item.PaymentDate.ToString("dd-MMM-yyyy")</td>
+                            <td class="text-end">৳@item.BasicSalary</td>
+                            <td class="text-end">৳@item.Allowances</td>
+                            <td class="text-end">৳@item.Deductions</td>
+                            <td class="text-end">
+                                <strong class="text-success">৳@item.NetAmount</strong>
+                            </td>
+                            <td>
+                                @if (item.PaymentStatus == PaymentStatus.Paid)
+                                {
+                                    <span class="badge bg-success">Paid</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">@item.PaymentStatus</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.SalaryId"
+                                   class="btn btn-sm btn-info" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        counter++;
+                    }
+
+                    <!-- Totals Row -->
+                    <tr class="table-active">
+                        <td colspan="5" class="text-end"><strong>Totals:</strong></td>
+                        <td class="text-end"><strong>৳@totalBasic</strong></td>
+                        <td class="text-end"><strong>৳@totalAllowances</strong></td>
+                        <td class="text-end"><strong>৳@totalDeductions</strong></td>
+                        <td class="text-end"><strong class="text-success">৳@totalNet</strong></td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        No salary records found for the selected criteria.
+    </div>
+}
+
+<!-- Quick Stats -->
+@if (Model.Any())
+{
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h6 class="card-title">Teachers</h6>
+                    <h4>@Model.Count(s => s.Teacher != null)</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <h6 class="card-title">Staff</h6>
+                    <h4>@Model.Count(s => s.Staff != null)</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h6 class="card-title">Total Paid</h6>
+                    <h4>৳@Model.Sum(s => s.NetAmount)</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h6 class="card-title">Avg. Salary</h6>
+                    <h4>৳@(Model.Any() ? Model.Average(s => s.NetAmount).ToString("F2") : "0")</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+}

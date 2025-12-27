@@ -23,9 +23,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddFileUploader();
 
-
-
-
+builder.Services.AddScoped<IFeeService, FeeService>();
+builder.Services.AddScoped<ISalaryService, SalaryService>();
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

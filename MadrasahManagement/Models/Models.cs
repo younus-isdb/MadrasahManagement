@@ -320,6 +320,12 @@ namespace MadrasahManagement.Models
     {
         [Key]
         public int TeacherId { get; set; }
+
+        [Required, MaxLength(100)]
+        public string Name { get; set; } = default!;
+
+       public string Contact { get; set; } = default!;
+
         [Required]
         [ForeignKey(nameof(AppUser))]
         public string UserId { get; set; } = default!;
@@ -334,6 +340,12 @@ namespace MadrasahManagement.Models
 
         [MaxLength(150)]
         public string? Designation { get; set; }
+
+        [DataType(DataType.ImageUrl)]
+        public string? ImageUrl { get; set; }
+
+        [NotMapped, DisplayName("Image")]
+        public IFormFile? ImageFile { get; set; }
 
         // Navigation
         public AppUser AppUser { get; set; } = default!;
@@ -585,14 +597,22 @@ namespace MadrasahManagement.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal AmountPaid { get; set; }
 
+     //   public Month MonthName { get; set; }
+
         [Required]
         public DateTime DatePaid { get; set; } = DateTime.Now;
 
-        [MaxLength(50)]
-        public string? PaymentMethod { get; set; }   // Cash / bKash / Bank / etc.
+       
+        public PaymentMethodType PaymentMethod { get; set; }   // Cash / bKash / Bank / etc.
 
         [Required]
         public PaymentStatus Status { get; set; } = PaymentStatus.Paid;
+
+        [MaxLength(50)]
+        public string ReceiptNumber { get; set; } = string.Empty;
+
+        [MaxLength(500)]
+        public string? Remarks { get; set; }
 
         // Navigation Properties
         public Student Student { get; set; } = default!;
@@ -608,16 +628,51 @@ namespace MadrasahManagement.Models
         public int SalaryId { get; set; }
 
         [ForeignKey(nameof(Teacher))]
-        public int TeacherId { get; set; }
+        public int? TeacherId { get; set; }
 
-        [Required, MaxLength(20)]
-        public string Month { get; set; } = default!; // e.g., "2025-07"
-
-        public decimal Amount { get; set; }
+        [ForeignKey(nameof(Staff))]
+        public int? StaffId { get; set; }
 
         public PaymentStatus PaymentStatus { get; set; }
 
-        public Teacher Teacher { get; set; } = default!;
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal BasicSalary { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Allowances { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Deductions { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal NetAmount { get; set; }
+
+        public DateTime PaymentDate { get; set; }
+
+        public Month MonthName { get; set; }
+         
+        public int Year { get; set; }
+
+        public PaymentMethodType PaymentMethod { get; set; }
+
+        // Navigation
+
+        public Teacher? Teacher { get; set; } = default!;
+        public Staff? Staff { get; set; } = default!;
+    }
+
+    public class Staff
+    {
+        [Key]
+        public int StuffId { get; set; }
+        [Required, MaxLength(150)]
+        public string StaffName { get; set; } = default!;
+
+        [MaxLength(20)]
+        public string? Contact { get; set; }
+
     }
 
     // -------------------------

@@ -1,0 +1,171 @@
+﻿@using MadrasahManagement.ViewModels
+@model IEnumerable<MonthlyReportVM>
+
+<h2>Monthly Expense Report</h2>
+
+<!-- Year Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label>Select Year</label>
+                <select name="year" class="form-control" onchange="this.form.submit()">
+                    @foreach (var year in ViewBag.Years)
+                    {
+                        <option value="@year" selected="@(ViewBag.SelectedYear == year)">@year</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label>&nbsp;</label><br />
+               
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summary -->
+<div class="alert alert-success mb-4">
+    <h5>Total Expenses for @ViewBag.SelectedYear: ৳@ViewBag.TotalYear</h5>
+</div>
+
+<!-- Monthly Table -->
+<table class="table table-bordered" id="monthlyTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Month</th>
+            <th>Total Amount</th>
+            <th>Number of Expenses</th>
+            <th>Average per Expense</th>
+            <th>Percentage</th>
+            <th>Progress</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var average = item.Count > 0 ? item.TotalAmount / item.Count : 0;
+            var percentage = ViewBag.TotalYear > 0 ? (item.TotalAmount / ViewBag.TotalYear * 100) : 0;
+
+            <tr>
+                <td><strong>@item.MonthName</strong></td>
+                <td class="text-end">৳@item.TotalAmount.ToString("N2")</td>
+                <td class="text-center">@item.Count</td>
+                <td class="text-end">৳@average.ToString("N2")</td>
+                <td class="text-center">@percentage.ToString("F1")%</td>
+                <td>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-success"
+                             style="width: @percentage%"
+                             role="progressbar">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot class="table-active">
+        <tr>
+            <td><strong>Yearly Total</strong></td>
+            <td class="text-end"><strong>৳@ViewBag.TotalYear.ToString("N2")</strong></td>
+            <td class="text-center"><strong>@Model.Sum(m => m.Count)</strong></td>
+            <td class="text-end">
+                <strong>৳@(Model.Sum(m => m.Count) > 0 ? (Model.Sum(m => m.TotalAmount) / Model.Sum(m => m.Count)).ToString("N2") : "0.00")</strong>
+            </td>
+            <td class="text-center"><strong>100%</strong></td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- Print Functionality -->
+@section Scripts {
+    <script>
+        function printReport() {
+            var printWindow = window.open('', '_blank');
+            var year = @ViewBag.SelectedYear;
+            var total = '@ViewBag.TotalYear';
+
+            var content = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Monthly Expense Report - ${year}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h2 { text-align: center; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .text-end { text-align: right; }
+                        .text-center { text-align: center; }
+                        tfoot { font-weight: bold; }
+                        .summary { margin-bottom: 20px; padding: 10px; background-color: #f8f9fa; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Monthly Expense Report - ${year}</h2>
+                    <div class="summary">
+                        <strong>Total Expenses for ${year}: ৳${total}</strong><br>
+                        <strong>Report Generated: ${new Date().toLocaleDateString()}</strong>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Total Amount</th>
+                                <th>Number of Expenses</th>
+                                <th>Average per Expense</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            // Add table rows
+            @foreach (var item in Model)
+            {
+                    var average = item.Count > 0 ? item.TotalAmount / item.Count : 0;
+                    var percentage = ViewBag.TotalYear > 0 ? (item.TotalAmount / ViewBag.TotalYear * 100) : 0;
+
+                    <text>
+                    content += `
+                        <tr>
+                            <td>@item.MonthName</td>
+                            <td class="text-end">৳@item.TotalAmount.ToString("N2")</td>
+                            <td class="text-center">@item.Count</td>
+                            <td class="text-end">৳@average.ToString("N2")</td>
+                            <td class="text-center">@percentage.ToString("F1")%</td>
+                        </tr>
+                    `;
+                    </text>
+            }
+
+            // Add footer
+            content += `
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>Yearly Total</strong></td>
+                                <td class="text-end"><strong>৳@ViewBag.TotalYear.ToString("N2")</strong></td>
+                                <td class="text-center"><strong>@Model.Sum(m => m.Count)</strong></td>
+                                <td class="text-end"><strong>৳@(Model.Sum(m => m.Count) > 0 ? (Model.Sum(m => m.TotalAmount) / Model.Sum(m => m.Count)).ToString("N2") : "0.00")</strong></td>
+                                <td class="text-center"><strong>100%</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.write(content);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+    </script>
+}

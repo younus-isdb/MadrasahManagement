@@ -1,0 +1,42 @@
+﻿@model IEnumerable<FeeCollection>
+
+<h2>Today's Collections</h2>
+<h5>@DateTime.Today.ToString("dddd, dd MMMM yyyy")</h5>
+
+@if (Model.Any())
+{
+    <div class="alert alert-success">
+        Today's Total Collection: <strong>৳@ViewBag.Total</strong> |
+        Total Transactions: <strong>@Model.Count()</strong>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Student</th>
+                <th>Fee Type</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Receipt</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.DatePaid.ToString("hh:mm tt")</td>
+                    <td>@item.Student?.StudentName</td>
+                    <td>@item.FeeType?.Name</td>
+                    <td>৳@item.AmountPaid</td>
+                    <td>@item.PaymentMethod</td>
+                    <td>@item.ReceiptNumber</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">No fees collected today.</div>
+}

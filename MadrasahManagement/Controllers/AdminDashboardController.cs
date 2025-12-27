@@ -87,6 +87,18 @@ namespace MadrasahManagement.Controllers
 
             model.ExpenseTotals = expenseChartData.Select(c => c.Total).ToList();
 
+            var today = DateTime.Today;
+
+
+            model.TodayCollection = _context.FeeCollections
+                  .Where(f => f.DatePaid.Date == today)
+                  .Sum(f => f.AmountPaid);
+            model.MonthlyExpense = _context.Expenses
+                    .Where(e => e.Date.Month == today.Month && e.Date.Year == today.Year)
+                    .Sum(e => e.Amount);
+                // Other metrics
+            
+
             // ---------------- Attendance Pie ----------------
             var attendanceToday = await _context.Attendances
                                         .Where(a => a.Date.Date == DateTime.Today)
@@ -137,4 +149,25 @@ namespace MadrasahManagement.Controllers
             return View(model);
         }
     }
+
+    //public class DashboardController : Controller
+    //{
+    //    private readonly MadrasahDbContext _context;
+    //    public IActionResult Index()
+    //    {
+    //        var today = DateTime.Today;
+    //        var model = new DashboardVM
+    //        {
+    //            TodayCollection = _context.FeeCollections
+    //                .Where(f => f.DatePaid.Date == today)
+    //                .Sum(f => f.AmountPaid),
+    //            MonthlyExpense = _context.Expenses
+    //                .Where(e => e.Date.Month == today.Month && e.Date.Year == today.Year)
+    //                .Sum(e => e.Amount),
+    //            // Other metrics
+    //        };
+
+    //        return View(model);
+    //    }
+    //}
 }

@@ -1,0 +1,53 @@
+﻿@using MadrasahManagement.ViewModels
+@model FeeCollectionVM
+
+<h2>Collect Fee</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label>Student:</label>
+        <select asp-for="SelectedStudentId" class="form-control" required>
+            <option value="">-- Select Student --</option>
+            @foreach (var student in Model.Students)
+            {
+                <option value="@student.StudentId">@student.StudentName (@student.RegNo)</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Fee Type:</label>
+        <select asp-for="SelectedFeeTypeId" class="form-control" required>
+            <option value="">-- Select Fee Type --</option>
+            @foreach (var feeType in Model.FeeTypes)
+            {
+                <option value="@feeType.FeeTypeId">@feeType.Name - ৳@feeType.Amount</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Amount:</label>
+        <input asp-for="Amount" class="form-control" required type="number" />
+    </div>
+
+    <div class="mb-3">
+        <label>Payment Method:</label>
+        <select asp-for="PaymentMethod" class="form-control" required>
+            <option value="">-- Select Method --</option>
+            <option value="Cash">Cash</option>
+            <option value="bKash">bKash</option>
+            <option value="Bank">Bank</option>
+            <option value="Card">Card</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Collect Fee</button>
+</form>

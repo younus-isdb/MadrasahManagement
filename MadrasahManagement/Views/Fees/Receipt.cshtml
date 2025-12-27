@@ -1,0 +1,78 @@
+﻿@model FeeCollection
+
+<div class="container" id="receipt">
+    <div class="text-center mb-4">
+        <h3>School Name</h3>
+        <h5>Fee Receipt</h5>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Receipt No:</strong> @Model.ReceiptNumber</p>
+            <p><strong>Date:</strong> @Model.DatePaid.ToString("dd-MMM-yyyy")</p>
+        </div>
+        <div class="col-md-6 text-right">
+            <p><strong>Student ID:</strong> @Model.StudentId</p>
+            <p><strong>Payment Status:</strong> @Model.Status</p>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="mb-4">
+        <h5>Student Details</h5>
+        <p><strong>Name:</strong> @Model.Student?.StudentName</p>
+        <p><strong>Class:</strong> @Model.Student?.Class?.ClassName</p>
+        <p><strong>Roll No:</strong> @Model.Student?.RegNo</p>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Fee Type</th>
+                <th>Amount (৳)</th>
+                <th>Payment Method</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Model.FeeType?.Name</td>
+                <td>৳@Model.AmountPaid</td>
+                <td>@Model.PaymentMethod</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="2" class="text-right">Total Paid:</th>
+                <th>৳@Model.AmountPaid</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <p>___________________</p>
+                <p>Cashier's Signature</p>
+            </div>
+            <div class="col-md-6 text-right">
+                <p>___________________</p>
+                <p>Student/Parent Signature</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fas fa-print"></i> Print Receipt
+        </button>
+        <a asp-action="CollectFee" class="btn btn-secondary">New Collection</a>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        .btn { display: none !important; }
+        #receipt { margin: 0; padding: 0; }
+    }
+</style>

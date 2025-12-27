@@ -1,0 +1,44 @@
+﻿@model FeeType
+
+<h2>Create Fee Type</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form method="post">
+    <div>
+        <label>Name:</label>
+        <input asp-for="Name" class="form-control" required />
+    </div>
+
+    <div>
+        <label>Class:</label>
+        <select asp-for="ClassId" class="form-control" required>
+            <option value="">-- Select --</option>
+            @foreach (var c in (List<SelectListItem>)ViewBag.Classes)
+            {
+                <option value="@c.Value">@c.Text</option>
+            }
+        </select>
+    </div>
+
+    <div>
+        <label>Amount:</label>
+        <input asp-for="Amount" class="form-control" required type="number" />
+    </div>
+
+    <div>
+        <label>Frequency:</label>
+        <select asp-for="Frequency" class="form-control" required>
+            <option value="0">Monthly</option>
+            <option value="1">Quarterly</option>
+            <option value="2">Half Yearly</option>
+            <option value="3">Yearly</option>
+            <option value="4">One Time</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
+</form>

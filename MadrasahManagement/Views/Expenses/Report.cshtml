@@ -1,0 +1,115 @@
+﻿@model IEnumerable<Expense>
+
+<h2>Expense Report</h2>
+
+<!-- Search Form -->
+<div class="card mb-4">
+    <div class="card-header">Filter Expenses</div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label>Expense Type</label>
+                <select name="type" class="form-control">
+                    <option value="">All Types</option>
+                    @foreach (var type in ViewBag.ExpenseTypes)
+                    {
+                        <option value="@type" selected="@(ViewBag.SelectedType == type)">@type</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label>From Date</label>
+                <input type="date" name="startDate" class="form-control"
+                       value="@ViewBag.StartDate" />
+            </div>
+
+            <div class="col-md-3">
+                <label>To Date</label>
+                <input type="date" name="endDate" class="form-control"
+                       value="@ViewBag.EndDate" />
+            </div>
+
+            <div class="col-md-2">
+                <label>&nbsp;</label><br />
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a asp-action="Report" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h6 class="card-title">Total Expenses</h6>
+                <h4>৳@ViewBag.TotalAmount</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h6 class="card-title">Total Records</h6>
+                <h4>@ViewBag.TotalCount</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h6 class="card-title">Average Expense</h6>
+                <h4>৳@ViewBag.AverageAmount.ToString("F2")</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expense List -->
+@if (Model.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Date.ToString("dd-MMM-yyyy hh:mm tt")</td>
+                    <td>@item.Type</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            @item.Description
+                        }
+                        else
+                        {
+                            <span class="text-muted">No description</span>
+                        }
+                    </td>
+                    <td class="text-end">৳@item.Amount</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="table-active">
+                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                <td class="text-end"><strong>৳@Model.Sum(e => e.Amount)</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning">No expenses found for the selected filter.</div>
+}

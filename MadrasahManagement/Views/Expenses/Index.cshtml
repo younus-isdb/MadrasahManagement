@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Expense>
+
+<h2>Expenses</h2>
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary">Add New Expense</a>
+    <a asp-action="Report" class="btn btn-info">View Reports</a>
+    <a asp-action="MonthlyReport" class="btn btn-success">Monthly Report</a>
+</div>
+
+@if (Model.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Date.ToString("dd-MMM-yyyy")</td>
+                    <td>@item.Type</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            @item.Description
+                        }
+                        else
+                        {
+                            <span class="text-muted">No description</span>
+                        }
+                    </td>
+                    <td class="text-end">৳@item.Amount</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.ExpenseId" class="btn btn-sm btn-info">View</a>
+                        <a asp-action="Edit" asp-route-id="@item.ExpenseId" class="btn btn-sm btn-warning">Edit</a>
+                        <form asp-action="Delete" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@item.ExpenseId" />
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Delete this expense?')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="table-active">
+                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                <td class="text-end"><strong>৳@Model.Sum(e => e.Amount)</strong></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">No expenses found.</div>
+}

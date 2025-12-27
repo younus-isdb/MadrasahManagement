@@ -1,0 +1,76 @@
+﻿@model IEnumerable<Salary>
+
+<h2>Salary Payments</h2>
+
+<p>
+    <a asp-action="PaySalary" class="btn btn-primary">Pay New Salary</a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Employee</th>
+            <th>Type</th>
+            <th>Month</th>
+            <th>Basic</th>
+            <th>Allowances</th>
+            <th>Deductions</th>
+            <th>Net Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.PaymentDate.ToString("dd-MMM-yyyy")</td>
+                <td>
+                    @if (item.Teacher != null)
+                    {
+                        @item.Teacher.Name <span class="badge bg-info">Teacher</span>
+                    }
+                    else if (item.Staff != null)
+                    {
+                        @item.Staff.StaffName <span class="badge bg-secondary">Staff</span>
+                    }
+                </td>
+                <td>
+                    @if (item.Teacher != null)
+                    {
+                        <span>Teacher</span>
+                    }
+                    else
+                    {
+                        <span>Staff</span>
+                    }
+                </td>
+                <td>@item.MonthName</td>
+                <td>৳@item.BasicSalary</td>
+                <td>৳@item.Allowances</td>
+                <td>৳@item.Deductions</td>
+                <td><strong>@item.NetAmount</strong></td>
+                <td>
+                    @if (item.PaymentStatus == PaymentStatus.Paid)
+                    {
+                        <span class="badge bg-success">Paid</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning">@item.PaymentStatus</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.SalaryId" class="btn btn-sm btn-info">View</a>
+                    <a asp-action="Edit" asp-route-id="@item.SalaryId" class="btn btn-sm btn-warning">Edit</a>
+                    <form asp-action="Delete" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@item.SalaryId" />
+                        <button type="submit" class="btn btn-sm btn-danger" 
+                                onclick="return confirm('Delete this salary record?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

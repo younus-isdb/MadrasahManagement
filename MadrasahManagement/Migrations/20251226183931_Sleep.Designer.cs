@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    [Migration("20251222070556_Math")]
-    partial class Math
+    [Migration("20251226183931_Sleep")]
+    partial class Sleep
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -528,6 +528,82 @@ namespace MadrasahManagement.Migrations
                     b.ToTable("Exams", (string)null);
                 });
 
+            modelBuilder.Entity("MadrasahManagement.Models.ExamFee", b =>
+                {
+                    b.Property<int>("ExamFeeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamFeeId"));
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EducationYear")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<decimal>("ExamAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ExamId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ExamFeeId");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("ExamId");
+
+                    b.ToTable("ExamFees");
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.ExamFeeCollection", b =>
+                {
+                    b.Property<int>("FeeCollectionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeeCollectionId"));
+
+                    b.Property<decimal>("PaidAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("PaidDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FeeCollectionId");
+
+                    b.ToTable("ExamFeeCollections");
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.ExamIncomeExpense", b =>
+                {
+                    b.Property<int>("IncomeExpenseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IncomeExpenseId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ExamId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IncomeExpenseId");
+
+                    b.ToTable("ExamIncomeExpenses");
+                });
+
             modelBuilder.Entity("MadrasahManagement.Models.ExamResult", b =>
                 {
                     b.Property<int>("ResultId")
@@ -565,6 +641,47 @@ namespace MadrasahManagement.Migrations
                     b.HasIndex("SubjectId");
 
                     b.ToTable("ExamResults", (string)null);
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.ExamRoutine", b =>
+                {
+                    b.Property<int>("ExamRoutineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamRoutineId"));
+
+                    b.Property<DateTime>("ExamDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ExamId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ExamRoutineId");
+
+                    b.ToTable("ExamRoutines");
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.Examination", b =>
+                {
+                    b.Property<int>("ExamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamId"));
+
+                    b.Property<string>("ExamName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("ExamId");
+
+                    b.ToTable("Examinations");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Expense", b =>
@@ -612,9 +729,17 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("FeeTypeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PaymentMethod")
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReceiptNumber")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -793,6 +918,25 @@ namespace MadrasahManagement.Migrations
                     b.ToTable("LoginLogs");
                 });
 
+            modelBuilder.Entity("MadrasahManagement.Models.MeritCondition", b =>
+                {
+                    b.Property<int>("MeritConditionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MeritConditionId"));
+
+                    b.Property<int>("FromMerit")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ToMerit")
+                        .HasColumnType("int");
+
+                    b.HasKey("MeritConditionId");
+
+                    b.ToTable("MeritConditions");
+                });
+
             modelBuilder.Entity("MadrasahManagement.Models.Message", b =>
                 {
                     b.Property<int>("MessageId")
@@ -861,6 +1005,25 @@ namespace MadrasahManagement.Migrations
                     b.ToTable("Notices", (string)null);
                 });
 
+            modelBuilder.Entity("MadrasahManagement.Models.PointCondition", b =>
+                {
+                    b.Property<int>("PointConditionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PointConditionId"));
+
+                    b.Property<string>("Grade")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ObtainedMarks")
+                        .HasColumnType("int");
+
+                    b.HasKey("PointConditionId");
+
+                    b.ToTable("PointConditions");
+                });
+
             modelBuilder.Entity("MadrasahManagement.Models.Salary", b =>
                 {
                     b.Property<int>("SalaryId")
@@ -869,23 +1032,50 @@ namespace MadrasahManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SalaryId"));
 
-                    b.Property<decimal>("Amount")
+                    b.Property<decimal>("Allowances")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Month")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<decimal>("BasicSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Deductions")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("MonthName")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("NetAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
 
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
-                    b.Property<int>("TeacherId")
+                    b.Property<int?>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("SalaryId");
 
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("StaffId", "MonthName", "Year")
+                        .IsUnique()
+                        .HasDatabaseName("IX_SalaryRecord_Staff_Month_Year_Unique")
+                        .HasFilter("[StaffId] IS NOT NULL");
+
+                    b.HasIndex("TeacherId", "MonthName", "Year")
+                        .IsUnique()
+                        .HasDatabaseName("IX_SalaryRecord_Teacher_Month_Year_Unique")
+                        .HasFilter("[TeacherId] IS NOT NULL");
 
                     b.ToTable("Salaries", (string)null);
                 });
@@ -911,6 +1101,28 @@ namespace MadrasahManagement.Migrations
                     b.HasIndex("ClassId");
 
                     b.ToTable("Sections", (string)null);
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.Staff", b =>
+                {
+                    b.Property<int>("StuffId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StuffId"));
+
+                    b.Property<string>("Contact")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("StaffName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("StuffId");
+
+                    b.ToTable("Staffs");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Student", b =>
@@ -1090,6 +1302,23 @@ namespace MadrasahManagement.Migrations
                     b.ToTable("Students");
                 });
 
+            modelBuilder.Entity("MadrasahManagement.Models.SubClassGroup", b =>
+                {
+                    b.Property<int>("SubClassGroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubClassGroupId"));
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SubClassGroupId");
+
+                    b.ToTable("SubClassGroups");
+                });
+
             modelBuilder.Entity("MadrasahManagement.Models.Subject", b =>
                 {
                     b.Property<int>("SubjectId")
@@ -1175,6 +1404,10 @@ namespace MadrasahManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TeacherId"));
 
+                    b.Property<string>("Contact")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
@@ -1182,8 +1415,16 @@ namespace MadrasahManagement.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTimeOffset>("JoiningDate")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Qualification")
                         .HasMaxLength(250)
@@ -1541,6 +1782,25 @@ namespace MadrasahManagement.Migrations
                     b.Navigation("Class");
                 });
 
+            modelBuilder.Entity("MadrasahManagement.Models.ExamFee", b =>
+                {
+                    b.HasOne("MadrasahManagement.Models.Class", "Class")
+                        .WithMany("ExamFees")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Examination", "Examination")
+                        .WithMany("ExamFees")
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Examination");
+                });
+
             modelBuilder.Entity("MadrasahManagement.Models.ExamResult", b =>
                 {
                     b.HasOne("MadrasahManagement.Models.Exam", "Exam")
@@ -1678,11 +1938,16 @@ namespace MadrasahManagement.Migrations
 
             modelBuilder.Entity("MadrasahManagement.Models.Salary", b =>
                 {
+                    b.HasOne("MadrasahManagement.Models.Staff", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
+
                     b.HasOne("MadrasahManagement.Models.Teacher", "Teacher")
                         .WithMany("Salaries")
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Staff");
 
                     b.Navigation("Teacher");
                 });
@@ -1937,6 +2202,8 @@ namespace MadrasahManagement.Migrations
 
                     b.Navigation("ClassSubjects");
 
+                    b.Navigation("ExamFees");
+
                     b.Navigation("Exams");
 
                     b.Navigation("FeeTypes");
@@ -1962,6 +2229,11 @@ namespace MadrasahManagement.Migrations
             modelBuilder.Entity("MadrasahManagement.Models.Exam", b =>
                 {
                     b.Navigation("ExamResults");
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.Examination", b =>
+                {
+                    b.Navigation("ExamFees");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Hostel", b =>

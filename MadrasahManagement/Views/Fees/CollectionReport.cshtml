@@ -1,0 +1,61 @@
+﻿@model IEnumerable<FeeCollection>
+
+<h2>Fee Collection Report</h2>
+
+<form method="get" class="row mb-4">
+    <div class="col-md-4">
+        <label>From Date</label>
+        <input type="date" name="startDate" class="form-control"
+               value="@ViewBag.StartDate" />
+    </div>
+    <div class="col-md-4">
+        <label>To Date</label>
+        <input type="date" name="endDate" class="form-control"
+               value="@ViewBag.EndDate" />
+    </div>
+    <div class="col-md-4">
+        <label>&nbsp;</label><br />
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a asp-action="CollectionReport" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+@if (Model.Any())
+{
+    <div class="alert alert-info">
+        Total Collections: <strong>৳@Model.Sum(c => c.AmountPaid)</strong> |
+        Total Transactions: <strong>@Model.Count()</strong>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Student</th>
+                <th>Class</th>
+                <th>Fee Type</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Receipt No</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.DatePaid.ToString("dd-MMM-yyyy")</td>
+                    <td>@item.Student?.StudentName</td>
+                    <td>@item.Student?.Class?.ClassName</td>
+                    <td>@item.FeeType?.Name</td>
+                    <td>৳@item.AmountPaid</td>
+                    <td>@item.PaymentMethod</td>
+                    <td>@item.ReceiptNumber</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning">No collections found for the selected period.</div>
+}

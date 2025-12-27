@@ -1,0 +1,90 @@
+﻿@model Salary
+
+<h2>Edit Salary</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="SalaryId" />
+    
+    <div class="form-group">
+        <label>Employee</label>
+        <div class="form-control" style="background-color: #f8f9fa;">
+            @if (Model.Teacher != null)
+            {
+                @Model.Teacher.Name <span>(Teacher)</span>
+            }
+            else if (Model.Staff != null)
+            {
+                @Model.Staff.StaffName <span>(Staff)</span>
+            }
+        </div>
+        <small class="form-text text-muted">Employee cannot be changed</small>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Basic Salary</label>
+                <input asp-for="BasicSalary" class="form-control" />
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Allowances</label>
+                <input asp-for="Allowances" class="form-control" />
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Deductions</label>
+                <input asp-for="Deductions" class="form-control" />
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Month</label>
+                <select asp-for="MonthName" class="form-control" asp-items="Html.GetEnumSelectList<Month>()"></select>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Payment Status</label>
+                <select asp-for="PaymentStatus" class="form-control" asp-items="Html.GetEnumSelectList<PaymentStatus>()"></select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>Payment Method</label>
+        <select asp-for="PaymentMethod" class="form-control" asp-items="Html.GetEnumSelectList<PaymentMethodType>()"></select>
+    </div>
+    
+    <div class="form-group">
+        <label>Net Amount (Auto-calculated)</label>
+        <input value="@Model.NetAmount" class="form-control" readonly />
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+    $(document).ready(function() {
+        // Auto-calculate net amount
+        function calculateNet() {
+            var basic = parseFloat($('#BasicSalary').val()) || 0;
+            var allowances = parseFloat($('#Allowances').val()) || 0;
+            var deductions = parseFloat($('#Deductions').val()) || 0;
+            var net = basic + allowances - deductions;
+            $('input[readonly]').val( net.toFixed(2));
+        }
+        
+        $('#BasicSalary, #Allowances, #Deductions').on('input', calculateNet);
+        calculateNet();
+    });
+</script>

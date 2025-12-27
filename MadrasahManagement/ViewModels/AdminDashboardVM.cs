@@ -13,6 +13,8 @@ namespace MadrasahManagement.ViewModels
         public decimal TotalExpenses { get; set; }
         public decimal TotalFeeCollected { get; set; }
         public int TotalActiveCourses { get; set; }
+        public decimal MonthlyExpense { get; set; }
+        public decimal TodayCollection { get; set; }
 
         // ---------------- Tables ----------------
         public IEnumerable<FeeCollection>? TodayPayments { get; set; }

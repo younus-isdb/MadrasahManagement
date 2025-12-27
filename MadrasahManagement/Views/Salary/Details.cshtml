@@ -1,0 +1,100 @@
+﻿@model MadrasahManagement.Models.Salary
+
+<div class="container" id="salarySlip">
+    <div class="text-center mb-4">
+        <h3>School Name</h3>
+        <h5>Salary Payment Slip</h5>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <p><strong>Payment Date:</strong> @Model.PaymentDate.ToString("dd-MMM-yyyy")</p>
+            <p><strong>Month:</strong> @Model.MonthName</p>
+            <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+        </div>
+        <div class="col-md-6 text-right">
+            <p><strong>Status:</strong> @Model.PaymentStatus</p>
+            <p><strong>Salary ID:</strong> @Model.SalaryId</p>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="mb-4">
+        <h5>Employee Details</h5>
+        @if (Model.Teacher != null)
+        {
+            <p><strong>Name:</strong> @Model.Teacher.Name</p>
+            <p><strong>Designation:</strong> Teacher</p>
+            <p><strong>Contact:</strong> @Model.Teacher.Contact</p> 
+        }
+        else if (Model.Staff != null)
+        {
+            <p><strong>Name:</strong> @Model.Staff.StaffName</p>
+            <p><strong>Designation:</strong> Staff</p>
+            <p><strong>Contact:</strong> @Model.Staff.Contact</p>
+        }
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Amount </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Basic Salary</td>
+                <td>@Model.BasicSalary</td>
+            </tr>
+            <tr>
+                <td>Allowances</td>
+                <td>৳@Model.Allowances</td>
+            </tr>
+            <tr>
+                <td>Deductions</td>
+                <td>৳@Model.Deductions</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Net Salary Payable</th>
+                <th class="text-success">@Model.NetAmount</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <p>___________________</p>
+                <p>Accountant Signature</p>
+            </div>
+            <div class="col-md-6 text-right">
+                <p>___________________</p>
+                <p>Employee Signature</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fas fa-print"></i> Print Slip
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        .btn {
+            display: none !important;
+        }
+
+        #salarySlip {
+            margin: 0;
+            padding: 0;
+        }
+    }
+</style>
