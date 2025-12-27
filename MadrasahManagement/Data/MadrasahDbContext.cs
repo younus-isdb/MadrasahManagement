@@ -34,6 +34,7 @@ namespace MadrasahManagement.Models
 
         // ===== Result / Academic =====
         public DbSet<PointCondition> PointConditions { get; set; }
+		public DbSet<PointConditionDetail> PointConditionDetails { get; set; }
         public DbSet<MeritCondition> MeritConditions { get; set; }
         public DbSet<SubClassGroup> SubClassGroups { get; set; }
 

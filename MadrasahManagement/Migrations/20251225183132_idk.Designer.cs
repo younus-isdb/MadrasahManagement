@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-<<<<<<<< HEAD:MadrasahManagement/Migrations/20251226183931_Sleep.Designer.cs
-    [Migration("20251226183931_Sleep")]
-    partial class Sleep
-========
-    [Migration("20251224145630_init")]
-    partial class init
->>>>>>>> 308779a56415a91b2f82db3a840c72db112a8a6c:MadrasahManagement/Migrations/20251224145630_init.Designer.cs
+    [Migration("20251225183132_idk")]
+    partial class idk
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -756,17 +751,9 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("FeeTypeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ReceiptNumber")
-                        .IsRequired()
+                    b.Property<string>("PaymentMethod")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -1104,50 +1091,23 @@ namespace MadrasahManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SalaryId"));
 
-                    b.Property<decimal>("Allowances")
+                    b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("BasicSalary")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Deductions")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("MonthName")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("NetAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("int");
+                    b.Property<string>("Month")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StaffId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TeacherId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
+                    b.Property<int>("TeacherId")
                         .HasColumnType("int");
 
                     b.HasKey("SalaryId");
 
-                    b.HasIndex("StaffId", "MonthName", "Year")
-                        .IsUnique()
-                        .HasDatabaseName("IX_SalaryRecord_Staff_Month_Year_Unique")
-                        .HasFilter("[StaffId] IS NOT NULL");
-
-                    b.HasIndex("TeacherId", "MonthName", "Year")
-                        .IsUnique()
-                        .HasDatabaseName("IX_SalaryRecord_Teacher_Month_Year_Unique")
-                        .HasFilter("[TeacherId] IS NOT NULL");
+                    b.HasIndex("TeacherId");
 
                     b.ToTable("Salaries", (string)null);
                 });
@@ -1173,28 +1133,6 @@ namespace MadrasahManagement.Migrations
                     b.HasIndex("ClassId");
 
                     b.ToTable("Sections", (string)null);
-                });
-
-            modelBuilder.Entity("MadrasahManagement.Models.Staff", b =>
-                {
-                    b.Property<int>("StuffId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StuffId"));
-
-                    b.Property<string>("Contact")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("StaffName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.HasKey("StuffId");
-
-                    b.ToTable("Staffs");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Student", b =>
@@ -1476,10 +1414,6 @@ namespace MadrasahManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TeacherId"));
 
-                    b.Property<string>("Contact")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
@@ -1487,16 +1421,8 @@ namespace MadrasahManagement.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTimeOffset>("JoiningDate")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Qualification")
                         .HasMaxLength(250)
@@ -2071,16 +1997,11 @@ namespace MadrasahManagement.Migrations
 
             modelBuilder.Entity("MadrasahManagement.Models.Salary", b =>
                 {
-                    b.HasOne("MadrasahManagement.Models.Staff", "Staff")
-                        .WithMany()
-                        .HasForeignKey("StaffId");
-
                     b.HasOne("MadrasahManagement.Models.Teacher", "Teacher")
                         .WithMany("Salaries")
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Staff");
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Teacher");
                 });

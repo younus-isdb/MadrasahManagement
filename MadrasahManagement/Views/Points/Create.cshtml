@@ -1,0 +1,136 @@
+﻿@model MadrasahManagement.Models.PointCondition
+
+@{
+    ViewData["Title"] = "Create Point Condition";
+}
+
+<style>
+    .yellow-box {
+        background: #f6f0a2;
+        padding: 20px;
+        border-radius: 4px;
+    }
+
+    .condition-row {
+        display: grid;
+        grid-template-columns: 120px 80px 120px 120px 120px;
+        gap: 10px;
+        margin-bottom: 8px;
+        align-items: center;
+    }
+
+    .condition-row input {
+        height: 30px;
+    }
+
+    .btn-sm {
+        padding: 2px 8px;
+    }
+</style>
+
+<h4>বিষয় ও পাশ নাম্বার ফলাফল কন্ডিশন</h4>
+
+<form asp-action="Create" method="post">
+    <div class="yellow-box">
+
+        <!-- Header Section -->
+        <div class="row mb-2">
+            <div class="col-md-3">
+                <label>শিক্ষাবর্ষ</label>
+                <input asp-for="EducationYear" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label>পরীক্ষার নাম</label>
+                <select asp-for="ExamId" class="form-control" asp-items="ViewBag.ExamId">
+                    <option value="">-- Select --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label>শ্রেণী</label>
+                <select asp-for="ClassId" class="form-control" asp-items="ViewBag.ClassId">
+                    <option value="">-- Select --</option>
+                </select>
+            </div>
+
+            
+
+            <div class="col-md-3">
+                <label>বিষয়</label>
+                <select asp-for="SubjectId" class="form-control" asp-items="ViewBag.SubjectId">
+                    <option value="">-- Select --</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Pass & Highest -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label>পাশ নাম্বার</label>
+                <input asp-for="PassMarks" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label>সর্বোচ্চ নাম্বার</label>
+                <input asp-for="HighestMark" class="form-control" />
+            </div>
+        </div>
+
+        <hr />
+
+        <!-- Condition Header -->
+        <div class="condition-row fw-bold">
+            <div>থেকে</div>
+            <div>পর্যন্ত</div>
+            <div>ডিভিশন</div>
+            <div>Silver</div>
+            <div>Action</div>
+        </div>
+
+        <!-- Condition Rows -->
+        <div id="conditionContainer">
+            @for (int i = 0; i < Model.Details.Count; i++)
+            {
+                <div class="condition-row">
+                    <input type="number" name="Details[@i].FromMark" class="form-control" />
+                    <input type="number" name="Details[@i].ToMark" class="form-control" />
+                    <input type="text" name="Details[@i].Division" class="form-control" />
+                    <input type="checkbox" name="Details[@i].IsSilverColor" />
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button>
+                </div>
+            }
+        </div>
+
+        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="addRow()">➕ New Condition</button>
+
+        <hr />
+
+        <button type="submit" class="btn btn-success">Save</button>
+        <a asp-action="Index" class="btn btn-dark">Back</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        let index = @Model.Details.Count;
+
+        function addRow() {
+            let html = `
+            <div class="condition-row">
+                <input type="number" name="Details[${index}].FromMark" class="form-control" />
+                <input type="number" name="Details[${index}].ToMark" class="form-control" />
+                <input type="text" name="Details[${index}].Division" class="form-control" />
+               <input type="hidden" name="Details[${index}].IsSilverColor" value="false" />
+        <input type="checkbox" name="Details[${index}].IsSilverColor" value="true" />
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button>
+            </div>`;
+            document.getElementById("conditionContainer").insertAdjacentHTML("beforeend", html);
+            index++;
+        }
+
+        function removeRow(btn) {
+            btn.parentElement.remove();
+        }
+    </script>
+}
