@@ -507,13 +507,7 @@ namespace MadrasahManagement.Controllers
 
             if (issuedBook.ReturnDate == null)
             {
-                //var dueDate = issuedBook.IssueDate.AddDays(14).Date;
-                //if (DateTimeOffset.Now.Date > dueDate)
-                //{
-                //    var daysLate = (DateTimeOffset.Now.Date - dueDate).Days;
-                //    issuedBook.Fine = daysLate * 10; // 10 per day
-                //}
-
+               
                 var dueDate = issuedBook.IssueDate.AddDays(14);
                 if (DateOnly.FromDateTime(DateTime.Now) > dueDate)
                 {
@@ -649,22 +643,23 @@ namespace MadrasahManagement.Controllers
             }
         }
 
-        public async Task<IActionResult> ReturnedBooks()
-        {
+        //public async Task<IActionResult> ReturnedBooks()
+        //{
 
-            var returnedBooks = await _db.IssuedBooks
-                .Include(i => i.Book)
-                .Include(i => i.AppUser)
-                .Where(i => i.ReturnDate != null)
-                .OrderByDescending(i => i.ReturnDate)
-                .ToListAsync();
+        //    var returnedBooks = await _db.IssuedBooks
+        //        .Include(i => i.Book)
+        //        .Include(i => i.AppUser)
+        //        .Where(i => i.ReturnDate != null)
+        //        .OrderByDescending(i => i.ReturnDate)
+        //        .ToListAsync();
 
-            return View(returnedBooks);
-        }
+        //    return View(returnedBooks);
+        //}
 
-        private bool IssuedBookExists(int id)
-        {
-            return _db.IssuedBooks.Any(e => e.Id == id);
-        }
+
+        //private bool IssuedBookExists(int id)
+        //{
+        //    return _db.IssuedBooks.Any(e => e.Id == id);
+        //}
     }
 }

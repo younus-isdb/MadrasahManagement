@@ -41,7 +41,7 @@ namespace MadrasahManagement.ApiControllers
 
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] BookApiDto bookdto)
+        public async Task<ActionResult> Save([FromBody] BookApiDto bookdto)
         {
             var book = new Book
             {
@@ -60,7 +60,7 @@ namespace MadrasahManagement.ApiControllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Edit(int id, [FromBody] BookApiDto bookdto, int newCopiesToAdd = 0)
+        public async Task<ActionResult> Update(int id, [FromBody] BookApiDto bookdto, int newCopiesToAdd = 0)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace MadrasahManagement.ApiControllers
 
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> DeleteBook(int id)
         {
             try
             {
