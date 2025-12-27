@@ -7,11 +7,11 @@ namespace MadrasahManagement.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ExaminationController : ControllerBase
+    public class ExaminatiionController : ControllerBase
     {
         private readonly MadrasahDbContext _context;
 
-        public ExaminationController(MadrasahDbContext context)
+        public ExaminatiionController(MadrasahDbContext context)
         {
             _context = context;
         }
