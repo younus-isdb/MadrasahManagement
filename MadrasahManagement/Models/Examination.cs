@@ -186,12 +186,7 @@ public class MeritCondition
         [ForeignKey(nameof(StudentId))]
         public Student? Student { get; set; }
        
-        //public int SubjectId { get; set; }
-        //[ForeignKey(nameof(SubjectId))]
-        //public Subject? Subject { get; set; }
-
-        //[NotMapped]
-        //public List<int> SubjectIds { get; set; } = new();
+        
 
     }
     public class ExamIncomeExpense

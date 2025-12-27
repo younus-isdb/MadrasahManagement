@@ -1,8 +1,9 @@
-﻿using MadrasahManagement.Models;
+﻿using MadrasahManagement.Dto;
+using MadrasahManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace MadrasahManagement.Controllers.Api
+namespace MadrasahManagement.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -16,101 +17,161 @@ namespace MadrasahManagement.Controllers.Api
         }
 
         // ================= GET ALL =================
-        // GET: api/points
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PointCondition>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var data = await _context.PointConditions
-                .Include(x => x.Class)
-                .Include(x => x.Examination)
-                .Include(x => x.Details)
-                .ToListAsync();
+                .Include(p => p.Details)
+                .Select(p => new PointConditionReadDto
+                {
+                    PointConditionId = p.PointConditionId,
+                    EducationYear = p.EducationYear,
+                    ClassId = p.ClassId,
+                    ExamId = p.ExamId,
+                    PassMarks = p.PassMarks,
+                    HighestMark = p.HighestMark,
+                    Details = p.Details.Select(d => new PointConditionDetailReadDto
+                    {
+                        PointConditionDetailId = d.PointConditionDetailId,
+                        FromMark = d.FromMark,
+                        ToMark = d.ToMark,
+                        Division = d.Division,
+                        IsSilverColor = d.IsSilverColor
+                    }).ToList()
+                }).ToListAsync();
 
             return Ok(data);
         }
 
         // ================= GET BY ID =================
-        // GET: api/points/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<PointCondition>> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var condition = await _context.PointConditions
-                .Include(x => x.Class)
-                .Include(x => x.Examination)
-                .Include(x => x.Details)
-                .FirstOrDefaultAsync(x => x.PointConditionId == id);
+            var p = await _context.PointConditions
+                .Include(pc => pc.Details)
+                .FirstOrDefaultAsync(pc => pc.PointConditionId == id);
 
-            if (condition == null)
-                return NotFound();
+            if (p == null) return NotFound();
 
-            return Ok(condition);
+            var dto = new PointConditionReadDto
+            {
+                PointConditionId = p.PointConditionId,
+                EducationYear = p.EducationYear,
+                ClassId = p.ClassId,
+                ExamId = p.ExamId,
+                PassMarks = p.PassMarks,
+                HighestMark = p.HighestMark,
+                Details = p.Details.Select(d => new PointConditionDetailReadDto
+                {
+                    PointConditionDetailId = d.PointConditionDetailId,
+                    FromMark = d.FromMark,
+                    ToMark = d.ToMark,
+                    Division = d.Division,
+                    IsSilverColor = d.IsSilverColor
+                }).ToList()
+            };
+
+            return Ok(dto);
         }
 
         // ================= CREATE =================
-        // POST: api/points
         [HttpPost]
-        public async Task<IActionResult> Create(PointCondition condition)
+        public async Task<IActionResult> Create([FromBody] PointConditionCreateDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _context.PointConditions.Add(condition);
+            var entity = new PointCondition
+            {
+                EducationYear = dto.EducationYear,
+                ClassId = dto.ClassId,
+                ExamId = dto.ExamId,
+                PassMarks = dto.PassMarks,
+                HighestMark = dto.HighestMark,
+                Details = dto.Details.Select(d => new PointConditionDetail
+                {
+                    FromMark = d.FromMark,
+                    ToMark = d.ToMark,
+                    Division = d.Division,
+                    IsSilverColor = d.IsSilverColor
+                }).ToList()
+            };
+
+            _context.PointConditions.Add(entity);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById),
-                new { id = condition.PointConditionId }, condition);
+            return CreatedAtAction(nameof(GetById), new { id = entity.PointConditionId }, entity);
         }
 
         // ================= UPDATE =================
-        // PUT: api/points/5
-       
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, PointCondition model)
+        public async Task<IActionResult> Update(int id, [FromBody] PointConditionUpdateDto dto)
         {
-            if (id != model.PointConditionId)
-                return BadRequest("Id mismatch");
+            if (id != dto.PointConditionId) return BadRequest("Id mismatch");
 
             var existing = await _context.PointConditions
-                .Include(x => x.Details)
-                .FirstOrDefaultAsync(x => x.PointConditionId == id);
+                .Include(p => p.Details)
+                .FirstOrDefaultAsync(p => p.PointConditionId == id);
 
-            if (existing == null)
-                return NotFound();
+            if (existing == null) return NotFound();
 
-            // 🔴 remove old details
+            // Remove old details
             _context.PointConditionDetails.RemoveRange(existing.Details);
 
-            // 🔵 update parent (ALL fields)
-            existing.EducationYear = model.EducationYear;
-            existing.ClassId = model.ClassId;
-            existing.ExamId = model.ExamId;
-            existing.PassMarks = model.PassMarks;      // ✅ FIX
-            existing.HighestMark = model.HighestMark;  // ✅ FIX
+            // Update parent fields
+            existing.EducationYear = dto.EducationYear;
+            existing.ClassId = dto.ClassId;
+            existing.ExamId = dto.ExamId;
+            existing.PassMarks = dto.PassMarks;
+            existing.HighestMark = dto.HighestMark;
 
-            // 🔵 add new details
-            existing.Details = model.Details;
+            // Add new details
+            existing.Details = dto.Details.Select(d => new PointConditionDetail
+            {
+                FromMark = d.FromMark,
+                ToMark = d.ToMark,
+                Division = d.Division,
+                IsSilverColor = d.IsSilverColor
+            }).ToList();
 
             await _context.SaveChangesAsync();
 
-            return Ok(existing); // or NoContent()
+            // Return updated object
+            var readDto = new PointConditionReadDto
+            {
+                PointConditionId = existing.PointConditionId,
+                EducationYear = existing.EducationYear,
+                ClassId = existing.ClassId,
+                ExamId = existing.ExamId,
+                PassMarks = existing.PassMarks,
+                HighestMark = existing.HighestMark,
+                Details = existing.Details.Select(d => new PointConditionDetailReadDto
+                {
+                    PointConditionDetailId = d.PointConditionDetailId,
+                    FromMark = d.FromMark,
+                    ToMark = d.ToMark,
+                    Division = d.Division,
+                    IsSilverColor = d.IsSilverColor
+                }).ToList()
+            };
+
+            return Ok(readDto);
         }
 
         // ================= DELETE =================
-        // DELETE: api/points/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var condition = await _context.PointConditions
-                .Include(x => x.Details)
-                .FirstOrDefaultAsync(x => x.PointConditionId == id);
+            var existing = await _context.PointConditions
+                .Include(p => p.Details)
+                .FirstOrDefaultAsync(p => p.PointConditionId == id);
 
-            if (condition == null)
-                return NotFound();
+            if (existing == null) return NotFound();
 
-            _context.PointConditionDetails.RemoveRange(condition.Details);
-            _context.PointConditions.Remove(condition);
+            _context.PointConditionDetails.RemoveRange(existing.Details);
+            _context.PointConditions.Remove(existing);
 
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }
