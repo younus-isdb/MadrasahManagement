@@ -17,6 +17,8 @@ builder.Services.AddControllers().AddJsonOptions(opt =>
         System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 });
 
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddDbContext<MadrasahDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -38,7 +40,12 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
@@ -51,6 +58,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+app.MapControllers();
+
+//app.MapGet("/", context =>
+//{
+//    context.Response.Redirect("/swagger");
+//    return Task.CompletedTask;
+//});
 
 app.MapControllerRoute(
     name: "default",
