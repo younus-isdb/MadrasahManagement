@@ -6,6 +6,17 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        builder =>
+        {
+            builder
+                .AllowAnyOrigin() // Angular app origin
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers().AddJsonOptions(opt =>
@@ -52,8 +63,9 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
-
+app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
