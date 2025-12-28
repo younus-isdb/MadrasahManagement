@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MadrasahManagement.ApiDto
+namespace MadrasahManagement.Dto
 {
     public class BookApiDto
     {

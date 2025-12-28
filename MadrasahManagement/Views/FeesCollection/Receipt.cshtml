@@ -1,5 +1,11 @@
 ﻿@model FeeCollection
 
+@{
+    decimal totalFee = Model.FeeType?.Amount ?? 0;
+    decimal paid = Model.AmountPaid;
+    decimal due = totalFee - paid;
+}
+
 <div class="container" id="receipt">
     <div class="text-center mb-4">
         <h3>School Name</h3>
@@ -11,9 +17,14 @@
             <p><strong>Receipt No:</strong> @Model.ReceiptNumber</p>
             <p><strong>Date:</strong> @Model.DatePaid.ToString("dd-MMM-yyyy")</p>
         </div>
-        <div class="col-md-6 text-right">
+        <div class="col-md-6 text-end">
             <p><strong>Student ID:</strong> @Model.StudentId</p>
-            <p><strong>Payment Status:</strong> @Model.Status</p>
+            <p>
+                <strong>Payment Status:</strong>
+                <span class="@(due > 0 ? "text-warning fw-bold" : "text-success fw-bold")">
+                    @(due > 0 ? "Partial Paid" : "Paid")
+                </span>
+            </p>
         </div>
     </div>
 
@@ -37,42 +48,58 @@
         <tbody>
             <tr>
                 <td>@Model.FeeType?.Name</td>
-                <td>৳@Model.AmountPaid</td>
+                <td>৳@paid</td>
                 <td>@Model.PaymentMethod</td>
             </tr>
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="2" class="text-right">Total Paid:</th>
-                <th>৳@Model.AmountPaid</th>
+                <th colspan="2" class="text-end">Total Fee:</th>
+                <th>৳@totalFee</th>
+            </tr>
+            <tr>
+                <th colspan="2" class="text-end">Paid:</th>
+                <th>৳@paid</th>
+            </tr>
+            <tr>
+                <th colspan="2" class="text-end">Due:</th>
+                <th class="@(due > 0 ? "text-danger fw-bold" : "text-success fw-bold")">
+                    ৳@(due > 0 ? due : 0)
+                </th>
             </tr>
         </tfoot>
     </table>
 
-    <div class="mt-5">
+   @*  <div class="mt-5">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6 text-center">
                 <p>___________________</p>
                 <p>Cashier's Signature</p>
             </div>
-            <div class="col-md-6 text-right">
+            <div class="col-md-6 text-center">
                 <p>___________________</p>
                 <p>Student/Parent Signature</p>
             </div>
         </div>
-    </div>
+    </div> *@
 
-    <div class="mt-4 text-center">
-        <button onclick="window.print()" class="btn btn-primary">
-            <i class="fas fa-print"></i> Print Receipt
-        </button>
+    <div class="mt-4 text-center no-print">
+        @* <button onclick="window.print()" class="btn btn-primary">
+            Print Receipt
+        </button> *@
         <a asp-action="CollectFee" class="btn btn-secondary">New Collection</a>
     </div>
 </div>
 
-<style>
-    @@media print {
-        .btn { display: none !important; }
-        #receipt { margin: 0; padding: 0; }
+@* <style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        #receipt {
+            margin: 0;
+            padding: 0;
+        }
     }
-</style>
+</style> *@

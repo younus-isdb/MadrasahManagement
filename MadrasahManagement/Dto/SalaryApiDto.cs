@@ -1,6 +1,6 @@
 ﻿using MadrasahManagement.Models;
 
-namespace MadrasahManagement.ApiDto
+namespace MadrasahManagement.Dto
 {
     public class SalaryApiDto
     {
