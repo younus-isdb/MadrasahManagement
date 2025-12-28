@@ -10,12 +10,12 @@ namespace MadrasahManagement.ApiControllers
     [Route("api/[controller]")]
     [ApiController]
   //  [Authorize(Roles = "Admin,Librarian")]
-    public class IssuedBookController : ControllerBase
+    public class IssuedBookApiController : ControllerBase
     {
         private readonly MadrasahDbContext _db;
 
 
-        public IssuedBookController(MadrasahDbContext db)
+        public IssuedBookApiController(MadrasahDbContext db)
         {
             _db = db;
 

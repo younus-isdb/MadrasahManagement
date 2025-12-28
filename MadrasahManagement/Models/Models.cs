@@ -349,8 +349,11 @@ namespace MadrasahManagement.Models
         [NotMapped, DisplayName("Image")]
         public IFormFile? ImageFile { get; set; }
 
-        // Navigation
-        public AppUser AppUser { get; set; } = default!;
+        //[EmailAddress]  
+        //public string? Email { get; set; }
+
+		// Navigation
+		public AppUser AppUser { get; set; } = default!;
         public Department Department { get; set; } = default!;
 
         public ICollection<ClassSubject> ClassSubjects { get; set; } = new HashSet<ClassSubject>();
