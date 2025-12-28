@@ -1,5 +1,5 @@
 ﻿using Azure.Core;
-using MadrasahManagement.ApiDto;
+using MadrasahManagement.Dto;
 using MadrasahManagement.Models;
 using MadrasahManagement.Services;
 using Microsoft.AspNetCore.Http;

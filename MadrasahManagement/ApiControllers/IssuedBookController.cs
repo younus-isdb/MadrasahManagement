@@ -1,4 +1,4 @@
-﻿using MadrasahManagement.ApiDto;
+﻿using MadrasahManagement.Dto;
 using MadrasahManagement.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

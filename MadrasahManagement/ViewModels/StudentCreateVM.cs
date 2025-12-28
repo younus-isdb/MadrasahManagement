@@ -1,48 +1,82 @@
-﻿using System.ComponentModel.DataAnnotations;
-using MadrasahManagement.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using MadrasahManagement.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace MadrasahManagement.ViewModels
+public class StudentCreateVM
 {
-	public class StudentCreateVM
-	{
-		// Form
-	
+    // -------------------------
+    // Basic
+    // -------------------------
+    [Required, MaxLength(150)]
+    public string StudentName { get; set; } = default!;
 
-		
-		// Academic
-		[Required]
-		public int DepartmentId { get; set; }
-		public int ClassId { get; set; }
-		public int SectionId { get; set; }
+    public string? ArabicStudentName { get; set; }
+    public string? BanglaStudentName { get; set; }
 
-		// Identity / Admission
+    // -------------------------
+    // Academic
+    // -------------------------
+    [Required]
+    public int DepartmentId { get; set; }
 
-		public string RollNo { get; set; } = "";
-		public string AdmissionNumber { get; set; } = "";
+    [Required]
+    public int ClassId { get; set; }
 
-		public string StudentName { get; set; } = "";
-		public string? FatherName { get; set; }
-		public DateTimeOffset AdmissionDate { get; set; } = DateTimeOffset.Now;
+    [Required]
+    public int SectionId { get; set; }
 
-		// Names
-		[Required]
+    // -------------------------
+    // Identity
+    // -------------------------
+    [Required]
+    public string RegNo { get; set; } = default!;
+    public string? NationalId { get; set; }
 
-		public string? BanglaStudentName { get; set; }
+    public DateTime AdmissionDate { get; set; } = DateTime.Today;
 
-		// Parents
-	
-		public string? Mobile { get; set; }
+    // -------------------------
+    // Personal
+    // -------------------------
+    public Gender? Gender { get; set; }
+    public DateTime DOB { get; set; } = DateTime.Today.AddYears(-5);
+    public string? BloodGroup { get; set; }
 
-		// Dropdowns
-		public IEnumerable<SelectListItem> Departments { get; set; } = new List<SelectListItem>();
-		public IEnumerable<SelectListItem> Classes { get; set; } = new List<SelectListItem>();
-		public IEnumerable<SelectListItem> Sections { get; set; } = new List<SelectListItem>();
+    // -------------------------
+    // Parents
+    // -------------------------
+    public string? FatherName { get; set; }
+    public string? FatherPhone { get; set; }
+    public string? MotherName { get; set; }
+    public string? MotherPhone { get; set; }
 
-		// Grid
-		public List<Student> Students { get; set; } = new();
+    public string? GuardianName { get; set; }
+    public string? GuardianPhone { get; set; }
+    public string? GuardianEmail { get; set; }
 
-		
-	}
+    // -------------------------
+    // Address
+    // -------------------------
+    public string? Address { get; set; }
+    public string? City { get; set; }
+    public string? Country { get; set; }
 
+    // -------------------------
+    // Emergency
+    // -------------------------
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyPhone { get; set; }
+    public string? MedicalNotes { get; set; }
+
+    // -------------------------
+    // Previous Academic
+    // -------------------------
+    public string? PreviousSchoolName { get; set; }
+    public double? PreviousResult { get; set; }
+
+    // -------------------------
+    // Files
+    // -------------------------
+    public IFormFile? ProfileImage { get; set; }
+    public IFormFile? DocumentFile { get; set; }
+
+    public bool IsActive { get; set; } = true;
 }

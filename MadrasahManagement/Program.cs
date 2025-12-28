@@ -15,6 +15,7 @@ builder.Services.AddCors(options =>
                 .AllowAnyOrigin() // Angular app origin
                 .AllowAnyHeader()
                 .AllowAnyMethod();
+            //hgg
         });
 });
 
