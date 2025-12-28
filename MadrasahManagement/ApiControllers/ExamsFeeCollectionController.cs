@@ -1,101 +1,126 @@
-﻿using MadrasahManagement.Models;
+﻿using MadrasahManagement.Dto;
+using MadrasahManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace MadrasahManagement.Controllers.Api
+namespace MadrasahManagement.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ExamsFeeCollectionsController : ControllerBase
+    public class ExamFeeCollectionController : ControllerBase
     {
         private readonly MadrasahDbContext _context;
 
-        public ExamsFeeCollectionsController(MadrasahDbContext context)
+        public ExamFeeCollectionController(MadrasahDbContext context)
         {
             _context = context;
         }
 
-        // ================= GET ALL =================
-        // GET: api/ExamFeeCollections
+        // GET ALL
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ExamFeeCollection>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var data = await _context.ExamFeeCollections
                 .Include(x => x.Examination)
                 .Include(x => x.Class)
                 .Include(x => x.Student)
-                .ToListAsync();
-
-            var totalAmount = data.Sum(x => x.ExamFee);
-
-            return Ok(new { totalAmount, data });
-        }
-
-        // ================= GET BY ID =================
-        // GET: api/ExamFeeCollections/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ExamFeeCollection>> GetById(int id)
-        {
-            var data = await _context.ExamFeeCollections
-                .Include(x => x.Examination)
-                .Include(x => x.Class)
-                .Include(x => x.Student)
-                .FirstOrDefaultAsync(x => x.FeeCollectionId == id);
-
-            if (data == null)
-                return NotFound();
+                .Select(x => new ExamFeeCollectionReadDto
+                {
+                    FeeCollectionId = x.FeeCollectionId,
+                    EducationYear = x.EducationYear,
+                    ExamId = x.ExamId,
+                    ExamName = x.Examination!.ExamName,
+                    ClassId = x.ClassId,
+                    ClassName = x.Class!.ClassName,
+                    TotalSubject = x.TotalSubject,
+                    ExamFee = x.ExamFee,
+                    StudentId = x.StudentId,
+                    StudentName = x.Student!.StudentName
+                }).ToListAsync();
 
             return Ok(data);
         }
 
-        // ================= CREATE =================
-        // POST: api/ExamFeeCollections
-        [HttpPost]
-        public async Task<IActionResult> Create(ExamFeeCollection model)
+        // GET BY ID
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var x = await _context.ExamFeeCollections
+                .Include(f => f.Examination)
+                .Include(f => f.Class)
+                .Include(f => f.Student)
+                .FirstOrDefaultAsync(f => f.FeeCollectionId == id);
 
-            _context.ExamFeeCollections.Add(model);
-            await _context.SaveChangesAsync();
+            if (x == null) return NotFound();
 
-            return CreatedAtAction(nameof(GetById),
-                new { id = model.FeeCollectionId }, model);
+            var dto = new ExamFeeCollectionReadDto
+            {
+                FeeCollectionId = x.FeeCollectionId,
+                EducationYear = x.EducationYear,
+                ExamId = x.ExamId,
+                ExamName = x.Examination!.ExamName,
+                ClassId = x.ClassId,
+                ClassName = x.Class!.ClassName,
+                TotalSubject = x.TotalSubject,
+                ExamFee = x.ExamFee,
+                StudentId = x.StudentId,
+                StudentName = x.Student!.StudentName
+            };
+
+            return Ok(dto);
         }
 
-        // ================= UPDATE =================
-        // PUT: api/ExamFeeCollections/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, ExamFeeCollection model)
+        // CREATE
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] ExamFeeCollectionCreateDto dto)
         {
-            if (id != model.FeeCollectionId)
-                return BadRequest("Id mismatch");
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var entity = new ExamFeeCollection
+            {
+                EducationYear = dto.EducationYear,
+                ExamId = dto.ExamId,
+                ClassId = dto.ClassId,
+                TotalSubject = dto.TotalSubject,
+                ExamFee = dto.ExamFee,
+                StudentId = dto.StudentId
+            };
+
+            _context.ExamFeeCollections.Add(entity);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetById), new { id = entity.FeeCollectionId }, entity);
+        }
+
+        // UPDATE
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] ExamFeeCollectionUpdateDto dto)
+        {
+            if (id != dto.FeeCollectionId) return BadRequest("Id mismatch");
 
             var existing = await _context.ExamFeeCollections.FindAsync(id);
-            if (existing == null)
-                return NotFound();
+            if (existing == null) return NotFound();
 
-            // Update fields
-            existing.StudentId = model.StudentId;
-            existing.ExamId = model.ExamId;
-            existing.ClassId = model.ClassId;
-            existing.ExamFee = model.ExamFee;
+            existing.EducationYear = dto.EducationYear;
+            existing.ExamId = dto.ExamId;
+            existing.ClassId = dto.ClassId;
+            existing.TotalSubject = dto.TotalSubject;
+            existing.ExamFee = dto.ExamFee;
+            existing.StudentId = dto.StudentId;
 
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // ================= DELETE =================
-        // DELETE: api/ExamFeeCollections/5
+        // DELETE
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var data = await _context.ExamFeeCollections.FindAsync(id);
-            if (data == null)
-                return NotFound();
+            var existing = await _context.ExamFeeCollections.FindAsync(id);
+            if (existing == null) return NotFound();
 
-            _context.ExamFeeCollections.Remove(data);
+            _context.ExamFeeCollections.Remove(existing);
             await _context.SaveChangesAsync();
 
             return NoContent();

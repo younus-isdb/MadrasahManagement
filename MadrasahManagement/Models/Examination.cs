@@ -158,10 +158,10 @@ public class MeritCondition
         public int RoomNumber { get; set; }
 
         [Required]
-        public DateTime ExamDate { get; set; }
-        public string ExamDay {  get; set; }
-        public string ExamStartTime { get; set; }
-        public string ExamEndTime { get; set; }
+        public DateTime ExamDate { get; set; }=DateTime.Now;
+        public string ExamDay {  get; set; }= string.Empty;
+        public string ExamStartTime { get; set; }= string.Empty;
+        public string ExamEndTime { get; set; }= string.Empty;
 
     }
     public class ExamFeeCollection
@@ -186,12 +186,7 @@ public class MeritCondition
         [ForeignKey(nameof(StudentId))]
         public Student? Student { get; set; }
        
-        //public int SubjectId { get; set; }
-        //[ForeignKey(nameof(SubjectId))]
-        //public Subject? Subject { get; set; }
-
-        //[NotMapped]
-        //public List<int> SubjectIds { get; set; } = new();
+        
 
     }
     public class ExamIncomeExpense
