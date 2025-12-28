@@ -85,20 +85,22 @@ namespace MadrasahManagement.ApiControllers
 
         // PUT: api/Examination/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] ExaminationUpdateDto dto)
+        public async Task<IActionResult> Update(int id, ExaminationUpdateDto dto)
         {
-            if (id != dto.ExamId) return BadRequest();
-
             var exam = await _context.Examinations.FindAsync(id);
-            if (exam == null) return NotFound();
+
+            if (exam == null)
+                return NotFound();
 
             exam.ExamName = dto.ExamName;
+            // অন্যান্য ফিল্ড
+
+            _context.Examinations.Update(exam); // অথবা শুধু SaveChanges
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // DELETE: api/Examination/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

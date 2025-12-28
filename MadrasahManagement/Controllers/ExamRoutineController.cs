@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-  // Change to your namespace
-using MadrasahManagement.Models; // Your ExamRoutine model
+using MadrasahManagement.Models;
 
-namespace YourProjectNamespace.Controllers
+namespace MadrasahManagement.Controllers
 {
     public class ExamRoutineController : Controller
     {
@@ -22,6 +21,8 @@ namespace YourProjectNamespace.Controllers
                 .Include(e => e.Class)
                 .Include(e => e.Examination)
                 .Include(e => e.Subject)
+                .OrderBy(e => e.ExamDate)
+                .ThenBy(e => e.ExamStartTime)
                 .ToListAsync();
             return View(examRoutines);
         }
@@ -45,17 +46,24 @@ namespace YourProjectNamespace.Controllers
         // GET: ExamRoutine/Create
         public IActionResult Create()
         {
-            ViewData["ClassId"] = new SelectList(_context.Classes, "ClassId", "ClassName");
-            ViewData["ExamId"] = new SelectList(_context.Examinations, "ExamId", "ExamName");
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "SubjectId", "SubjectName");
+            PopulateDropdowns();
             return View();
         }
 
         // POST: ExamRoutine/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ExamRoutineId,EducationYear,ClassId,ExamId,SubjectId,RoomNumber,ExamDate,ExamStartTime,ExamEndTime")] ExamRoutine examRoutine)
+        public async Task<IActionResult> Create([Bind("ExamRoutineId,EducationYear,ClassId,ExamId,SubjectId,RoomNumber,ExamDate,ExamDay,ExamStartTime,ExamEndTime")] ExamRoutine examRoutine)
         {
+            // Auto-fill ExamDay from ExamDate
+            if (examRoutine.ExamDate != default)
+            {
+                examRoutine.ExamDay = examRoutine.ExamDate.ToString("dddd");
+            }
+
+            // String Time Validation Logic
+            ValidateTimeComparison(examRoutine);
+
             if (ModelState.IsValid)
             {
                 _context.Add(examRoutine);
@@ -63,9 +71,7 @@ namespace YourProjectNamespace.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["ClassId"] = new SelectList(_context.Classes, "ClassId", "ClassName", examRoutine.ClassId);
-            ViewData["ExamId"] = new SelectList(_context.Examinations, "ExamId", "ExamName", examRoutine.ExamId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "SubjectId", "SubjectName", examRoutine.SubjectId);
+            PopulateDropdowns(examRoutine);
             return View(examRoutine);
         }
 
@@ -77,19 +83,24 @@ namespace YourProjectNamespace.Controllers
             var examRoutine = await _context.ExamRoutines.FindAsync(id);
             if (examRoutine == null) return NotFound();
 
-            ViewData["ClassId"] = new SelectList(_context.Classes, "ClassId", "ClassName", examRoutine.ClassId);
-            ViewData["ExamId"] = new SelectList(_context.Examinations, "ExamId", "ExamName", examRoutine.ExamId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "SubjectId", "SubjectName", examRoutine.SubjectId);
-
+            PopulateDropdowns(examRoutine);
             return View(examRoutine);
         }
 
         // POST: ExamRoutine/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ExamRoutineId,EducationYear,ClassId,ExamId,SubjectId,RoomNumber,ExamDate,ExamStartTime,ExamEndTime")] ExamRoutine examRoutine)
+        public async Task<IActionResult> Edit(int id, [Bind("ExamRoutineId,EducationYear,ClassId,ExamId,SubjectId,RoomNumber,ExamDate,ExamDay,ExamStartTime,ExamEndTime")] ExamRoutine examRoutine)
         {
             if (id != examRoutine.ExamRoutineId) return NotFound();
+
+            // Auto-fill ExamDay
+            if (examRoutine.ExamDate != default)
+            {
+                examRoutine.ExamDay = examRoutine.ExamDate.ToString("dddd");
+            }
+
+            ValidateTimeComparison(examRoutine);
 
             if (ModelState.IsValid)
             {
@@ -100,16 +111,19 @@ namespace YourProjectNamespace.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ExamRoutineExists(examRoutine.ExamRoutineId)) return NotFound();
-                    else throw;
+                    if (!ExamRoutineExists(examRoutine.ExamRoutineId))
+                        return NotFound();
+                    else
+                        throw;
+                }
+                catch (Exception) // Fixed: Removed 'ex' to fix unused variable warning
+                {
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["ClassId"] = new SelectList(_context.Classes, "ClassId", "ClassName", examRoutine.ClassId);
-            ViewData["ExamId"] = new SelectList(_context.Examinations, "ExamId", "ExamName", examRoutine.ExamId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "SubjectId", "SubjectName", examRoutine.SubjectId);
-
+            PopulateDropdowns(examRoutine);
             return View(examRoutine);
         }
 
@@ -135,14 +149,37 @@ namespace YourProjectNamespace.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var examRoutine = await _context.ExamRoutines.FindAsync(id);
-            _context.ExamRoutines.Remove(examRoutine);
-            await _context.SaveChangesAsync();
+            if (examRoutine != null)
+            {
+                _context.ExamRoutines.Remove(examRoutine);
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
         }
 
         private bool ExamRoutineExists(int id)
         {
             return _context.ExamRoutines.Any(e => e.ExamRoutineId == id);
+        }
+
+        private void PopulateDropdowns(ExamRoutine? routine = null)
+        {
+            ViewData["ClassId"] = new SelectList(_context.Classes.OrderBy(c => c.ClassName), "ClassId", "ClassName", routine?.ClassId);
+            ViewData["ExamId"] = new SelectList(_context.Examinations.OrderBy(e => e.ExamName), "ExamId", "ExamName", routine?.ExamId);
+            ViewData["SubjectId"] = new SelectList(_context.Subjects.OrderBy(s => s.SubjectName), "SubjectId", "SubjectName", routine?.SubjectId);
+        }
+
+        // Helper to compare string times
+        private void ValidateTimeComparison(ExamRoutine routine)
+        {
+            if (TimeSpan.TryParse(routine.ExamStartTime, out var start) &&
+                TimeSpan.TryParse(routine.ExamEndTime, out var end))
+            {
+                if (end <= start)
+                {
+                    ModelState.AddModelError("ExamEndTime", "End time must be later than start time.");
+                }
+            }
         }
     }
 }
