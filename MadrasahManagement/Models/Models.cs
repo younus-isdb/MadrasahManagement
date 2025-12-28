@@ -725,6 +725,9 @@ namespace MadrasahManagement.Models
         public decimal Amount { get; set; }
 
         public DateTimeOffset Date { get; set; }
+        [ForeignKey(nameof(Salary))]
+        public int? SalaryId { get; set; } 
+        public Salary? Salary { get; set; }
     }
 
     // -------------------------

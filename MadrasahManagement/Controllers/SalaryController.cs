@@ -150,9 +150,9 @@ public class SalaryController : Controller
     //    return View(salaries);
     //}
 
-   
+
     public IActionResult SalaryReport(string searchName = "", string employeeType = "",
-                                       int? month = null, int? year = null)
+                                   string? month = null, string? year = null)
     {
         var query = _context.Salaries
             .Include(s => s.Teacher)
@@ -178,12 +178,16 @@ public class SalaryController : Controller
         }
 
         // Filter by month
-        if (month.HasValue)
-            query = query.Where(s => s.MonthName == (Month)month.Value);
+        if (!string.IsNullOrEmpty(month) && int.TryParse(month, out int monthInt))
+        {
+            query = query.Where(s => s.MonthName == (Month)monthInt);
+        }
 
         // Filter by year
-        if (year.HasValue)
-            query = query.Where(s => s.PaymentDate.Year == year.Value);
+        if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int yearInt))
+        {
+            query = query.Where(s => s.PaymentDate.Year == yearInt);
+        }
 
         var salaries = query.OrderByDescending(s => s.PaymentDate).ToList();
 
