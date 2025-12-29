@@ -1,5 +1,186 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<Student>
+
 @{
+    ViewData["Title"] = "Students";
+}
+
+<div class="container-fluid mt-4">
+
+    <!-- ================= HEADER ================= -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="fw-bold mb-0">🎓 Student Management</h3>
+            <small class="text-muted">All registered students</small>
+        </div>
+
+        <a asp-action="Create" class="btn btn-success shadow-sm">
+            <i class="bi bi-plus-circle"></i> New Student
+        </a>
+    </div>
+
+    <!-- ================= SEARCH & FILTER ================= -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" id="searchBox" class="form-control"
+                           placeholder="Search by Name / Reg No / Phone" />
+                </div>
+
+                <div class="col-md-3">
+                    <select id="departmentFilter" class="form-select">
+                        <option value="">All Departments</option>
+                        @foreach (var d in Model.Select(x => x.Department).Distinct())
+                        {
+                            <option value="@d?.DepartmentName">@d?.DepartmentName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <select id="classFilter" class="form-select">
+                        <option value="">All Classes</option>
+                        @foreach (var c in Model.Select(x => x.Class).Distinct())
+                        {
+                            <option value="@c?.ClassName">@c?.ClassName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TABLE ================= -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+
+            <table class="table table-hover align-middle mb-0" id="studentTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Reg No</th>
+                        <th>Academic</th>
+                        <th>Guardian</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int sl = 1;
+                    }
+                    @foreach (var s in Model)
+                    {
+                        <tr>
+                            <td>@sl</td>
+
+                            <!-- Student -->
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="@(string.IsNullOrEmpty(s.ProfileImageUrl)
+                                                                                 ? "/images/avatar.png"
+                                                                                 : s.ProfileImageUrl)"
+                                         class="rounded-circle me-2"
+                                         width="40" height="40" />
+
+                                    <div>
+                                        <div class="fw-semibold">@s.StudentName</div>
+                                        <small class="text-muted">@s.ArabicStudentName</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Reg -->
+                            <td>
+                                <span class="badge bg-primary">@s.RegNo</span>
+                            </td>
+
+                            <!-- Academic -->
+                            <td>
+                                <div class="fw-semibold">@s.Department?.DepartmentName</div>
+                                <small class="text-muted">
+                                    @s.Class?.ClassName - @s.Section?.SectionName
+                                </small>
+                            </td>
+
+                            <!-- Guardian -->
+                            <td>
+                                <div>@s.GuardianName</div>
+                                <small class="text-muted">@s.GuardianPhone</small>
+                            </td>
+
+                            <!-- Status -->
+                            <td>
+                                @if (s.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@s.StudentId"
+                                   class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a asp-action="Edit" asp-route-id="@s.StudentId"
+                                   class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a asp-action="Delete" asp-route-id="@s.StudentId"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Are you sure?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        sl++;
+                    }
+                </tbody>
+            </table>
+
+            @if (!Model.Any())
+            {
+                <div class="text-center p-4 text-muted">
+                    No student found.
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 🔍 Search
+        $("#searchBox").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#studentTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+
+        // 🎓 Department Filter
+        $("#departmentFilter").on("change", function () {
+            var value = $(this).val().toLowerCase();
+            $("#studentTable tbody tr").filter(function () {
+                $(this).toggle($(this).find("td:eq(3)").text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+
+        // 🏫 Class Filter
+        $("#classFilter").on("change", function () {
+            var value = $(this).val().toLowerCase();
+            $("#studentTable tbody tr").filter(function () {
+                $(this).toggle($(this).find("td:eq(3)").text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+    </script>
 }

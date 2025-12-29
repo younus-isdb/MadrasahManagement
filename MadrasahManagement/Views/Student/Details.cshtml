@@ -1,0 +1,80 @@
+﻿@model Student
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between">
+            <h5 class="mb-0">🎓 Student Details</h5>
+            <a asp-action="Index" class="btn btn-light btn-sm">Back</a>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <!-- Profile -->
+                <div class="col-md-3 text-center">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfileImageUrl)
+                                                 ? "/images/avatar.png"
+                                                 : Model.ProfileImageUrl)"
+                         class="rounded-circle mb-3"
+                         width="120" height="120" />
+
+                    <h5>@Model.StudentName</h5>
+                    <span class="badge bg-secondary">@Model.RegNo</span>
+                </div>
+
+                <!-- Info -->
+                <div class="col-md-9">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Department</th>
+                            <td>@Model.Department?.DepartmentName</td>
+                        </tr>
+                        <tr>
+                            <th>Class</th>
+                            <td>@Model.Class?.ClassName</td>
+                        </tr>
+                        <tr>
+                            <th>Section</th>
+                            <td>@Model.Section?.SectionName</td>
+                        </tr>
+                        <tr>
+                            <th>Gender</th>
+                            <td>@Model.Gender</td>
+                        </tr>
+                        <tr>
+                            <th>DOB</th>
+                            <td>@Model.DOB.ToString("dd MMM yyyy")</td>
+                        </tr>
+                        <tr>
+                            <th>Guardian</th>
+                            <td>@Model.GuardianName (@Model.GuardianPhone)</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-end">
+            <a asp-action="Edit" asp-route-id="@Model.StudentId"
+               class="btn btn-warning">
+                ✏️ Edit
+            </a>
+        </div>
+    </div>
+</div>

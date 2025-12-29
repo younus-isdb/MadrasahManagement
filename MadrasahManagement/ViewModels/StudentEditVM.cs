@@ -1,5 +1,6 @@
 ﻿using MadrasahManagement.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 public class StudentEditVM
@@ -136,4 +137,12 @@ public class StudentEditVM
 
     [MaxLength(300)]
     public string? LeavingReason { get; set; }
+
+
+    public List<SelectListItem> Departments { get; set; } = new();
+    public List<SelectListItem> Classes { get; set; } = new();
+    public List<SelectListItem> Sections { get; set; } = new();
 }
+
+
+
