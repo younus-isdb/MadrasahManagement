@@ -13,12 +13,15 @@
 	<thead>
 		<tr>
 			<th>
+				@Html.DisplayNameFor(model => model.TeacherId)
+			</th>
+			<th>
 				@Html.DisplayNameFor(model => model.Name)
 			</th>
 			
-			@* <th>
+			<th>
 				@Html.DisplayNameFor(model => model.Email)
-			</th> *@
+			</th>
 			<th>
 				@Html.DisplayNameFor(model => model.Contact)
 			</th>
@@ -36,11 +39,14 @@
 		{
 			<tr>
 				<td>
+					@Html.DisplayFor(modelItem => item.TeacherId)
+				</td>
+				<td>
 					@Html.DisplayFor(modelItem => item.Name)
 				</td>
-				@* <td>
+				<td>
 					@Html.DisplayFor(modelItem => item.Email)
-				</td> *@
+				</td>
 				<td>
 					@Html.DisplayFor(modelItem => item.Contact)
 				</td>

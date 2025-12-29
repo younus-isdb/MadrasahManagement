@@ -8,6 +8,7 @@ namespace MadrasahManagement.ViewModels
         [StringLength(50)]
         [Required(AllowEmptyStrings = false)]
         public string UserName { get; set; } = default!;
+
         [DataType(DataType.Password)]
         [StringLength(50, MinimumLength = 4)]
         [Required(AllowEmptyStrings = false)]

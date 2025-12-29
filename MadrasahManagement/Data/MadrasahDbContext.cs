@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
+using System.Reflection.Emit;
 
 namespace MadrasahManagement.Models
 {
@@ -155,6 +156,8 @@ namespace MadrasahManagement.Models
                           .HasForeignKey(s => s.UserId)
                           .OnDelete(DeleteBehavior.Restrict);
 
+             //   builder.HasIndex(x => x.Email).IsUnique();
+
                 builder.HasOne(s => s.Class)
                           .WithMany()
                           .HasForeignKey(s => s.ClassId)
@@ -211,6 +214,7 @@ namespace MadrasahManagement.Models
         public void Configure(EntityTypeBuilder<Teacher> builder)
         {
             builder.ToTable("Teachers");
+            builder.HasIndex(x => x.Email).IsUnique();
             builder.HasKey(t => t.TeacherId);
             builder.Property(t => t.Qualification).HasMaxLength(250);
             builder.Property(t => t.Designation).HasMaxLength(150);

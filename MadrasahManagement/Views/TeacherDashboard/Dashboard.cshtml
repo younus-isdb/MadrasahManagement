@@ -1,0 +1,60 @@
+﻿@model Teacher
+
+@{
+    ViewData["Title"] = "Teacher Dashboard";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>My Profile</h4>
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" class="img-fluid rounded-circle mb-3" alt="Profile" style="width:150px;height:150px;">
+                }
+                <p>Name:  @Model.Name</p>
+                <p>Designation: @Model.Designation</p>
+                <p>Department: @Model.Department.DepartmentName</p>
+                <p>Email: @Model.Email</p>
+                <p>Contact: @Model.Contact</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>My Classes</h4>
+            </div>
+            <div class="card-body">
+                @if (Model.ClassSubjects.Any())
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Subject</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cs in Model.ClassSubjects)
+                            {
+                                <tr>
+                                    <td>@cs.Class.ClassName</td>
+                                    <td>@cs.Subject.SubjectName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p>No classes assigned yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

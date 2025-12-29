@@ -151,6 +151,17 @@ namespace MadrasahManagement.Models
         [ValidateNever]
         public AppUser AppUser { get; set; } = default!;
 
+        //[Required]
+        //[ForeignKey(nameof(AppUser))]
+        //public string? UserId { get; set; } = default!;
+
+        //[ValidateNever]
+        //public AppUser? AppUser { get; set; } = default!;
+
+        //[Required]
+        //[EmailAddress]
+        //public string Email { get; set; } = default!;
+
         // -------------------------
         // Multilingual Names
         // -------------------------
@@ -328,9 +339,7 @@ namespace MadrasahManagement.Models
 
        public string Contact { get; set; } = default!;
 
-        [Required]
-        [ForeignKey(nameof(AppUser))]
-        public string UserId { get; set; } = default!;
+        
 
         [ForeignKey(nameof(Department))]
         public int DepartmentId { get; set; }
@@ -349,11 +358,26 @@ namespace MadrasahManagement.Models
         [NotMapped, DisplayName("Image")]
         public IFormFile? ImageFile { get; set; }
 
-        //[EmailAddress]  
-        //public string? Email { get; set; }
+        //[Required]
+        //[ForeignKey(nameof(AppUser))]
+        //public string UserId { get; set; } = default!;
+        //[EmailAddress]
+        //public string Email { get; set; } = default!;
 
-		// Navigation
-		public AppUser AppUser { get; set; } = default!;
+        //// Navigation
+        //public AppUser AppUser { get; set; } = default!;
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = default!;
+
+        [Required]
+        [ForeignKey(nameof(AppUser))]
+        public string? UserId { get; set; } = default!;
+        // Navigation
+
+        public AppUser? AppUser { get; set; } = default!;
+
         public Department Department { get; set; } = default!;
 
         public ICollection<ClassSubject> ClassSubjects { get; set; } = new HashSet<ClassSubject>();
