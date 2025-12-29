@@ -10,12 +10,12 @@ namespace MadrasahManagement.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookController : ControllerBase
+    public class BookApiController : ControllerBase
     {
         private readonly MadrasahDbContext _db;
         private readonly IUploadService _uploadService;
 
-        public BookController(MadrasahDbContext db, IUploadService uploadService)
+        public BookApiController(MadrasahDbContext db, IUploadService uploadService)
         {
             _db = db;
             _uploadService = uploadService;
