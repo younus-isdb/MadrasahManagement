@@ -17,13 +17,11 @@ body {
   box-shadow: 0 4px 6px rgba(0,0,0,0.5);
 }
 
-/* --- Container --- */
 .lambo-container {
   display: flex;
-  height: calc(100vh - 80px); /* header + footer height */
+  height: calc(100vh - 80px); 
 }
 
-/* --- Sidebar --- */
 .lambo-sidebar {
   width: 240px;
   background: #111;
@@ -41,7 +39,6 @@ body {
     letter-spacing: 1px;
   }
 
-  /* --- Links & Dropdown --- */
   .lambo-sidebar a,
   .dropbtn {
     color: greenyellow;
@@ -90,12 +87,11 @@ a.active {
       color: #111;
     }
 
-/* Show dropdown on hover */
 .dropdown:hover .dropdown-content {
   display: flex;
 }
 
-/* --- Main Content --- */
+
 .lambo-content {
   flex: 1;
   padding: 30px;
@@ -103,7 +99,6 @@ a.active {
   overflow-y: auto;
 }
 
-/* --- Footer --- */
 .lambo-footer {
   background: linear-gradient(90deg, #ff9900, #ffcc00);
   color: #111;
