@@ -12,6 +12,41 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="AngularFinalP\.vscode\extensions.json" />
+    <Content Include="AngularFinalP\.vscode\launch.json" />
+    <Content Include="AngularFinalP\.vscode\tasks.json" />
+    <Content Include="AngularFinalP\.vs\AngularFinalP.slnx\v18\DocumentLayout.backup.json" />
+    <Content Include="AngularFinalP\.vs\AngularFinalP.slnx\v18\DocumentLayout.json" />
+    <Content Include="AngularFinalP\.vs\AngularFinalProject.slnx\v18\DocumentLayout.backup.json" />
+    <Content Include="AngularFinalP\.vs\AngularFinalProject.slnx\v18\DocumentLayout.json" />
+    <Content Include="AngularFinalP\.vs\VSWorkspaceState.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="AngularFinalP\.vs\AngularFinalP.slnx\config\applicationhost.config" />
+    <None Include="AngularFinalP\.vs\AngularFinalP.slnx\FileContentIndex\50301c42-6712-4cf6-a57d-527dcf0458b6.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalP.slnx\FileContentIndex\5a9624c0-5258-4eff-9064-213c42ea3b25.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalP.slnx\FileContentIndex\9d3ffa48-4275-4f7a-826d-a697c36afb6a.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalP.slnx\FileContentIndex\b1d609a7-a842-41e6-9ee1-24db84e4603d.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalP.slnx\FileContentIndex\f53fcbeb-3d52-485f-80d6-88f733e3219d.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalP.slnx\v18\.wsuo" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject.slnx\config\applicationhost.config" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject.slnx\FileContentIndex\0143839e-0ab9-4554-8a2e-ad8ccc9649cf.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject.slnx\FileContentIndex\1619d702-4334-4cff-a03e-1414f39cb546.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject.slnx\FileContentIndex\6024d51a-065e-4bf9-a03e-a681076566e2.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject.slnx\FileContentIndex\b3083afe-83cf-4e0c-bd02-b16d1c89ea65.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject.slnx\FileContentIndex\cb1a4642-8eaf-44f6-bfba-5b8059efd287.vsidx" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject.slnx\v18\.wsuo" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject\CopilotIndices\18.0.981.45449\CodeChunks.db" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject\CopilotIndices\18.0.981.45449\CodeChunks.db-shm" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject\CopilotIndices\18.0.981.45449\CodeChunks.db-wal" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject\CopilotIndices\18.0.981.45449\SemanticSymbols.db" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject\CopilotIndices\18.0.981.45449\SemanticSymbols.db-shm" />
+    <None Include="AngularFinalP\.vs\AngularFinalProject\CopilotIndices\18.0.981.45449\SemanticSymbols.db-wal" />
+    <None Include="AngularFinalP\.vs\slnx.sqlite" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
@@ -22,6 +57,11 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="AngularFinalP\.vs\AngularFinalProject.slnx\copilot-chat\1f285524\sessions\" />
+    <Folder Include="AngularFinalP\dist\AngularFinalProject\browser\" />
   </ItemGroup>
 
 </Project>

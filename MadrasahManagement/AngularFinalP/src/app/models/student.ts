@@ -1,0 +1,36 @@
+export interface StudentDto {
+  studentId?: number;
+  userId: string;
+  studentName: string;
+  arabicStudentName?: string;
+  banglaStudentName?: string;
+  departmentId: number;
+  classId: number;
+  sectionId: number;
+  regNo: string;
+  nationalId?: string;
+  admissionDate: string;
+  gender?: number;
+  dob: string;
+  bloodGroup?: string;
+  fatherName?: string;
+  fatherPhone?: string;
+  motherName?: string;
+  motherPhone?: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  guardianEmail?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  emergencyContactName?: string;
+  emergencyPhone?: string;
+  medicalNotes?: string;
+  previousSchoolName?: string;
+  previousResult?: number;
+  profileImageUrl?: string;
+  documentUrl?: string;
+  isActive?: boolean;
+  leavingDate?: string;
+  leavingReason?: string;
+}

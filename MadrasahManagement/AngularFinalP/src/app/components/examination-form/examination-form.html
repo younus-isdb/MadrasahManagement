@@ -1,0 +1,14 @@
+<h3>Create Examination</h3>
+
+<form (ngSubmit)="save()">
+  <div class="mb-3">
+    <label>Exam Name</label>
+    <input class="form-control"
+           [value]="examName()"
+           (input)="examName.set($any($event.target).value)" />
+  </div>
+
+  <button class="btn btn-success" type="submit" [disabled]="loading()">
+    Save
+  </button>
+</form>

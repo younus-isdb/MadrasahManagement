@@ -141,6 +141,211 @@ namespace MadrasahManagement.Controllers
                 .ToListAsync();
         }
 
+		// GET: Teacher/Edit/5
+		public async Task<IActionResult> Edit(int id)
+		{
+			var teacher = await _db.Teachers
+				.Include(t => t.AppUser)
+				.FirstOrDefaultAsync(t => t.TeacherId == id);
+
+			if (teacher == null)
+			{
+				return NotFound();
+			}
+
+			var model = new EditTeacherVM
+			{
+				TeacherId = teacher.TeacherId,
+				Name = teacher.Name,
+				Email = teacher.Email ?? "",
+				Contact = teacher.Contact,
+				DepartmentId = teacher.DepartmentId,
+				JoiningDate = teacher.JoiningDate.DateTime, // Convert to DateTime
+				Qualification = teacher.Qualification,
+				Designation = teacher.Designation,
+				ExistingImageUrl = teacher.ImageUrl
+			};
+
+			ViewBag.Departments = await GetDepartmentsAsync();
+			return View(model);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Edit(int id, EditTeacherVM model)
+		{
+			try
+			{
+				if (!ModelState.IsValid)
+				{
+					ViewBag.Departments = await GetDepartmentsAsync();
+					return View(model);
+				}
+
+				var teacher = await _db.Teachers
+					.Include(t => t.AppUser)
+					.FirstOrDefaultAsync(t => t.TeacherId == id);
+
+				if (teacher == null)
+				{
+					TempData["Error"] = "Teacher not found.";
+					return RedirectToAction(nameof(Index));
+				}
+
+				// Check email if changed
+				if (teacher.Email != model.Email)
+				{
+					var existingUser = await _userManager.FindByEmailAsync(model.Email);
+					if (existingUser != null && existingUser.Id != teacher.AppUser?.Id)
+					{
+						ModelState.AddModelError("Email", "This email is already registered.");
+						ViewBag.Departments = await GetDepartmentsAsync();
+						return View(model);
+					}
+				}
+
+				using var transaction = await _db.Database.BeginTransactionAsync();
+
+				try
+				{
+					// Handle image upload
+					if (model.ImageFile != null && model.ImageFile.Length > 0)
+					{
+						// Delete old image if exists
+						if (!string.IsNullOrEmpty(teacher.ImageUrl))
+						{
+							await _uploadService.FileDelete(teacher.ImageUrl);
+						}
+
+						// Save new image
+						teacher.ImageUrl = await _uploadService.FileSave(model.ImageFile);
+					}
+					else if (model.RemoveImage && !string.IsNullOrEmpty(teacher.ImageUrl))
+					{
+						await _uploadService.FileDelete(teacher.ImageUrl);
+						teacher.ImageUrl = null;
+					}
+
+					// Update AppUser if email changed
+					if (teacher.AppUser != null)
+					{
+						bool userUpdated = false;
+
+						if (teacher.AppUser.Email != model.Email)
+						{
+							teacher.AppUser.Email = model.Email;
+							teacher.AppUser.UserName = model.Email.Split('@')[0];
+							userUpdated = true;
+						}
+
+						if (teacher.AppUser.PhoneNumber != model.Contact)
+						{
+							teacher.AppUser.PhoneNumber = model.Contact;
+							userUpdated = true;
+						}
+
+						if (userUpdated)
+						{
+							var updateResult = await _userManager.UpdateAsync(teacher.AppUser);
+							if (!updateResult.Succeeded)
+							{
+								foreach (var error in updateResult.Errors)
+								{
+									ModelState.AddModelError("", error.Description);
+								}
+								ViewBag.Departments = await GetDepartmentsAsync();
+								return View(model);
+							}
+						}
+					}
+
+					// Update teacher
+					teacher.Name = model.Name;
+					teacher.Email = model.Email;
+					teacher.Contact = model.Contact;
+					teacher.DepartmentId = model.DepartmentId;
+					teacher.JoiningDate = new DateTimeOffset(model.JoiningDate);
+					teacher.Qualification = model.Qualification;
+					teacher.Designation = model.Designation;
+
+					await _db.SaveChangesAsync();
+					await transaction.CommitAsync();
+
+					TempData["Success"] = $"Teacher '{model.Name}' updated successfully!";
+					return RedirectToAction(nameof(Index));
+				}
+				catch
+				{
+					await transaction.RollbackAsync();
+					throw;
+				}
+			}
+			catch (Exception ex)
+			{
+				TempData["Error"] = $"Error updating teacher: {ex.Message}";
+				ViewBag.Departments = await GetDepartmentsAsync();
+				return View(model);
+			}
+		}
+
+		// POST: Teacher/Delete/5
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		[ActionName("Delete")]
+		public async Task<IActionResult> DeleteConfirmed(int id)
+		{
+			var teacher = await _db.Teachers
+				.Include(t => t.AppUser)
+				.FirstOrDefaultAsync(t => t.TeacherId == id);
+
+			if (teacher == null)
+			{
+				TempData["Error"] = "Teacher not found.";
+				return RedirectToAction(nameof(Index));
+			}
+
+			try
+			{
+				// Delete associated image file
+				if (!string.IsNullOrEmpty(teacher.ImageUrl))
+				{
+					await _uploadService.FileDelete(teacher.ImageUrl);
+				}
+
+				// Delete AppUser if exists
+				if (teacher.AppUser != null)
+				{
+					await _userManager.DeleteAsync(teacher.AppUser);
+				}
+
+				// Delete teacher
+				_db.Teachers.Remove(teacher);
+				await _db.SaveChangesAsync();
+
+				TempData["Success"] = $"Teacher '{teacher.Name}' deleted successfully!";
+			}
+			catch (Exception ex)
+			{
+				TempData["Error"] = $"Error deleting teacher: {ex.Message}";
+			}
+
+			return RedirectToAction(nameof(Index));
+		}
+
+		// GET: Teacher/Delete/5
+		public async Task<IActionResult> Delete(int id)
+		{
+			var teacher = await _db.Teachers
+				.Include(t => t.Department)
+				.FirstOrDefaultAsync(t => t.TeacherId == id);
+
+			if (teacher == null)
+			{
+				return NotFound();
+			}
+
+			return View(teacher);
+		}
 
 
 
@@ -166,49 +371,46 @@ namespace MadrasahManagement.Controllers
 
 
 
+		//private string GenerateRandomPassword()
+		//{
+		//    // Simple random password generator
+		//    const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
+		//    var random = new Random();
+		//    return new string(Enumerable.Repeat(chars,6)
+		//        .Select(s => s[random.Next(s.Length)]).ToArray());
+		//}
 
 
 
-        //private string GenerateRandomPassword()
-        //{
-        //    // Simple random password generator
-        //    const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
-        //    var random = new Random();
-        //    return new string(Enumerable.Repeat(chars,6)
-        //        .Select(s => s[random.Next(s.Length)]).ToArray());
-        //}
+		//private async Task SendWelcomeEmail(string email, string name)
+		//{
+		//    try
+		//    {
+		//        var subject = "Welcome to School Management System";
+
+		//        var body = $@"
+		//Dear {name},
+
+		//Your teacher account has been created successfully.
+
+		//Login Details:
+		//Email: {email}
 
 
+		//Please login and change your password immediately.
 
-        //private async Task SendWelcomeEmail(string email, string name)
-        //{
-        //    try
-        //    {
-        //        var subject = "Welcome to School Management System";
+		//Login URL: https://localhost:7113/Account/Login
 
-        //        var body = $@"
-        //Dear {name},
+		//Regards,
+		//School Administration";
 
-        //Your teacher account has been created successfully.
+		//        Console.WriteLine($"Email sent to {email}");
+		//    }
+		//    catch
+		//    {         
+		//        Console.WriteLine($"Failed to send email to {email}");
+		//    }
+		//}
 
-        //Login Details:
-        //Email: {email}
-
-
-        //Please login and change your password immediately.
-
-        //Login URL: https://localhost:7113/Account/Login
-
-        //Regards,
-        //School Administration";
-
-        //        Console.WriteLine($"Email sent to {email}");
-        //    }
-        //    catch
-        //    {         
-        //        Console.WriteLine($"Failed to send email to {email}");
-        //    }
-        //}
-
-    }
+	}
 }

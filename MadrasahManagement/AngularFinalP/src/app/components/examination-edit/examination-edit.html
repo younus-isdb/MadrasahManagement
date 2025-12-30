@@ -1,0 +1,14 @@
+<h3>Edit Examination</h3>
+
+<form (ngSubmit)="update()">
+  <div class="mb-3">
+    <label>Exam Name</label>
+    <input class="form-control"
+           [value]="examName()"
+           (input)="examName.set($any($event.target).value)" />
+  </div>
+
+  <button class="btn btn-primary" type="submit" [disabled]="loading()">
+    Update
+  </button>
+</form>
