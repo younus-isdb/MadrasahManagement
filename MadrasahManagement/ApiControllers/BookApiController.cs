@@ -145,5 +145,16 @@ namespace MadrasahManagement.ApiControllers
                 return StatusCode(500, "Error deleting book.");
             }
         }
-    }
+	
+
+		[HttpPost("Upload")]
+		public async Task<IActionResult> UploadBookImage(
+	   [FromServices] IUploadService upload,
+	   [FromForm] UploadFileModel input)
+		{
+
+			var result = await upload.FileSave(input.File);
+			return Ok(result);
+		}
+	}
 }

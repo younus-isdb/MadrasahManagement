@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace MadrasahManagement.ViewModels
 {
@@ -42,4 +43,39 @@ namespace MadrasahManagement.ViewModels
         //[Compare("Password", ErrorMessage = "Passwords do not match")]
         //public string? ConfirmPassword { get; set; }
     }
+	public class EditTeacherVM
+	{
+		public int TeacherId { get; set; }
+
+		[Required]
+		[StringLength(100)]
+		public string Name { get; set; } = default!;
+
+		[Required]
+		[EmailAddress]
+		public string Email { get; set; } = default!;
+
+		[Required]
+		public string Contact { get; set; } = default!;
+
+		[Required]
+		public int DepartmentId { get; set; }
+
+		[Required]
+		[DataType(DataType.Date)]
+		public DateTime JoiningDate { get; set; }
+
+		[StringLength(250)]
+		public string? Qualification { get; set; }
+
+		[StringLength(150)]
+		public string? Designation { get; set; }
+
+		[DisplayName("Profile Image")]
+		public IFormFile? ImageFile { get; set; }
+
+		public bool RemoveImage { get; set; }
+
+		public string? ExistingImageUrl { get; set; }
+	}
 }
