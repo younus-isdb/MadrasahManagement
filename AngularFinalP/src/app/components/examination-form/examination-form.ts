@@ -30,7 +30,7 @@ export class ExaminationForm {
     this.examService.create(payload).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/']);
+        this.router.navigate(['/examination']);
       },
       error: () => this.loading.set(false)
     });

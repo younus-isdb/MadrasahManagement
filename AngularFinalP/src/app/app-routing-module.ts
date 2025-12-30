@@ -6,7 +6,7 @@ import { ExaminationEdit } from './components/examination-edit/examination-edit'
 
 
 const routes: Routes = [
-  { path: '', component: ExaminationList },
+  { path: 'examination', component: ExaminationList },
   { path: 'create', component: ExaminationForm },
   { path: 'edit/:id', component: ExaminationEdit }
 ];
