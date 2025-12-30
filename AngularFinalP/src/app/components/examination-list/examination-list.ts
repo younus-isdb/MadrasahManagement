@@ -36,6 +36,10 @@ export class ExaminationList implements OnInit {
       }
     });
   }
+  trackById(index: number, item: ExaminationReadDto) {
+    return item.examId;
+  }
+
 
   // Delete korar logic
   deleteExam(id: number): void {

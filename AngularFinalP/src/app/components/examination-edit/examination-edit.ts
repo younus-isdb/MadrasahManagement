@@ -6,7 +6,8 @@ import { ExaminationUpdateDto } from '../../models/examination';
 @Component({
   selector: 'app-examination-edit',
   standalone: false,
-  templateUrl: './examination-edit.html'
+  templateUrl: './examination-edit.html',
+  styleUrls: ['./examination-edit.css']
  
 })
 export class ExaminationEdit implements OnInit {

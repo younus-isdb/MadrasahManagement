@@ -8,6 +8,8 @@ import { ExaminationList } from './components/examination-list/examination-list'
 import { ExaminationForm } from './components/examination-form/examination-form';
 import { ExaminationEdit } from './components/examination-edit/examination-edit';
 import { AppComponents } from './components/app-components/app-components';
+import { ExamfeeList } from './components/examfee/examfee-list/examfee-list';
+import { ExamfeeCreate } from './components/examfee/examfee-create/examfee-create';
 
 @NgModule({
   declarations: [
@@ -15,7 +17,10 @@ import { AppComponents } from './components/app-components/app-components';
     ExaminationList,
     ExaminationForm,
     ExaminationEdit,
-    AppComponents
+    AppComponents,
+    ExamfeeList,
+    ExamfeeCreate,
+    
   ],
   imports: [
     BrowserModule,

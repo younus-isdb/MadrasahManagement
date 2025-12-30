@@ -6,7 +6,8 @@ import { ExaminationCreateDto, ExaminationUpdateDto } from '../../models/examina
 @Component({
   selector: 'app-examination-form',
   standalone: false,
-  templateUrl: './examination-form.html'
+  templateUrl: './examination-form.html',
+  styleUrls:['./examination-form.css']
 })
 export class ExaminationForm {
 

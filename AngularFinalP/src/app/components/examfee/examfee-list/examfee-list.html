@@ -1,0 +1,58 @@
+<div class="examfee-list-page">
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="text-center my-3">
+    <strong>Loading...</strong>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage()" class="alert alert-danger">
+    {{ errorMessage() }}
+  </div>
+
+  <!-- Add Exam Fee Button -->
+  <a routerLink="/feecreate" class="btn btn-success mb-3">
+    + Add Exam Fee
+  </a>
+
+  <!-- Exam Fee Table -->
+  <table class="table table-bordered table-striped table-hover text-center"
+         *ngIf="!loading() && examfee().length > 0">
+
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Education Year</th>
+        <th>Class Name</th>
+        <th>Exam Name</th>
+        <th>Exam Amount</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let exam of examfee(); trackBy: trackById">
+        <td>{{ exam.examFeeId }}</td>
+        <td>{{ exam.educationYear }}</td>
+        <td>{{ exam.className }}</td>
+        <td>{{ exam.examName }}</td>
+        <td>{{ exam.examAmount | number }}</td>
+        <td>
+          <a [routerLink]="['/edit', exam.examFeeId]" class="btn btn-sm btn-primary me-1">
+            Edit
+          </a>
+          <button class="btn btn-sm btn-danger"
+                  (click)="deleteExamFee(exam.examFeeId)">
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Empty state -->
+  <div *ngIf="!loading() && examfee().length === 0"
+       class="text-center text-muted mt-4">
+    No exam fees found
+  </div>
+</div>
