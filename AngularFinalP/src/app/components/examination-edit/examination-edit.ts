@@ -6,7 +6,8 @@ import { ExaminationUpdateDto } from '../../models/examination';
 @Component({
   selector: 'app-examination-edit',
   standalone: false,
-  templateUrl: './examination-edit.html'
+  templateUrl: './examination-edit.html',
+  styleUrls: ['./examination-edit.css']
  
 })
 export class ExaminationEdit implements OnInit {
@@ -46,7 +47,7 @@ export class ExaminationEdit implements OnInit {
     };
 
     this.examService.update(this.currentId, payload).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => this.router.navigate(['/examination']),
       error: () => this.loading.set(false)
     });
   }

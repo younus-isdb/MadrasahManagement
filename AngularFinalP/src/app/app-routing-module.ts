@@ -3,12 +3,19 @@ import { RouterModule, Routes } from '@angular/router';
 import { ExaminationList } from './components/examination-list/examination-list';
 import { ExaminationForm } from './components/examination-form/examination-form';
 import { ExaminationEdit } from './components/examination-edit/examination-edit';
-
+import { ExamfeeList } from './components/examfee/examfee-list/examfee-list';
+import { ExamfeeCreate } from './components/examfee/examfee-create/examfee-create';
+import { PointList } from './components/pointcondition/point-list/point-list';
+import { PointCreate } from './components/pointcondition/point-create/point-create';
 
 const routes: Routes = [
-  { path: '', component: ExaminationList },
+  { path: 'examination', component: ExaminationList },
   { path: 'create', component: ExaminationForm },
-  { path: 'edit/:id', component: ExaminationEdit }
+  { path: 'edit/:id', component: ExaminationEdit },
+  { path: 'examfee', component: ExamfeeList },
+  { path: 'feecreate', component: ExamfeeCreate },
+  { path: 'point', component: PointList },
+  { path: 'pointcreate', component: PointCreate }
 ];
 
 @NgModule({

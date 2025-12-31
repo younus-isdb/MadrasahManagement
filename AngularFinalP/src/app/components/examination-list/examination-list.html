@@ -1,29 +1,52 @@
-<div *ngIf="loading()">Loading...</div>
+<div class="exam-list-page">
 
-<a routerLink="create" class="btn btn-success mb-3">Add Exam</a>
+  <!-- Loading Indicator -->
+  <div *ngIf="loading()" class="text-center my-3">
+    <strong>Loading...</strong>
+  </div>
 
-<table class="table table-bordered" *ngIf="!loading()">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Fee</th>
-      <th>Point</th>
-      <th>Routine</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let exam of examinations()">
-      <td>{{exam.examId}}</td>
-      <td>{{exam.examName}}</td>
-      <td>{{exam.examFeeCount}}</td>
-      <td>{{exam.pointConditionCount}}</td>
-      <td>{{exam.examRoutineCount}}</td>
-      <td>
-        <a [routerLink]="['edit', exam.examId]" class="btn btn-sm btn-primary">Edit</a>
-        <button (click)="deleteExam(exam.examId)" class="btn btn-sm btn-danger">Delete</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+  <!-- Add Exam Button -->
+  <a routerLink="/create" class="btn btn-success mb-3">
+    + Add Exam
+  </a>
+
+  <!-- Exam Table -->
+  <table class="table table-bordered table-striped table-hover text-center"
+         *ngIf="!loading() && examinations().length > 0">
+
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Fee</th>
+        <th>Point</th>
+        <th>Routine</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let exam of examinations(); trackBy: trackById">
+        <td>{{ exam.examId }}</td>
+        <td>{{ exam.examName }}</td>
+        <td>{{ exam.examFeeCount }}</td>
+        <td>{{ exam.pointConditionCount }}</td>
+        <td>{{ exam.examRoutineCount }}</td>
+        <td>
+          <a [routerLink]="['/edit', exam.examId]" class="btn btn-sm btn-primary me-1">
+            Edit
+          </a>
+          <button (click)="deleteExam(exam.examId)" class="btn btn-sm btn-danger">
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Empty List -->
+  <div *ngIf="!loading() && examinations().length === 0"
+       class="text-center text-muted mt-4">
+    No examinations found
+  </div>
+</div>

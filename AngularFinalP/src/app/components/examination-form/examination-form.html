@@ -1,14 +1,32 @@
-<h3>Create Examination</h3>
+<div class="exam-create-page">
+
+  <h3 class="page-title">Create Examination</h3>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="text-center my-3">
+    <strong>Saving...</strong>
+  </div>
+
+  <!-- Error Message -->
+  <!--<div *ngIf="errorMessage()" class="alert alert-danger">
+    {{ errorMessage() }}
+  </div>-->
 
 <form (ngSubmit)="save()">
+
   <div class="mb-3">
-    <label>Exam Name</label>
-    <input class="form-control"
+    <label class="form-label">Exam Name</label>
+    <input type="text"
+           class="form-control"
            [value]="examName()"
-           (input)="examName.set($any($event.target).value)" />
+           (input)="examName.set($any($event.target).value)"
+           placeholder="Enter exam name"
+           required />
   </div>
 
   <button class="btn btn-success" type="submit" [disabled]="loading()">
     Save
   </button>
+  <a [routerLink]="['/examination']" class="btn btn-sm btn-primary">Cancel</a>
 </form>
+</div>

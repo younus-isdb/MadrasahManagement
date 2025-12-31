@@ -6,7 +6,8 @@ import { ExaminationCreateDto, ExaminationUpdateDto } from '../../models/examina
 @Component({
   selector: 'app-examination-form',
   standalone: false,
-  templateUrl: './examination-form.html'
+  templateUrl: './examination-form.html',
+  styleUrls:['./examination-form.css']
 })
 export class ExaminationForm {
 
@@ -30,7 +31,7 @@ export class ExaminationForm {
     this.examService.create(payload).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/']);
+        this.router.navigate(['/examination']);
       },
       error: () => this.loading.set(false)
     });
