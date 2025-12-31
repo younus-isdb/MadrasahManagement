@@ -1,6 +1,6 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';   // ✅ HERE
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';   // ✅ HERE
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
@@ -14,6 +14,9 @@ import { PointList } from './components/pointcondition/point-list/point-list';
 import { PointCreate } from './components/pointcondition/point-create/point-create';
 import { ExamfeeEdit } from './components/examfee/examfee-edit/examfee-edit';
 import { PointEdit } from './components/pointcondition/point-edit/point-edit';
+import { ExamFeesList } from './components/examfeecollection/examfees-list/examfees-list';
+import { ExamFeeCollectionCreate } from './components/examfeecollection/examfeecollection-create/examfeecollection-create';
+
 
 @NgModule({
   declarations: [
@@ -27,13 +30,16 @@ import { PointEdit } from './components/pointcondition/point-edit/point-edit';
     PointList,
     PointCreate,
     ExamfeeEdit,
-    PointEdit
+    PointEdit,
+    ExamFeesList,
+    ExamFeeCollectionCreate
     
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule    // ✅ MUST
+    FormsModule,
+    ReactiveFormsModule// ✅ MUST
   ],
   providers: [
     provideBrowserGlobalErrorListeners()
