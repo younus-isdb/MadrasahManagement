@@ -7,6 +7,7 @@ import { ExamfeeList } from './components/examfee/examfee-list/examfee-list';
 import { ExamfeeCreate } from './components/examfee/examfee-create/examfee-create';
 import { PointList } from './components/pointcondition/point-list/point-list';
 import { PointCreate } from './components/pointcondition/point-create/point-create';
+import { PointEdit } from './components/pointcondition/point-edit/point-edit';
 
 const routes: Routes = [
   { path: 'examination', component: ExaminationList },
@@ -15,7 +16,8 @@ const routes: Routes = [
   { path: 'examfee', component: ExamfeeList },
   { path: 'feecreate', component: ExamfeeCreate },
   { path: 'point', component: PointList },
-  { path: 'pointcreate', component: PointCreate }
+  { path: 'pointcreate', component: PointCreate },
+  {path: 'pointedit/:id', component:PointEdit}
 ];
 
 @NgModule({
