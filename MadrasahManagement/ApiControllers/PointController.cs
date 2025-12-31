@@ -22,12 +22,19 @@ namespace MadrasahManagement.ApiControllers
         {
             var data = await _context.PointConditions
                 .Include(p => p.Details)
+                .Include(p => p.Class)
+                .Include(p => p.Examination)
+                .Include(p => p.Subject)
                 .Select(p => new PointConditionReadDto
                 {
                     PointConditionId = p.PointConditionId,
                     EducationYear = p.EducationYear,
                     ClassId = p.ClassId,
+                    ClassName = p.Class != null ? p.Class.ClassName : "",
                     ExamId = p.ExamId,
+                    ExamName = p.Examination != null ? p.Examination.ExamName : "",
+                    SubjectId = p.SubjectId,
+                    SubjectName = p.Subject != null ? p.Subject.SubjectName : "",
                     PassMarks = p.PassMarks,
                     HighestMark = p.HighestMark,
                     Details = p.Details.Select(d => new PointConditionDetailReadDto
@@ -49,6 +56,9 @@ namespace MadrasahManagement.ApiControllers
         {
             var p = await _context.PointConditions
                 .Include(pc => pc.Details)
+                .Include(pc => pc.Class)
+                .Include(pc => pc.Examination)
+                .Include(pc => pc.Subject)
                 .FirstOrDefaultAsync(pc => pc.PointConditionId == id);
 
             if (p == null) return NotFound();
@@ -58,7 +68,11 @@ namespace MadrasahManagement.ApiControllers
                 PointConditionId = p.PointConditionId,
                 EducationYear = p.EducationYear,
                 ClassId = p.ClassId,
+                ClassName = p.Class != null ? p.Class.ClassName : "",
                 ExamId = p.ExamId,
+                ExamName = p.Examination != null ? p.Examination.ExamName : "",
+                SubjectId = p.SubjectId,
+                SubjectName = p.Subject != null ? p.Subject.SubjectName : "",
                 PassMarks = p.PassMarks,
                 HighestMark = p.HighestMark,
                 Details = p.Details.Select(d => new PointConditionDetailReadDto
@@ -85,6 +99,7 @@ namespace MadrasahManagement.ApiControllers
                 EducationYear = dto.EducationYear,
                 ClassId = dto.ClassId,
                 ExamId = dto.ExamId,
+                SubjectId = dto.SubjectId,
                 PassMarks = dto.PassMarks,
                 HighestMark = dto.HighestMark,
                 Details = dto.Details.Select(d => new PointConditionDetail
@@ -117,10 +132,11 @@ namespace MadrasahManagement.ApiControllers
             // Remove old details
             _context.PointConditionDetails.RemoveRange(existing.Details);
 
-            // Update parent fields
+            // Update parent
             existing.EducationYear = dto.EducationYear;
             existing.ClassId = dto.ClassId;
             existing.ExamId = dto.ExamId;
+            existing.SubjectId = dto.SubjectId;
             existing.PassMarks = dto.PassMarks;
             existing.HighestMark = dto.HighestMark;
 
@@ -135,13 +151,17 @@ namespace MadrasahManagement.ApiControllers
 
             await _context.SaveChangesAsync();
 
-            // Return updated object
+            // Return updated object with names
             var readDto = new PointConditionReadDto
             {
                 PointConditionId = existing.PointConditionId,
                 EducationYear = existing.EducationYear,
                 ClassId = existing.ClassId,
+                ClassName = (await _context.Classes.FindAsync(existing.ClassId))?.ClassName ?? "",
                 ExamId = existing.ExamId,
+                ExamName = (await _context.Examinations.FindAsync(existing.ExamId))?.ExamName ?? "",
+                SubjectId = existing.SubjectId,
+                SubjectName = (await _context.Subjects.FindAsync(existing.SubjectId))?.SubjectName ?? "",
                 PassMarks = existing.PassMarks,
                 HighestMark = existing.HighestMark,
                 Details = existing.Details.Select(d => new PointConditionDetailReadDto
