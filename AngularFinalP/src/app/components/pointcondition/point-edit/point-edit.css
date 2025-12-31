@@ -1,0 +1,28 @@
+/* Blue label */
+.exam-label {
+  color: #007bff; /* Bootstrap blue */
+  font-weight: 500;
+}
+
+/* Green update button */
+.update-btn {
+  background-color: #28a745; /* Bootstrap green */
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+  .update-btn:hover {
+    background-color: #218838; /* Darker green on hover */
+  }
+
+.exam-edit-page {
+  background: cyan;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 30px auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}

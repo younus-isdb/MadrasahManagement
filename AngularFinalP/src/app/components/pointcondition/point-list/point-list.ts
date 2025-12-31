@@ -22,21 +22,24 @@ export class PointList implements OnInit {
   loadPointConditions() {
     this.loading.set(true);
     this.pcService.getAll().subscribe({
-      next: res => { this.pointConditions.set(res); this.loading.set(false); },
-      error: err => { console.error(err); this.loading.set(false); }
+      next: res => {
+        this.pointConditions.set(res);  // direct assignment
+        this.loading.set(false);
+      },
+      error: err => {
+        console.error(err);
+        this.loading.set(false);
+      }
     });
   }
 
-  edit(id: number) {
-    this.router.navigate(['/point-condition/edit', id]);
+  pointedit(id: number) {
+    this.router.navigate(['/pointedit', id]);
   }
 
   delete(id: number) {
     if (confirm('Are you sure you want to delete this record?')) {
-      this.pcService.delete(id).subscribe({
-        next: () => this.loadPointConditions(),
-        error: err => console.error(err)
-      });
+      this.pcService.delete(id).subscribe(() => this.loadPointConditions());
     }
   }
 }

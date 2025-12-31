@@ -1,42 +1,39 @@
 <div class="point-list-page">
+  <!-- Add Exam Button -->
+  <a routerLink="/pointcreate" class="btn btn-success mb-3">
+    + Add Point Condition
+  </a>
 
 
-  <div class="container mt-3">
-    <h3>Point Conditions</h3>
-    <button class="btn btn-primary mb-2" [routerLink]="['/pointcreate']">Add New</button>
+  <table class="table table-bordered" *ngIf="!loading() && pointConditions().length">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Year</th>
+        <th>Class</th>
+        <th>Exam</th>
+        <th>Subject</th>
+        <th>Pass Marks</th>
+        <th>Highest Marks</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let pc of pointConditions(); let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ pc.educationYear }}</td>
+        <td>{{ pc.className }}</td>
+        <td>{{ pc.examName }}</td>
+        <td>{{ pc.subjectName }}</td>
+        <td>{{ pc.passMarks }}</td>
+        <td>{{ pc.highestMark }}</td>
+        <td>
+          <button class="btn btn-sm btn-warning" (click)="pointedit(pc.pointConditionId)">Edit</button>
+          <button class="btn btn-sm btn-danger" (click)="delete(pc.pointConditionId)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-    <div *ngIf="loading()">Loading...</div>
-
-    <table class="table table-bordered" *ngIf="!loading() && pointConditions().length">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Year</th>
-          <th>Class</th>
-          <th>Exam</th>
-          <th>Subject</th>
-          <th>Pass Marks</th>
-          <th>Highest Marks</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let pc of pointConditions(); let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ pc.educationYear }}</td>
-          <td>{{ pc.className }}</td>
-          <td>{{ pc.examName }}</td>
-          <td>{{ pc.subjectName }}</td>
-          <td>{{ pc.passMarks }}</td>
-          <td>{{ pc.highestMark }}</td>
-          <td>
-            <button class="btn btn-sm btn-warning" (click)="edit(pc.pointConditionId!)">Edit</button>
-            <button class="btn btn-sm btn-danger" (click)="delete(pc.pointConditionId!)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div *ngIf="!loading() && !pointConditions().length">No point conditions found.</div>
-  </div>
-  </div>
+  <div *ngIf="!loading() && !pointConditions().length">No point conditions found.</div>
+</div>

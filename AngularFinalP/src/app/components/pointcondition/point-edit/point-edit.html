@@ -1,0 +1,140 @@
+
+<div class="exam-edit-page">
+
+  <div class="container mt-3">
+    <h3>Edit Point Condition</h3>
+
+    <form (ngSubmit)="update()">
+
+      <!-- Education Year -->
+      <div class="mb-3">
+        <label class="form-label">Education Year</label>
+        <input class="form-control"
+               [(ngModel)]="pointCondition().educationYear"
+               name="educationYear"
+               required>
+      </div>
+
+      <!-- Class -->
+      <div class="mb-3">
+        <label class="form-label">Class</label>
+        <select class="form-select"
+                [(ngModel)]="pointCondition().classId"
+                name="classId" required>
+          <option value="">-- Select Class --</option>
+          <option *ngFor="let c of classes()" [value]="c.id">
+            {{ c.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Exam -->
+      <div class="mb-3">
+        <label class="form-label">Exam</label>
+        <select class="form-select"
+                [(ngModel)]="pointCondition().examId"
+                name="examId" required>
+          <option value="">-- Select Exam --</option>
+          <option *ngFor="let e of exams()" [value]="e.id">
+            {{ e.name }}
+          </option>
+        </select>
+      </div>
+
+      Subject
+      <div class="mb-3">
+        <label class="form-label">Subject</label>
+        <select class="form-select"
+                [(ngModel)]="pointCondition().subjectId"
+                name="subjectId" required>
+          <option value="">-- Select Subject --</option>
+          <option *ngFor="let s of subjects()" [value]="s.id">
+            {{ s.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Marks -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label>Pass Marks</label>
+          <input type="number" class="form-control"
+                 [(ngModel)]="pointCondition().passMarks"
+                 name="passMarks">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label>Highest Marks</label>
+          <input type="number" class="form-control"
+                 [(ngModel)]="pointCondition().highestMark"
+                 name="highestMark">
+        </div>
+      </div>
+
+      <!-- DETAILS -->
+      <h5>Divisions</h5>
+
+      <div *ngFor="let d of pointCondition().details; let i = index"
+           class="border p-3 mb-2 rounded">
+
+        <div class="row">
+          <div class="col-md-3">
+            <input class="form-control"
+                   type="number"
+                   placeholder="From"
+                   [(ngModel)]="d.fromMark"
+                   name="from{{i}}">
+          </div>
+
+          <div class="col-md-3">
+            <input class="form-control"
+                   type="number"
+                   placeholder="To"
+                   [(ngModel)]="d.toMark"
+                   name="to{{i}}">
+          </div>
+
+          <div class="col-md-4">
+            <input class="form-control"
+                   placeholder="Division"
+                   [(ngModel)]="d.division"
+                   name="division{{i}}">
+          </div>
+
+          <div class="col-md-2 text-center">
+            <input type="checkbox"
+                   [(ngModel)]="d.isSilverColor"
+                   name="silver{{i}}">
+            Silver
+          </div>
+        </div>
+
+        <button type="button"
+                class="btn btn-danger btn-sm mt-2"
+                (click)="removeDetail(i)">
+          Remove
+        </button>
+      </div>
+
+      <button type="button"
+              class="btn btn-secondary btn-sm"
+              (click)="addDetail()">
+        + Add Division
+      </button>
+
+      <br><br>
+
+      <button class="btn btn-success"
+              type="submit"
+              [disabled]="loading()">
+        Update
+      </button>
+
+      <a routerLink="/point-condition"
+         class="btn btn-outline-secondary ms-2">
+        Cancel
+      </a>
+
+    </form>
+  </div>
+  </div>
