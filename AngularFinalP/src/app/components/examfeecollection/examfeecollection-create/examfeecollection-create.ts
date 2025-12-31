@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Component, OnInit, signal } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ExamFeesCreateDto } from '../../../models/examfeeCollection';
 import { ExamfeecollectionService } from '../../../service/examfeecollection-service';
+import { ClassService } from '../../../service/class-service';
+import { ExaminationService } from '../../../service/examinationService';
+import { StudentService } from '../../../service/student-service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,12 +14,21 @@ import { Router } from '@angular/router';
   styleUrls: ['./examfeecollection-create.css']
 })
 export class ExamFeeCollectionCreate implements OnInit {
+
   examFeeForm!: FormGroup;
-  loading = false;
+
+  // ---------------- Signals ----------------
+  loading = signal(false);
+  classes = signal<any[]>([]);
+  exams = signal<any[]>([]);
+  students = signal<any[]>([]);
 
   constructor(
     private fb: FormBuilder,
     private service: ExamfeecollectionService,
+    private classService: ClassService,
+    private examService: ExaminationService,
+    private studentService: StudentService,
     private router: Router
   ) { }
 
@@ -29,20 +41,21 @@ export class ExamFeeCollectionCreate implements OnInit {
       feeCollections: this.fb.array([])
     });
 
-    // Optionally, start with one student fee row
+    this.loadDropdowns();
     this.addStudentFee();
   }
 
+  // ---------------- FormArray Getter ----------------
   get feeCollections(): FormArray {
     return this.examFeeForm.get('feeCollections') as FormArray;
   }
 
-  addStudentFee(studentId = 0, examFee = 0, totalSubject = '', educationYear = '') {
+  // ---------------- Add / Remove Student Fee ----------------
+  addStudentFee(studentId = 0, examFeeAmount = 0, totalSubject = 0) {
     this.feeCollections.push(this.fb.group({
       studentId: [studentId, Validators.required],
-      examFee: [examFee, [Validators.required, Validators.min(0)]],
-      totalSubject: [totalSubject, Validators.required],
-      educationYear: [educationYear, Validators.required]
+      examFeeAmount: [examFeeAmount, [Validators.required, Validators.min(0)]],
+      totalSubject: [totalSubject, [Validators.required, Validators.min(1)]]
     }));
   }
 
@@ -50,20 +63,32 @@ export class ExamFeeCollectionCreate implements OnInit {
     this.feeCollections.removeAt(index);
   }
 
+  // ---------------- Load Dropdown Data ----------------
+  loadDropdowns() {
+    this.classService.getAll().subscribe(res => this.classes.set(res));
+    this.examService.getAll().subscribe(res => this.exams.set(res));
+    this.studentService.getAll().subscribe(res => this.students.set(res));
+  }
+
+  // ---------------- Submit Form ----------------
   onSubmit() {
     if (this.examFeeForm.invalid) return;
 
-    const dto: ExamFeesCreateDto = this.examFeeForm.value;
-    this.loading = true;
+    const dto: ExamFeesCreateDto = {
+      ...this.examFeeForm.value,
+      feeCollections: this.feeCollections.value
+    };
+
+    this.loading.set(true);
 
     this.service.create(dto).subscribe({
       next: () => {
-        this.loading = false;
+        this.loading.set(false);
         alert('Exam Fee with student collections created successfully!');
         this.router.navigate(['/examfeecollection']);
       },
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         console.error(err);
         alert('Error creating Exam Fee');
       }
