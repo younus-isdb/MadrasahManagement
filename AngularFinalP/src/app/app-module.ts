@@ -12,6 +12,8 @@ import { ExamfeeList } from './components/examfee/examfee-list/examfee-list';
 import { ExamfeeCreate } from './components/examfee/examfee-create/examfee-create';
 import { PointList } from './components/pointcondition/point-list/point-list';
 import { PointCreate } from './components/pointcondition/point-create/point-create';
+import { ExamfeeEdit } from './components/examfee/examfee-edit/examfee-edit';
+import { PointEdit } from './components/pointcondition/point-edit/point-edit';
 
 @NgModule({
   declarations: [
@@ -23,7 +25,9 @@ import { PointCreate } from './components/pointcondition/point-create/point-crea
     ExamfeeList,
     ExamfeeCreate,
     PointList,
-    PointCreate
+    PointCreate,
+    ExamfeeEdit,
+    PointEdit
     
   ],
   imports: [
