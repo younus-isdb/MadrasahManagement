@@ -31,26 +31,34 @@ namespace MadrasahManagement.Models
     {
         [Key]
         public int ExamFeeId { get; set; }
-
-        [Required, MaxLength(10)] // e.g., "2024-2025"
         public string EducationYear { get; set; } = string.Empty;
 
-        [Required]
         public int ClassId { get; set; }
-        [ForeignKey("ClassId")]
-        public virtual Class? Class { get; set; }
+        public Class Class { get; set; } = null!;
 
-        [Required]
         public int ExamId { get; set; }
-        [ForeignKey("ExamId")]
-        public virtual Examination? Examination { get; set; }
+        public Examination Examination { get; set; } = null!;
 
-        [Required]
-        [Column(TypeName = "decimal(18,2)")] 
         public decimal ExamAmount { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } = new List<ExamFeeCollection>();
+
+        public ICollection<ExamFeeCollection> FeeCollections { get; set; } = new List<ExamFeeCollection>();
     }
+
+    public class ExamFeeCollection
+    {
+        [Key]
+        public int FeeCollectionId { get; set; }
+
+        public int ExamFeeId { get; set; }
+        public ExamFee ExamFee { get; set; } = null!;
+
+        public int StudentId { get; set; }
+        public Student Student { get; set; } = null!;
+
+        public decimal ExamFeeAmount { get; set; }
+        public int TotalSubject { get; set; }
+    }
+
     public class SubClassGroup
     {
         [Key]
@@ -164,31 +172,7 @@ public class MeritCondition
         public string ExamEndTime { get; set; }= string.Empty;
 
     }
-    public class ExamFeeCollection
-    {
-        [Key]
-        public int FeeCollectionId { get; set; }
-        [Required]
-        public string EducationYear { get; set; } = string.Empty;
-        [Required]
-        public int ExamId { get; set; }
-        [ForeignKey(nameof(ExamId))]
-        public Examination? Examination { get; set; }
-
-        public int ClassId { get; set; }
-        [ForeignKey(nameof(ClassId))]
-        public Class? Class { get; set; }
-        public string TotalSubject { get; set; } = string.Empty;
-
-       public int ExamFee { get; set; }
-        [Required]
-        public int StudentId { get; set; }
-        [ForeignKey(nameof(StudentId))]
-        public Student? Student { get; set; }
-       
-        
-
-    }
+   
     public class ExamIncomeExpense
     {
         [Key]
