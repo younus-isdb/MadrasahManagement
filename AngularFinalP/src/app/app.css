@@ -1,0 +1,109 @@
+/* --- General --- */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #0a0a0a;
+  color: lightseagreen;
+}
+
+/* --- Header --- */
+.lambo-header {
+  background: linear-gradient(90deg, #ffcc00, #ff9900);
+  color: #111;
+  padding: 20px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 24px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+}
+
+.lambo-container {
+  display: flex;
+  height: calc(100vh - 80px); 
+}
+
+.lambo-sidebar {
+  width: 240px;
+  background: #111;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+  .lambo-sidebar h2 {
+    margin-bottom: 20px;
+    color: #ffcc00;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .lambo-sidebar a,
+  .dropbtn {
+    color: greenyellow;
+    text-decoration: none;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+
+    .lambo-sidebar a:hover,
+    .dropdown:hover .dropbtn {
+      background: #ffcc00;
+      color: #111;
+    }
+
+a.active {
+  background: #ffcc00;
+  color: #111;
+}
+
+/* Dropdown content */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-content {
+  display: none;
+  flex-direction: column;
+  background: #222;
+  margin-top: 5px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+  .dropdown-content a {
+    padding-left: 30px;
+    background: #222;
+  }
+
+    .dropdown-content a:hover {
+      background: #ff9900;
+      color: #111;
+    }
+
+.dropdown:hover .dropdown-content {
+  display: flex;
+}
+
+
+.lambo-content {
+  flex: 1;
+  padding: 30px;
+  background: black;
+  overflow-y: auto;
+}
+
+.lambo-footer {
+  background: linear-gradient(90deg, #ff9900, #ffcc00);
+  color: #111;
+  text-align: center;
+  padding: 15px;
+  font-weight: bold;
+  box-shadow: 0 -4px 6px rgba(0,0,0,0.5);
+}

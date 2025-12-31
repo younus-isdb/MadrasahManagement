@@ -1,19 +1,36 @@
-<header>
-  <h1> site title</h1>
+<header class="lambo-header">
+  <h1>Halishahar Mohila Madrasa</h1>
 </header>
 
-<section class="container row">
-  <nav class="col-3">
-    side menu
-  </nav>
+<section class="lambo-container">
+  <aside class="lambo-sidebar">
+    <h2>MENU</h2>
 
-  <article class="col-9">
+    <!-- Examination Parent Menu -->
+    <div class="dropdown">
+      <button class="dropbtn">
+         Examination
+        <span class="arrow">&#9662;</span>
+      </button>
+      <div class="dropdown-content">
+        <a routerLink="/examination" routerLinkActive="active">Examination</a>
+        <a routerLink="/examfee" routerLinkActive="active">Exam Fee</a>
+        <a routerLink="/point" routerLinkActive="active">Point Based Condition</a>
+        <!-- Add more entries here -->
+      </div>
+    </div>
+
+    <!-- Other menus -->
+    <a routerLink="/students" routerLinkActive="active">👨‍🎓 Students</a>
+    <a routerLink="/teachers" routerLinkActive="active">👩‍🏫 Teachers</a>
+
+  </aside>
+
+  <main class="lambo-content">
     <router-outlet></router-outlet>
-
-  </article>
-
+  </main>
 </section>
-<footer>
-  footer area
-</footer>
 
+<footer class="lambo-footer">
+  © MYS Enterpraise
+</footer>

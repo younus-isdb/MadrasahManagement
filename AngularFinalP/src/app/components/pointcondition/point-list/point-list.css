@@ -1,4 +1,4 @@
-.exam-list-page {
+.point-list-page {
   background: cyan;
   padding: 25px;
   border-radius: 12px;
@@ -13,5 +13,4 @@
 /* Buttons spacing */
 .btn + .btn {
   margin-left: 5px;
-
 }

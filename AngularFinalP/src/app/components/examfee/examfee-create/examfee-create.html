@@ -1,0 +1,66 @@
+<div class="exam-list-page">
+
+
+  <div class="examfee-create-page">
+
+    <h3 class="page-title">Create Exam Fee</h3>
+
+    <!-- Loading -->
+    <div *ngIf="loading()" class="text-center my-3">
+      <strong>Saving...</strong>
+    </div>
+
+    <form (ngSubmit)="save()">
+
+      <!-- Education Year -->
+      <div class="mb-3">
+        <label class="form-label">Education Year</label>
+        <input type="text"
+               class="form-control"
+               [value]="educationYear()"
+               (input)="educationYear.set($any($event.target).value)"
+               placeholder="e.g., 2024-2025"
+               required />
+      </div>
+
+      <!-- Class Dropdown -->
+      <div class="mb-3">
+        <label class="form-label">Class</label>
+        <select class="form-select"
+                [value]="classId()"
+                (change)="classId.set(+($any($event.target).value))"
+                required>
+          <option value="" disabled selected>Select Class</option>
+          <option *ngFor="let cls of classes()" [value]="cls.id">{{ cls.name }}</option>
+        </select>
+      </div>
+
+      <!-- Exam Dropdown -->
+      <div class="mb-3">
+        <label class="form-label">Exam</label>
+        <select class="form-select"
+                [value]="examId()"
+                (change)="examId.set(+($any($event.target).value))"
+                required>
+          <option value="" disabled selected>Select Exam</option>
+          <option *ngFor="let ex of exams()" [value]="ex.id">{{ ex.name }}</option>
+        </select>
+      </div>
+
+      <!-- Exam Amount -->
+      <div class="mb-3">
+        <label class="form-label">Exam Amount</label>
+        <input type="number"
+               class="form-control"
+               [value]="examAmount()"
+               (input)="examAmount.set(+($any($event.target).value))"
+               placeholder="Enter exam amount"
+               required />
+      </div>
+
+      <button class="btn btn-success" type="submit" [disabled]="loading()">Save</button>
+      <a [routerLink]="['/examination']" class="btn btn-secondary ms-2">Cancel</a>
+
+    </form>
+  </div>
+  </div>

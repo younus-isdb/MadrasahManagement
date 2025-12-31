@@ -1,0 +1,55 @@
+<div class="container mt-3">
+  <h3>Create Point Condition</h3>
+
+  <form (ngSubmit)="save()">
+    <div class="mb-3">
+      <label>Education Year</label>
+      <input type="text" class="form-control" [(ngModel)]="pointCondition().educationYear" name="educationYear" required>
+    </div>
+
+    <div class="mb-3">
+      <label>Class</label>
+      <select class="form-select" [(ngModel)]="pointCondition().classId" name="classId" required>
+        <option *ngFor="let cls of classes()" [value]="cls.id">{{ cls.name }}</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label>Exam</label>
+      <select class="form-select" [(ngModel)]="pointCondition().examId" name="examId" required>
+        <option *ngFor="let ex of exams()" [value]="ex.id">{{ ex.name }}</option>
+      </select>
+    </div>
+
+    <!--<div class="mb-3">
+      <label>Subject</label>
+      <select class="form-select" [(ngModel)]="pointCondition().subjectId" name="subjectId" required>
+        <option *ngFor="let s of subjects()" [value]="s.id">{{ s.name }}</option>
+      </select>
+    </div>-->
+
+    <div class="mb-3">
+      <label>Pass Marks</label>
+      <input type="number" class="form-control" [(ngModel)]="pointCondition().passMarks" name="passMarks" required>
+    </div>
+
+    <div class="mb-3">
+      <label>Highest Marks</label>
+      <input type="number" class="form-control" [(ngModel)]="pointCondition().highestMark" name="highestMark" required>
+    </div>
+
+    <!-- Detail rows -->
+    <div class="mb-3" *ngFor="let d of pointCondition().details; let i = index">
+      <h6>Division {{ i + 1 }}</h6>
+      <input type="number" placeholder="From Mark" [(ngModel)]="d.fromMark" name="fromMark{{i}}" required>
+      <input type="number" placeholder="To Mark" [(ngModel)]="d.toMark" name="toMark{{i}}" required>
+      <input type="text" placeholder="Division" [(ngModel)]="d.division" name="division{{i}}" required>
+      <label><input type="checkbox" [(ngModel)]="d.isSilverColor" name="isSilver{{i}}"> Silver</label>
+      <button type="button" class="btn btn-sm btn-danger" (click)="removeDetail(i)">Remove</button>
+      <hr>
+    </div>
+
+    <button type="button" class="btn btn-sm btn-secondary" (click)="addDetail()">Add Division</button>
+    <button type="submit" class="btn btn-success">Save</button>
+  </form>
+</div>
