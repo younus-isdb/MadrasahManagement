@@ -1,0 +1,45 @@
+<div class="exam-create-page">
+
+  <div class="examfee-create-container">
+    <h2>Create Exam Fee</h2>
+    <form [formGroup]="examFeeForm" (ngSubmit)="onSubmit()">
+
+      <label>Education Year</label>
+      <input formControlName="educationYear" placeholder="e.g. 2025-2026" />
+
+      <label>Class ID</label>
+      <input formControlName="classId" type="number" />
+
+      <label>Exam ID</label>
+      <input formControlName="examId" type="number" />
+
+      <label>Exam Amount</label>
+      <input formControlName="examAmount" type="number" />
+
+      <h3>Student Fee Collections</h3>
+      <div formArrayName="feeCollections">
+        <div *ngFor="let student of feeCollections.controls; let i = index" [formGroupName]="i" class="student-row">
+
+          <label>Student ID</label>
+          <input formControlName="studentId" type="number" />
+
+          <label>Exam Fee</label>
+          <input formControlName="examFee" type="number" />
+
+          <label>Total Subject</label>
+          <input formControlName="totalSubject" />
+
+          <label>Education Year</label>
+          <input formControlName="educationYear" />
+
+          <button type="button" (click)="removeStudentFee(i)">Remove</button>
+          <hr />
+        </div>
+      </div>
+
+      <button type="button" (click)="addStudentFee()">Add Student Fee</button>
+      <br /><br />
+      <button type="submit" [disabled]="loading">Create Exam Fee</button>
+    </form>
+  </div>
+  </div>

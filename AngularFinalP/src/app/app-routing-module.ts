@@ -8,6 +8,9 @@ import { ExamfeeCreate } from './components/examfee/examfee-create/examfee-creat
 import { PointList } from './components/pointcondition/point-list/point-list';
 import { PointCreate } from './components/pointcondition/point-create/point-create';
 import { PointEdit } from './components/pointcondition/point-edit/point-edit';
+import { ExamFeesList } from './components/examfeecollection/examfees-list/examfees-list';
+import { ExamFeeCollectionCreate } from './components/examfeecollection/examfeecollection-create/examfeecollection-create';
+
 
 const routes: Routes = [
   { path: 'examination', component: ExaminationList },
@@ -17,7 +20,10 @@ const routes: Routes = [
   { path: 'feecreate', component: ExamfeeCreate },
   { path: 'point', component: PointList },
   { path: 'pointcreate', component: PointCreate },
-  {path: 'pointedit/:id', component:PointEdit}
+  { path: 'pointedit/:id', component: PointEdit },
+  { path: 'examfeecollection', component: ExamFeesList },
+  { path: 'examfeecollectioncreate', component: ExamFeeCollectionCreate }
+
 ];
 
 @NgModule({
