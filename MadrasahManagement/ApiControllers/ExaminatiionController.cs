@@ -8,7 +8,7 @@ namespace MadrasahManagement.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ExaminatiionController : ControllerBase
     {
         private readonly MadrasahDbContext _context;

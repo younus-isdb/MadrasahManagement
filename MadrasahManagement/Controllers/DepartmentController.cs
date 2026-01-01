@@ -21,7 +21,7 @@ namespace MadrasahManagement.Controllers
 
         // 🔥 POST: Create Department
         [HttpPost]
-        public IActionResult Create(Department model)
+        public IActionResult Save(Department model)
         {
             if (ModelState.IsValid)
             {
@@ -77,19 +77,19 @@ namespace MadrasahManagement.Controllers
             return View();
         }
 
-        //// POST: Department/Create
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create(Department department)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(department);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(department);
-        //}
+        // POST: Department/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Department department)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(department);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(department);
+        }
 
         // GET: Department/Edit/5
         public async Task<IActionResult> Edit(int? id)

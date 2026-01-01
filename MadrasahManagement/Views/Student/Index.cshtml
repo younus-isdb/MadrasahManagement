@@ -60,7 +60,9 @@
                         <th>#</th>
                         <th>Student</th>
                         <th>Reg No</th>
-                        <th>Academic</th>
+                        <th>Department</th>
+                        <th>Class</th>
+                        <th>Section</th>
                         <th>Guardian</th>
                         <th>Status</th>
                         <th class="text-end">Action</th>
@@ -99,9 +101,15 @@
                             <!-- Academic -->
                             <td>
                                 <div class="fw-semibold">@s.Department?.DepartmentName</div>
-                                <small class="text-muted">
-                                    @s.Class?.ClassName - @s.Section?.SectionName
-                                </small>
+                               
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@s.Class?.ClassName</div>
+                               
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@s.Section?.SectionName</div>
+                                
                             </td>
 
                             <!-- Guardian -->

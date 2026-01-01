@@ -1,6 +1,4 @@
 ﻿using MadrasahManagement.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 public class StudentEditVM
@@ -8,9 +6,7 @@ public class StudentEditVM
     [Required]
     public int StudentId { get; set; }
 
-    // -------------------------
-    // Multilingual Names
-    // -------------------------
+    // Basic Info
     [Required, MaxLength(150)]
     public string StudentName { get; set; } = default!;
 
@@ -20,47 +16,20 @@ public class StudentEditVM
     [MaxLength(150)]
     public string? BanglaStudentName { get; set; }
 
-    // -------------------------
-    // Academic Info
-    // -------------------------
-    [Required]
-    public int DepartmentId { get; set; }
-
-    [Required]
-    public int ClassId { get; set; }
-
-    [Required]
-    public int SectionId { get; set; }
-
-    // -------------------------
-    // Identity & Admission
-    // -------------------------
-    [Required, MaxLength(20)]
-    public string RegNo { get; set; } = default!;
-
-    [MaxLength(50)]
-    public string? NationalId { get; set; }
-
-    /// <summary>
-    /// Used for UI binding (converted to DateOnly in entity)
-    /// </summary>
+    // Admission Date
     [DataType(DataType.Date)]
     public DateTime AdmissionDate { get; set; }
 
-    // -------------------------
     // Personal Info
-    // -------------------------
     public Gender? Gender { get; set; }
 
     [DataType(DataType.Date)]
-    public DateTime DOB { get; set; }
+    public DateTime DOB { get; set; } // Changed to nullable
 
     [MaxLength(5)]
     public string? BloodGroup { get; set; }
 
-    // -------------------------
-    // Parents / Guardians
-    // -------------------------
+    // Parents/Guardians
     [MaxLength(150)]
     public string? FatherName { get; set; }
 
@@ -82,21 +51,14 @@ public class StudentEditVM
     [MaxLength(150)]
     public string? GuardianEmail { get; set; }
 
-    // -------------------------
-    // Address / Location
-    // -------------------------
+    // Address
     [MaxLength(500)]
     public string? Address { get; set; }
 
     [MaxLength(150)]
     public string? City { get; set; }
 
-    [MaxLength(150)]
-    public string? Country { get; set; }
-
-    // -------------------------
-    // Emergency Info
-    // -------------------------
+    // Emergency
     [MaxLength(150)]
     public string? EmergencyContactName { get; set; }
 
@@ -106,43 +68,29 @@ public class StudentEditVM
     [MaxLength(500)]
     public string? MedicalNotes { get; set; }
 
-    // -------------------------
-    // Previous Academic
-    // -------------------------
-    [MaxLength(250)]
-    public string? PreviousSchoolName { get; set; }
-
-    public double? PreviousResult { get; set; }
-
-    // -------------------------
-    // Files (Optional)
-    // -------------------------
+    // Files
     public IFormFile? ProfileImage { get; set; }
     public IFormFile? DocumentFile { get; set; }
 
-    // Existing files (display purpose)
     public string? ExistingProfileImageUrl { get; set; }
     public string? ExistingDocumentUrl { get; set; }
 
-    // -------------------------
     // Status
-    // -------------------------
     public bool IsActive { get; set; }
 
-    // -------------------------
-    // Leaving Info
-    // -------------------------
     [DataType(DataType.Date)]
     public DateTime? LeavingDate { get; set; }
 
     [MaxLength(300)]
     public string? LeavingReason { get; set; }
 
-
-    public List<SelectListItem> Departments { get; set; } = new();
-    public List<SelectListItem> Classes { get; set; } = new();
-    public List<SelectListItem> Sections { get; set; } = new();
+    // For DISPLAY ONLY (cannot edit)
+    public string? DepartmentName { get; set; }
+    public string? ClassName { get; set; }
+    public string? SectionName { get; set; }
+    public string? RegNo { get; set; } // Added for display
+    public string? NationalId { get; set; } // Added for display
+    public string? Country { get; set; } // Added for display
+    public string? PreviousSchoolName { get; set; } // Added for display
+    public double? PreviousResult { get; set; } // Added for display
 }
-
-
-
