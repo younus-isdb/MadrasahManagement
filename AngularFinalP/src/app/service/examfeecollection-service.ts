@@ -7,7 +7,7 @@ import { ExamFeesCreateDto, ExamFeesUpdateDto, ExamFeesReadDto } from '../models
   providedIn: 'root'
 })
 export class ExamfeecollectionService {
-  private apiUrl = 'https://localhost:7113/api/examfeecollection'; // আপনার API URL
+  private apiUrl = 'https://localhost:7113/api/examfeescollection'; // আপনার API URL
 
   constructor(private http: HttpClient) { }
 

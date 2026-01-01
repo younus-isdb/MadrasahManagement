@@ -9,15 +9,12 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-examfeecollection-create',
-  standalone:false,
+  standalone: false,
   templateUrl: './examfeecollection-create.html',
   styleUrls: ['./examfeecollection-create.css']
 })
 export class ExamFeeCollectionCreate implements OnInit {
-
   examFeeForm!: FormGroup;
-
-  // ---------------- Signals ----------------
   loading = signal(false);
   classes = signal<any[]>([]);
   exams = signal<any[]>([]);
@@ -34,9 +31,9 @@ export class ExamFeeCollectionCreate implements OnInit {
 
   ngOnInit(): void {
     this.examFeeForm = this.fb.group({
-      educationYear: ['', Validators.required],
-      classId: [0, Validators.required],
-      examId: [0, Validators.required],
+      educationYear: ['', [Validators.required, Validators.maxLength(10)]],
+      classId: [null, [Validators.required]],
+      examId: [null, [Validators.required]],
       examAmount: [0, [Validators.required, Validators.min(0)]],
       feeCollections: this.fb.array([])
     });
@@ -45,52 +42,64 @@ export class ExamFeeCollectionCreate implements OnInit {
     this.addStudentFee();
   }
 
-  // ---------------- FormArray Getter ----------------
   get feeCollections(): FormArray {
     return this.examFeeForm.get('feeCollections') as FormArray;
   }
 
-  // ---------------- Add / Remove Student Fee ----------------
-  addStudentFee(studentId = 0, examFeeAmount = 0, totalSubject = 0) {
+  addStudentFee(studentId: any = null, examFeeAmount = 0, totalSubject = 0) {
     this.feeCollections.push(this.fb.group({
-      studentId: [studentId, Validators.required],
+      studentId: [studentId, [Validators.required]],
       examFeeAmount: [examFeeAmount, [Validators.required, Validators.min(0)]],
       totalSubject: [totalSubject, [Validators.required, Validators.min(1)]]
     }));
   }
 
   removeStudentFee(index: number) {
-    this.feeCollections.removeAt(index);
+    if (this.feeCollections.length > 1) {
+      this.feeCollections.removeAt(index);
+    }
   }
 
-  // ---------------- Load Dropdown Data ----------------
   loadDropdowns() {
     this.classService.getAll().subscribe(res => this.classes.set(res));
     this.examService.getAll().subscribe(res => this.exams.set(res));
     this.studentService.getAll().subscribe(res => this.students.set(res));
   }
 
-  // ---------------- Submit Form ----------------
   onSubmit() {
-    if (this.examFeeForm.invalid) return;
+    if (this.examFeeForm.invalid) {
+      this.examFeeForm.markAllAsTouched();
+      return;
+    }
 
+    const formValue = this.examFeeForm.value;
+
+    // FORCED TYPE CASTING: Ensures int/decimal for .NET
     const dto: ExamFeesCreateDto = {
-      ...this.examFeeForm.value,
-      feeCollections: this.feeCollections.value
+      educationYear: formValue.educationYear,
+      classId: Number(formValue.classId),
+      examId: Number(formValue.examId),
+      examAmount: Number(formValue.examAmount),
+      feeCollections: this.feeCollections.value.map((fc: any) => ({
+        studentId: Number(fc.studentId),
+        examFeeAmount: Number(fc.examFeeAmount),
+        totalSubject: Number(fc.totalSubject)
+      }))
     };
 
     this.loading.set(true);
-
     this.service.create(dto).subscribe({
       next: () => {
         this.loading.set(false);
-        alert('Exam Fee with student collections created successfully!');
+        alert('Created Successfully!');
         this.router.navigate(['/examfeecollection']);
       },
       error: (err) => {
         this.loading.set(false);
-        console.error(err);
-        alert('Error creating Exam Fee');
+        console.error('Server Response:', err);
+        // This alerts the exact C# validation error (e.g., "The ExamId field is required")
+        const validationErrors = err.error?.errors ? JSON.stringify(err.error.errors) : err.message;
+        alert('Submission Failed:\n' + validationErrors);
       }
     });
   }
