@@ -4,6 +4,7 @@ using MadrasahManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    partial class MadrasahDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260101054514_examfeemcrud")]
+    partial class examfeemcrud
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -546,11 +549,14 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ExaminationExamId")
+                        .HasColumnType("int");
+
                     b.HasKey("ExamFeeId");
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("ExamId");
+                    b.HasIndex("ExaminationExamId");
 
                     b.ToTable("ExamFees");
                 });
@@ -1894,7 +1900,7 @@ namespace MadrasahManagement.Migrations
 
                     b.HasOne("MadrasahManagement.Models.Examination", "Examination")
                         .WithMany("ExamFees")
-                        .HasForeignKey("ExamId")
+                        .HasForeignKey("ExaminationExamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
