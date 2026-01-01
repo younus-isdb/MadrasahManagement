@@ -454,10 +454,14 @@ namespace MadrasahManagement.Models
         [ForeignKey(nameof(Class))]
         public int ClassId { get; set; }
 
+        [ForeignKey(nameof(Department))]
+        public int DepartmentId { get; set; }
+
         [Required, MaxLength(50)]
         public string SectionName { get; set; } = default!;
 
         public Class? Class { get; set; } = default!;
+        public Department? Department { get; set; } = default!;
         public ICollection<Student> Students { get; set; } = new HashSet<Student>();
         public ICollection<Timetable> Timetables { get; set; } = new HashSet<Timetable>();
     }
@@ -489,8 +493,7 @@ namespace MadrasahManagement.Models
         public Department Department { get; set; } = default!;
 
         public ICollection<ClassSubject> ClassSubjects { get; set; } = new HashSet<ClassSubject>();
-        public ICollection<Timetable> Timetables { get; set; } = new HashSet<Timetable>();
-        [JsonIgnore]
+       
         public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
         [JsonIgnore]
         public virtual ICollection<ExamFeeCollection> ExamFeeCollections { get; set; } = new List<ExamFeeCollection>();
@@ -514,7 +517,8 @@ namespace MadrasahManagement.Models
 
         [ForeignKey(nameof(Teacher))]
         public int TeacherId { get; set; }
-
+        public ICollection<Timetable> Timetables { get; set; } = new HashSet<Timetable>();
+     
         public Class Class { get; set; } = default!;
         public Subject Subject { get; set; } = default!;
         public Teacher Teacher { get; set; } = default!;
@@ -1157,6 +1161,7 @@ namespace MadrasahManagement.Models
         public string? Description { get; set; }
 
         public ICollection<Class> Classes { get; set; } = new HashSet<Class>();
+        public ICollection<Section> Sections { get; set; } = new HashSet<Section>();
         public ICollection<Teacher> Teachers { get; set; } = new List<Teacher>();
         public List<Student>? Students { get; set; }
 

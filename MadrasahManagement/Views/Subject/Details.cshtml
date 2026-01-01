@@ -1,0 +1,182 @@
+﻿@using MadrasahManagement.ViewModels
+@* Views/Subject/Details.cshtml *@
+@model SubjectDetailsViewModel
+
+@{
+    ViewData["Title"] = "Subject Details";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Subject Details</h6>
+            <div>
+                <a asp-action="Edit" asp-route-id="@Model.SubjectId" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Basic Information -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5 class="text-primary">Basic Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Subject Name:</dt>
+                        <dd class="col-sm-8">@Model.SubjectName</dd>
+
+                        <dt class="col-sm-4">Subject Code:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge badge-info">@Model.SubjectCode</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Class:</dt>
+                        <dd class="col-sm-8">@Model.ClassName</dd>
+
+                        <dt class="col-sm-4">Department:</dt>
+                        <dd class="col-sm-8">@Model.DepartmentName</dd>
+
+                        <dt class="col-sm-4">Type:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.IsOptional ? "badge-warning" : "badge-success")">
+                                @Model.SubjectType
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="text-primary">Statistics</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Assigned Teachers
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                @Model.TotalAssignedTeachers
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-chalkboard-teacher fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Total Students
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                @Model.TotalStudents
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Teachers -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h5 class="text-primary">Assigned Teachers</h5>
+                    @if (Model.AssignedTeachers.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Teacher Name</th>
+                                        <th>Employee ID</th>
+                                        <th>Class</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var teacher in Model.AssignedTeachers)
+                                    {
+                                        <tr>
+                                            <td>@teacher.TeacherName</td>
+                                            <td>@teacher.EmployeeId</td>
+                                            <td>@teacher.ClassName</td>
+                                            <td>
+                                                <a asp-controller="ClassSubject" asp-action="RemoveAssignment"
+                                                   asp-route-classId="@Model.SubjectId"
+                                                   asp-route-subjectId="@teacher.TeacherId"
+                                                   asp-route-teacherId="@teacher.TeacherId"
+                                                   class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i> Remove
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            No teachers assigned to this subject yet.
+                            <a asp-controller="ClassSubject" asp-action="AssignToTeacher"
+                               class="alert-link">Assign a teacher</a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Student Count by Class -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h5 class="text-primary">Student Distribution</h5>
+                    @if (Model.StudentCountByClass.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Number of Students</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var classInfo in Model.StudentCountByClass)
+                                    {
+                                        <tr>
+                                            <td>@classInfo.ClassName</td>
+                                            <td>
+                                                <span class="badge badge-secondary">@classInfo.StudentCount</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">No students found for this class.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

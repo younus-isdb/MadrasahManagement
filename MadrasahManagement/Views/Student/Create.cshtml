@@ -1,446 +1,744 @@
-﻿@model Student
+﻿@model StudentCreateVM
 @{
-	ViewData["Title"] = "Create Student";
+    ViewData["Title"] = "Create Student";
 }
 
 <style>
-	.page-header {
-		background: linear-gradient(135deg, #6a11cb, #2575fc);
-		color: white;
-		padding: 25px;
-		border-radius: 14px;
-		box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-		margin-bottom: 25px;
-	}
+    /* Dark theme labels */
+    .form-label {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
 
-	.card-custom {
-		border-radius: 16px;
-		padding: 20px;
-		background: #ffffff;
-		box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-		margin-bottom: 25px;
-	}
+        .form-label.text-muted {
+            color: #7b8a8b !important;
+            font-weight: 500;
+        }
 
-	.section-title {
-		font-weight: 700;
-		font-size: 20px;
-		color: #444;
-		margin-bottom: 12px;
-		border-left: 5px solid #6a11cb;
-		padding-left: 8px;
-	}
+    /* Layout improvements */
+    .card {
+        border: 1px solid #e0e0e0;
+    }
 
-	label {
-		font-weight: 600;
-		margin-top: 8px;
-	}
+    .card-header {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        border-bottom: 2px solid #1c6ea4;
+    }
 
-	.btn-primary {
-		background: #6a11cb;
-		border: none;
-		font-weight: 600;
-		padding: 10px 20px;
-		border-radius: 10px;
-		box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-	}
+    .section-divider {
+        border-top: 2px solid #ecf0f1;
+        margin: 25px 0;
+      
+    }
 
-		.btn-primary:hover {
-			background: #5b0fb8;
-		}
+    .section-title {
+        color: #34495e;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+      
+        border-bottom: 2px solid #3498db;
+    }
 
-	.btn-secondary {
-		border-radius: 10px;
-		font-weight: 600;
-	}
+    /* Field indicators */
+    .required-indicator {
+        color: #e74c3c;
+        font-weight: bold;
+    }
 
-	.form-control {
-		border-radius: 10px;
-		padding: 10px;
-	}
+    /* Better spacing */
+    .form-control:not([readonly]) {
+        border: 1px solid #bdc3c7;
+        transition: border 0.3s;
+    }
 
-	.gradient-box {
-		background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-		padding: 15px;
-		border-radius: 14px;
-		color: #333;
-		margin-bottom: 15px;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-	}
+        .form-control:not([readonly]):focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+    /* Input group buttons */
+    .input-group .btn-success {
+        background: #27ae60;
+        border-color: #219653;
+    }
+
+        .input-group .btn-success:hover {
+            background: #219653;
+        }
+
+    /* Gradient boxes for sections */
+    .gradient-box {
+        background: linear-gradient(to right, #e3f2fd, #bbdefb);
+        border: 1px solid #90caf9;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    /* Legend box */
+    .legend-box {
+        background: linear-gradient(to right, #f8f9fa, #ecf0f1);
+        border: 1px solid #bdc3c7;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+
+   
 </style>
 
-<div class="page-header">
-	<h2><i class="bi bi-person-plus-fill"></i> Create Student</h2>
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-person-plus-fill"></i> Create New Student</h5>
+            <small><i class="bi bi-info-circle"></i> All fields are required unless marked optional</small>
+        </div>
+
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div class="card-body">
+                <!-- Validation Summary -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <h6><i class="bi bi-exclamation-triangle"></i> Please fix the following errors:</h6>
+                        <ul class="mb-0">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <!-- ==================== SECTION 1: BASIC INFORMATION ==================== -->
+                <div class="section-title">
+                    <i class="bi bi-person-badge"></i> Basic Information
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Student Name <span class="required-indicator">*</span>
+                        </label>
+                        <input asp-for="StudentName" class="form-control" placeholder="Enter English Name" />
+                        <span asp-validation-for="StudentName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Birth/NID No (Optional)
+                        </label>
+                        <input asp-for="NationalId" class="form-control" placeholder="Birth certificate or NID number" />
+                        <span asp-validation-for="NationalId" class="text-danger small"></span>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Bangla Name (Optional)
+                        </label>
+                        <input asp-for="BanglaStudentName" class="form-control" placeholder="বাংলা নাম" />
+                        <span asp-validation-for="BanglaStudentName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Registration No <span class="required-indicator">*</span>
+                        </label>
+                        <input asp-for="RegNo" class="form-control" placeholder="Enter unique registration number" />
+                        <span asp-validation-for="RegNo" class="text-danger small"></span>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Arabic Name (Optional)
+                        </label>
+                        <input asp-for="ArabicStudentName" class="form-control" placeholder="الاسم بالعربية" />
+                        <span asp-validation-for="ArabicStudentName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Admission Date <span class="required-indicator">*</span>
+                        </label>
+                        <input asp-for="AdmissionDate" type="date" class="form-control" />
+                        <span asp-validation-for="AdmissionDate" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- ==================== SECTION 2: ACADEMIC INFORMATION ==================== -->
+                <div class="section-divider"></div>
+                <div class="section-title">
+                    <i class="bi bi-journal-bookmark"></i> Academic Information
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Department <span class="required-indicator">*</span>
+                        </label>
+                        <div class="input-group">
+                            <select asp-for="DepartmentId" asp-items="ViewBag.DepartmentList" class="form-control">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#departmentModal">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="DepartmentId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Class <span class="required-indicator">*</span>
+                        </label>
+                        <div class="input-group">
+                            <select asp-for="ClassId" asp-items="ViewBag.ClassList" class="form-control" id="ClassId">
+                                <option value="">-- Select Class --</option>
+                            </select>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#classModal">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ClassId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Section <span class="required-indicator">*</span>
+                        </label>
+                        <div class="input-group">
+                            <select asp-for="SectionId" asp-items="ViewBag.SectionList" class="form-control" id="SectionId">
+                                <option value="">-- Select Section --</option>
+                            </select>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#sectionModal">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="SectionId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">
+                            Previous School Name (Optional)
+                        </label>
+                        <input asp-for="PreviousSchoolName" class="form-control" placeholder="Previous school name if any" />
+                        <span asp-validation-for="PreviousSchoolName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Previous Result (Optional)
+                        </label>
+                        <input asp-for="PreviousResult" step="0.01" class="form-control" placeholder="GPA or percentage" />
+                        <span asp-validation-for="PreviousResult" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- ==================== SECTION 3: PERSONAL DETAILS ==================== -->
+                <div class="section-divider"></div>
+                <div class="section-title">
+                    <i class="bi bi-person-vcard"></i> Personal Details
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Gender
+                        </label>
+                        <select asp-for="Gender" class="form-control">
+                            <option value="">Select Gender</option>
+                            <option value="0">Male</option>
+                            <option value="1">Female</option>
+                            <option value="2">Other</option>
+                        </select>
+                        <span asp-validation-for="Gender" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Date of Birth
+                        </label>
+                        <input asp-for="DOB" type="date" class="form-control" />
+                        <span asp-validation-for="DOB" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Blood Group
+                        </label>
+                        <input asp-for="BloodGroup" class="form-control" placeholder="A+, B-, O+, etc." />
+                        <span asp-validation-for="BloodGroup" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- ==================== SECTION 4: FAMILY INFORMATION ==================== -->
+                <div class="section-divider"></div>
+                <div class="section-title">
+                    <i class="bi bi-people"></i> Family Information
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="gradient-box">
+                            <h6 class="mb-2"> Father Information</h6>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="form-label">Father's Name</label>
+                                    <input asp-for="FatherName" class="form-control" />
+                                    <span asp-validation-for="FatherName" class="text-danger small"></span>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Father's Phone</label>
+                                    <input asp-for="FatherPhone" class="form-control" />
+                                    <span asp-validation-for="FatherPhone" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="gradient-box">
+                            <h6 class="mb-2">Mother Information</h6>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="form-label">Mother's Name</label>
+                                    <input asp-for="MotherName" class="form-control" />
+                                    <span asp-validation-for="MotherName" class="text-danger small"></span>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Mother's Phone</label>
+                                    <input asp-for="MotherPhone" class="form-control" />
+                                    <span asp-validation-for="MotherPhone" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Guardian Name (Optional)
+                        </label>
+                        <input asp-for="GuardianName" class="form-control" />
+                        <span asp-validation-for="GuardianName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Guardian Phone (Optional)
+                        </label>
+                        <input asp-for="GuardianPhone" class="form-control" />
+                        <span asp-validation-for="GuardianPhone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Guardian Email (Optional)
+                        </label>
+                        <input asp-for="GuardianEmail" type="email" class="form-control" />
+                        <span asp-validation-for="GuardianEmail" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- ==================== SECTION 5: ADDRESS & CONTACT ==================== -->
+                <div class="section-divider"></div>
+                <div class="section-title">
+                    <i class="bi bi-geo-alt"></i> Address & Contact Information
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Address
+                        </label>
+                        <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            City
+                        </label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Country
+                        </label>
+                        <input asp-for="Country" class="form-control" />
+                        <span asp-validation-for="Country" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="gradient-box">
+                            <h6 class="mb-2"><i class="bi bi-telephone"></i> Emergency Contact</h6>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="form-label">Emergency Contact Name</label>
+                                    <input asp-for="EmergencyContactName" class="form-control" />
+                                    <span asp-validation-for="EmergencyContactName" class="text-danger small"></span>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Emergency Phone</label>
+                                    <input asp-for="EmergencyPhone" class="form-control" />
+                                    <span asp-validation-for="EmergencyPhone" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">
+                            Medical Notes (Optional)
+                        </label>
+                        <textarea asp-for="MedicalNotes" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="MedicalNotes" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- ==================== SECTION 6: FILES & DOCUMENTS ==================== -->
+                <div class="section-divider"></div>
+                <div class="section-title">
+                    <i class="bi bi-files"></i> Files & Documents
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Profile Image (Optional)
+                        </label>
+                        <input asp-for="ProfileImage" type="file" class="form-control" accept="image/*" />
+                        <span asp-validation-for="ProfileImage" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Document (Optional)
+                        </label>
+                        <input asp-for="DocumentFile" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                        <span asp-validation-for="DocumentFile" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- ==================== SECTION 7: STATUS ==================== -->
+                <div class="section-divider"></div>
+                <div class="section-title">
+                    <i class="bi bi-clipboard-check"></i> Status Information
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-check mt-2">
+                            <input asp-for="IsActive" class="form-check-input" checked />
+                            <label class="form-check-label">
+                                Active Student
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Leaving Date (Optional)
+                        </label>
+                        <input asp-for="LeavingDate" type="date" class="form-control" />
+                        <span asp-validation-for="LeavingDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">
+                            Leaving Reason (Optional)
+                        </label>
+                        <input asp-for="LeavingReason" class="form-control" />
+                        <span asp-validation-for="LeavingReason" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- ==================== LEGEND ==================== -->
+                <div class="legend-box">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-dark"><i class="bi bi-info-circle"></i> <strong>Field Indicators:</strong></small><br>
+                            <small><span class="required-indicator">*</span> Required field</small><br>
+                            <small><i class="bi bi-plus-lg text-success"></i> Add new department/class/section</small><br>
+                            <small><i class="bi bi-check-circle text-success"></i> Active by default</small>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-dark"><i class="bi bi-lightbulb"></i> <strong>Tips:</strong></small><br>
+                            <small>• Fill all required fields marked with <span class="required-indicator">*</span></small><br>
+                            <small>• Use + button to add new department/class/section</small><br>
+                            <small>• Academic information cannot be changed after creation</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                    <div>
+                        <button type="reset" class="btn btn-outline-warning">
+                            <i class="bi bi-arrow-clockwise"></i> Reset Form
+                        </button>
+                        <button type="submit" class="btn btn-success ms-2" id="submitBtn">
+                            <i class="bi bi-check-circle"></i> Create Student
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
-
-	<!-- Basic Information Card -->
-	<div class="card-custom">
-		<div class="section-title">Basic Information</div>
-		<div class="row">
-			<div class="col-md-6">
-				<label asp-for="StudentName">Student Name English</label>
-				<input asp-for="StudentName" class="form-control" placeholder="Enter English Name" />
-				<span asp-validation-for="StudentName" class="text-danger"></span>
-
-				<label asp-for="ArabicStudentName">Student Name Arabic</label>
-				<input asp-for="ArabicStudentName" class="form-control" placeholder="الاسم بالعربية (اختياري)" />
-
-				<label asp-for="BanglaStudentName">Student Name Bangla</label>
-				<input asp-for="BanglaStudentName" class="form-control" placeholder="বাংলা নাম (ঐচ্ছিক)" />
-			</div>
-
-			<div class="col-md-6">
-				<label asp-for="RegNo">Reg: No</label>
-				<input asp-for="RegNo" class="form-control" />
-				<label asp-for="NationalId">Birth/NID No</label>
-				<input asp-for="NationalId" class="form-control" placeholder="Birth/NID No" />
-
-				<label asp-for="AdmissionDate" class="form-label fw-bold">Admission Date</label>
-				<input asp-for="AdmissionDate" type="date" class="form-control" />
-			</div>
-		</div>
-	</div>
-
-
-	<!-- Academic Info -->
-	<div class="card-custom">
-		<div class="section-title">Academic Information</div>
-		<div class="row">
-			<div class="col-md-4">
-				<label asp-for="DepartmentId"></label>
-
-				<div class="input-group">
-					<select asp-for="DepartmentId"
-							asp-items="ViewBag.DepartmentList"
-							class="form-control">
-						<option value="">-- Select Department --</option>
-					</select>
-
-					<!-- + Button -->
-					<button type="button"
-							class="btn btn-success"
-							data-bs-toggle="modal"
-							data-bs-target="#departmentModal">
-						+
-					</button>
-				</div>
-
-				<span asp-validation-for="DepartmentId" class="text-danger"></span>
-			</div>
-
-			<div class="col-md-4">
-				<label>Class</label>
-				<div class="input-group">
-					<select asp-for="ClassId" asp-items="ViewBag.ClassList" class="form-control" id="ClassId">
-						<option value="">Select Class</option>
-					</select>
-
-					<button type="button" class="btn btn-success"
-							data-bs-toggle="modal"
-							data-bs-target="#classModal">
-						+
-					</button>
-				</div>
-			</div>
-
-
-			<div class="col-md-4">
-				<label>Section</label>
-				<div class="input-group">
-					<select asp-for="SectionId" asp-items="ViewBag.SectionList" class="form-control" id="SectionId">
-						<option value="">Select Section</option>
-					</select>
-
-					<button type="button" class="btn btn-success"
-							data-bs-toggle="modal"
-							data-bs-target="#sectionModal">
-						+
-					</button>
-				</div>
-			</div>
-
-			<!-- Academic History -->
-			<div class="col-md-8 mb-3">
-				<label asp-for="PreviousSchoolName" class="form-label fw-bold">Previous School Name</label>
-				<input asp-for="PreviousSchoolName" class="form-control" />
-			</div>
-			<div class="col-md-4 mb-3">
-				<label asp-for="PreviousResult" class="form-label fw-bold">Previous Result</label>
-				<input asp-for="PreviousResult" step="0.01" class="form-control" />
-			</div>
-		</div>
-	</div>
-
-	<!-- Personal Information -->
-	<div class="card-custom">
-		<div class="section-title">Personal Information</div>
-		<div class="row">
-			<div class="col-md-4">
-				<label asp-for="Gender"></label>
-				<select asp-for="Gender" class="form-control">
-					<option value="">Select Gender</option>
-					<option value="0">Male</option>
-					<option value="1">Female</option>
-				</select>
-
-				<label asp-for="DOB">Date Of Birth</label>
-				<input asp-for="DOB" type="date" class="form-control" />
-
-				<label asp-for="BloodGroup"></label>
-				<input asp-for="BloodGroup" class="form-control" placeholder="A+, B-, O+, etc." />
-			</div>
-
-			<div class="col-md-4">
-				<div class="gradient-box"><b>Father Information</b></div>
-				<label asp-for="FatherName">Father Name</label>
-				<input asp-for="FatherName" class="form-control" />
-
-				<label asp-for="FatherPhone">Father Phone</label>
-				<input asp-for="FatherPhone" class="form-control" />
-			</div>
-
-			<div class="col-md-4">
-				<div class="gradient-box"><b>Mother Information</b></div>
-				<label asp-for="MotherName">Mother Name</label>
-				<input asp-for="MotherName" class="form-control" />
-
-				<label asp-for="MotherPhone">Mother Phone</label>
-				<input asp-for="MotherPhone" class="form-control" />
-			</div>
-		</div>
-	</div>
-
-
-	<!-- Guardian & Address -->
-	<div class="card-custom">
-		<div class="section-title">Guardian Information & Address</div>
-		<div class="row">
-			<div class="col-md-4">
-				<label asp-for="GuardianName">Guardian Name</label>
-				<input asp-for="GuardianName" class="form-control" />
-
-				<label asp-for="GuardianPhone">Guardian Phone</label>
-				<input asp-for="GuardianPhone" class="form-control" />
-
-				<label asp-for="GuardianEmail">Guardian Email</label>
-				<input asp-for="GuardianEmail" class="form-control" />
-			</div>
-
-			<div class="col-md-4">
-				<label asp-for="Address"></label>
-				<textarea asp-for="Address" class="form-control"></textarea>
-
-				<label asp-for="City"></label>
-				<input asp-for="City" class="form-control" />
-
-				<label asp-for="Country"></label>
-				<input asp-for="Country" class="form-control" />
-			</div>
-
-			<div class="col-md-4">
-				<div class="gradient-box"><b>Emergency Contact</b></div>
-				<label asp-for="EmergencyContactName">Emergency Contact Name</label>
-				<input asp-for="EmergencyContactName" class="form-control" />
-
-				<label asp-for="EmergencyPhone">Emergency Phone</label>
-				<input asp-for="EmergencyPhone" class="form-control" />
-
-				<label asp-for="MedicalNotes">Medical Notes</label>
-				<textarea asp-for="MedicalNotes" class="form-control"></textarea>
-			</div>
-		</div>
-	</div>
-
-
-	<!-- Media Upload -->
-	<div class="card-custom">
-		<div class="section-title">Media & Documents</div>
-
-		<label>Profile Image</label>
-		<input type="file" name="ProfileImage" class="form-control" />
-
-		<label>Document (PDF / Image)</label>
-		<input type="file" name="DocumentFile" class="form-control" />
-	</div>
-	<!-- Status -->
-	<div class="form-check mb-3">
-		<input asp-for="IsActive" class="form-check-input" />
-		<label asp-for="IsActive" class="form-check-label fw-bold"></label>
-	</div>
-
-	<!-- Leaving Info -->
-	<div class="row">
-		<div class="col-md-4 mb-3">
-			<label asp-for="LeavingDate" class="form-label fw-bold">Leaving Date</label>
-			<input asp-for="LeavingDate" type="date" class="form-control" />
-		</div>
-
-		<div class="col-md-8 mb-3">
-			<label asp-for="LeavingReason" class="form-label fw-bold">Leaving Reason</label>
-			<input asp-for="LeavingReason" class="form-control" />
-		</div>
-	</div>
-
-	<!-- Buttons -->
-	<div class="d-flex justify-content-between mt-4">
-		<a asp-action="Index" class="btn btn-secondary px-4">Back</a>
-		<button type="submit" class="btn btn-primary px-4"
-				style="background: linear-gradient(45deg, #00b09b, #96c93d); border: none;">
-			Save Student
-		</button>
-	</div>
-</form>
-<!-- 🔥 Bootstrap Modal for Department Create -->
+<!-- Modals (Keep exactly as before) -->
 <div class="modal fade" id="departmentModal" tabindex="-1">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">Create Department</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-			</div>
-
-			<div class="modal-body" id="departmentModalBody">
-				<!-- AJAX দ্বারা Department Create Form লোড হবে -->
-				Loading...
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="departmentModalBody">
+                Loading...
+            </div>
+        </div>
+    </div>
 </div>
-@* Class Create Modal *@
+
 <div class="modal fade" id="classModal" tabindex="-1">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">Create Class</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-			</div>
-
-			<div class="modal-body" id="classModalBody">
-				Loading...
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Class</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="classModalBody">
+                Loading...
+            </div>
+        </div>
+    </div>
 </div>
 
-@* //Section Create Modal *@
 <div class="modal fade" id="sectionModal" tabindex="-1">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">Create Section</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-			</div>
-
-			<div class="modal-body" id="sectionModalBody">
-				Loading...
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Section</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="sectionModalBody">
+                Loading...
+            </div>
+        </div>
+    </div>
 </div>
-
-
 
 @section Scripts {
-	<partial name="_ValidationScriptsPartial" />
-	<script>
-		// 🚀 Modal ওপেন হবার সাথে সাথে AJAX দিয়ে Create Dept Form লোড
-		$('#departmentModal').on('show.bs.modal', function () {
-			$("#departmentModalBody").load('/Department/CreateModal');
-		});
+    <partial name="_ValidationScriptsPartial" />
+    <!-- Keep the exact same JavaScript from before -->
+    <script>
+        // ============================================
+        // GLOBAL REFRESH FUNCTIONS
+        // ============================================
 
-		// 🚀 Class Modal → Load Create Form
-		$('#classModal').on('show.bs.modal', function () {
-			$("#classModalBody").load('/Class/CreateModal');
-		});
+        // 1. Refresh Department Dropdown
+        window.RefreshDepartmentList = function() {
+            console.log("🔄 Loading departments...");
 
+            $.ajax({
+                url: '/Department/GetAll',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log("✅ Departments loaded:", data);
 
+                    let ddl = $('#DepartmentId');
+                    let currentValue = ddl.val();
 
+                    ddl.empty();
+                    ddl.append('<option value="">-- Select Department --</option>');
 
+                    if (data && data.length > 0) {
+                        $.each(data, function (i, dept) {
+                            let deptId = dept.departmentId || dept.DepartmentId || dept.id;
+                            let deptName = dept.departmentName || dept.DepartmentName || dept.name;
 
-				function OpenClassCreateModal() {
-			$("#classFormBody").load("/Class/CreateForm", function () {
-				$("#classModal").modal("show");
-			});
-		}
+                            let option = new Option(deptName, deptId);
+                            ddl.append(option);
+                        });
 
-		function OpenDeptCreateModal() {
-			$("#deptFormBody").load("/Department/CreateForm", function () {
-				$("#deptModal").modal("show");
-			});
-		}
+                        if (currentValue) {
+                            ddl.val(currentValue);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("❌ Error loading departments:", error);
+                }
+            });
+        };
 
+        // 2. Refresh Class Dropdown
+        window.RefreshClassList = function(departmentId) {
+            if (!departmentId) {
+                $("#ClassId").empty().append('<option value="">Select Class</option>');
+                $("#SectionId").empty().append('<option value="">Select Section</option>');
+                return;
+            }
 
-		// 🚀 Section Modal → Load Create Form
-		$('#sectionModal').on('show.bs.modal', function () {
-			$("#sectionModalBody").load('/Section/CreateModal');
-		});
+            $.ajax({
+                url: '/Student/GetClasses',
+                type: 'GET',
+                data: { departmentId: departmentId },
+                success: function (data) {
+                    let ddl = $("#ClassId");
+                    let currentValue = ddl.val();
 
+                    ddl.empty().append('<option value="">Select Class</option>');
 
+                    if (data && data.length > 0) {
+                        $.each(data, function (i, c) {
+                            let classId = c.classId || c.ClassId || c.id;
+                            let className = c.className || c.ClassName || c.name;
 
+                            let option = new Option(className, classId);
+                            ddl.append(option);
+                        });
 
-		// 🚀 Department তৈরি হওয়ার পর select list রিফ্রেশ
-		function RefreshDepartmentList() {
-			$.get('/Department/GetAll', function (data) {
-				let ddl = $('#DepartmentId');
-				ddl.empty();
-				ddl.append('<option value="">-- Select Department --</option>');
-				$.each(data, function (i, dept) {
-					ddl.append(`<option value="${dept.departmentId}">${dept.departmentName}</option>`);
-				});
-			});
-		}
+                        if (currentValue) {
+                            ddl.val(currentValue);
+                        }
+                    }
 
+                    $("#SectionId").empty().append('<option value="">Select Section</option>');
+                },
+                error: function() {
+                    console.error("Failed to load classes");
+                }
+            });
+        };
 
-				function RefreshClassList(departmentId) {
-			$.get('/Student/GetClasses', { departmentId: departmentId }, function (data) {
-				let ddl = $("#ClassId");
-				ddl.empty().append('<option value="">Select Class</option>');
+        // 3. Refresh Section Dropdown
+        window.RefreshSectionList = function(classId) {
+            if (!classId) {
+                $("#SectionId").empty().append('<option value="">Select Section</option>');
+                return;
+            }
 
-				$.each(data, function (i, c) {
-					ddl.append(`<option value="${c.classId}">${c.className}</option>`);
-				});
-			});
-		}
+            $.ajax({
+                url: '/Student/GetSections',
+                type: 'GET',
+                data: { classId: classId },
+                success: function (data) {
+                    let ddl = $("#SectionId");
+                    ddl.empty().append('<option value="">Select Section</option>');
 
-		function RefreshSectionList(classId) {
-			$.get('/Student/GetSections', { classId: classId }, function (data) {
-				let ddl = $("#SectionId");
-				ddl.empty().append('<option value="">Select Section</option>');
+                    if (data && data.length > 0) {
+                        $.each(data, function (i, s) {
+                            let sectionId = s.sectionId || s.SectionId || s.id;
+                            let sectionName = s.sectionName || s.SectionName || s.name;
 
-				$.each(data, function (i, s) {
-					ddl.append(`<option value="${s.sectionId}">${s.sectionName}</option>`);
-				});
-			});
-		}
+                            ddl.append(`<option value="${sectionId}">${sectionName}</option>`);
+                        });
+                    }
+                },
+                error: function() {
+                    console.error("Failed to load sections");
+                }
+            });
+        };
 
-	</script>
-	<script>
-		// Load classes when department changes
-		$("#DepartmentId").change(function () {
-			var deptId = $(this).val();
+        // ============================================
+        // PAGE LOAD INITIALIZATION
+        // ============================================
 
-			$.get('/Student/GetClasses', { departmentId: deptId }, function (data) {
-				$("#ClassId").empty().append('<option value="">Select Class</option>');
-				$.each(data, function (i, c) {
-					$("#ClassId").append('<option value="' + c.classId + '">' + c.className + '</option>');
-				});
+        $(document).ready(function() {
+            console.log("📄 Page loaded");
 
-				$("#SectionId").empty().append('<option value="">Select Section</option>');
-			});
-		});
+            // Load departments immediately
+            RefreshDepartmentList();
 
-		// Load sections when class changes
-		$("#ClassId").change(function () {
-			var classId = $(this).val();
+            // Load existing selections
+            var initialDeptId = $("#DepartmentId").val();
+            if (initialDeptId) {
+                RefreshClassList(initialDeptId);
+            }
 
-			$.get('/Student/GetSections', { classId: classId }, function (data) {
-				$("#SectionId").empty().append('<option value="">Select Section</option>');
-				$.each(data, function (i, s) {
-					$("#SectionId").append('<option value="' + s.sectionId + '">' + s.sectionName + '</option>');
-				});
-			});
-		});
-	</script>
+            var initialClassId = $("#ClassId").val();
+            if (initialClassId) {
+                RefreshSectionList(initialClassId);
+            }
+
+            // ============================================
+            // MODAL HANDLERS
+            // ============================================
+
+            // Department Modal
+            $('#departmentModal').on('show.bs.modal', function () {
+                console.log("Opening Department Modal...");
+                $("#departmentModalBody").load('/Department/CreateModal');
+            });
+
+            $('#departmentModal').on('hidden.bs.modal', function () {
+                console.log("Department modal closed - refreshing");
+                RefreshDepartmentList();
+            });
+
+            // Class Modal
+            $('#classModal').on('show.bs.modal', function () {
+                console.log("Opening Class Modal...");
+                $("#classModalBody").load('/Class/CreateModal');
+            });
+
+            // Section Modal
+            $('#sectionModal').on('show.bs.modal', function () {
+                console.log("Opening Section Modal...");
+                $("#sectionModalBody").load('/Section/CreateModal');
+            });
+
+            // ============================================
+            // CASCADING DROPDOWN EVENTS
+            // ============================================
+
+            $("#DepartmentId").change(function () {
+                var deptId = $(this).val();
+                console.log("Department changed to:", deptId);
+                RefreshClassList(deptId);
+            });
+
+            $("#ClassId").change(function () {
+                var classId = $(this).val();
+                console.log("Class changed to:", classId);
+                RefreshSectionList(classId);
+            });
+
+            // ============================================
+            // FORM SUBMISSION HANDLER
+            // ============================================
+
+            $('form').submit(function(e) {
+                var deptId = $('#DepartmentId').val();
+                if (!deptId) {
+                    alert('❌ Please select a department before saving.');
+                    $('#DepartmentId').focus();
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Show loading on button
+                $('#submitBtn').html('<span class="spinner-border spinner-border-sm"></span> Saving...')
+                              .prop('disabled', true);
+            });
+
+            console.log("✅ Initialization complete");
+        });
+    </script>
 }
-

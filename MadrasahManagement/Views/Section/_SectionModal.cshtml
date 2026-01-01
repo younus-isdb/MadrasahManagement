@@ -1,55 +1,108 @@
 ﻿@model Section
 
-<div class="modal-header">
-    <h5 class="modal-title">Create Section</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-</div>
+<form id="sectionCreateForm" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
 
-<div class="modal-body">
-    <form id="sectionCreateForm">
+    <!-- Department Dropdown -->
+    <div class="mb-3">
+        <label asp-for="DepartmentId" class="form-label">Department</label>
+        <select asp-for="DepartmentId" class="form-control" id="modalDeptId" required>
+            <option value="">Select Department</option>
+            @foreach (var dept in ViewBag.DepartmentList)
+            {
+                <option value="@dept.DepartmentId">@dept.DepartmentName</option>
+            }
+        </select>
+        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+    </div>
 
-        <div class="mb-3">
-            <label>Class</label>
-            <select class="form-control" asp-for="ClassId">
-                <option value="">Select Class</option>
-                @foreach (var c in ViewBag.ClassList)
-                {
-                    <option value="@c.ClassId">@c.ClassName</option>
-                }
-            </select>
-        </div>
+    <!-- Class Dropdown (will be populated based on department) -->
+    <div class="mb-3">
+        <label asp-for="ClassId" class="form-label">Class</label>
+        <select asp-for="ClassId" class="form-control" id="modalClassId" required disabled>
+            <option value="">Select Class</option>
+        </select>
+        <span asp-validation-for="ClassId" class="text-danger"></span>
+    </div>
 
-        <div class="mb-3">
-            <label>Section Name</label>
-            <input asp-for="SectionName" class="form-control" />
-        </div>
+    <!-- Section Name -->
+    <div class="mb-3">
+        <label asp-for="SectionName" class="form-label">Section Name</label>
+        <input asp-for="SectionName" class="form-control" placeholder="Enter Section Name" required />
+        <span asp-validation-for="SectionName" class="text-danger"></span>
+    </div>
 
-    </form>
-</div>
+    <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create
+        </button>
 
-<div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-    <button type="button" class="btn btn-primary" id="btnSaveSection">Save</button>
-</div>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle"></i> Close
+        </button>
+    </div>
+</form>
 
 <script>
-    $("#btnSaveSection").click(function () {
-        var data = $("#sectionCreateForm").serialize();
+    $(function() {
+        // When department changes in modal, load its classes
+        $("#modalDeptId").change(function() {
+            var deptId = $(this).val();
+            var classDropdown = $("#modalClassId");
 
-        $.post("/Section/CreateModalPost", data, function (res) {
+            if (deptId) {
+                // Enable class dropdown
+                classDropdown.prop('disabled', false);
 
-            if (res.success) {
-
-                $("#sectionModal").modal("hide");
-
-                // 🚀 এখন Student Create Page এর dropdown রিফ্রেশ করবো
-                let classId = $("#ClassId").val();
-                RefreshSectionList(classId);
-            
+                // Load classes for this department
+                $.get('/Student/GetClasses', { departmentId: deptId }, function(data) {
+                    classDropdown.empty().append('<option value="">Select Class</option>');
+                    $.each(data, function(i, c) {
+                        classDropdown.append('<option value="' + c.classId + '">' + c.className + '</option>');
+                    });
+                });
+            } else {
+                // Disable and clear class dropdown
+                classDropdown.prop('disabled', true);
+                classDropdown.empty().append('<option value="">Select Class</option>');
             }
-            else {
-                alert("Failed to Create Section");
-            }
+        });
+
+        // Form submission
+        $("#sectionCreateForm").submit(function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var submitBtn = form.find('.btn-primary');
+            var originalText = submitBtn.html();
+
+            // Show loading
+            submitBtn.html('<span class="spinner-border spinner-border-sm"></span> Creating...').prop('disabled', true);
+
+            $.ajax({
+                url: "/Section/CreateModalPost",
+                type: "POST",
+                data: form.serialize(),
+                success: function (res) {
+                    submitBtn.html(originalText).prop('disabled', false);
+
+                    if (res.success) {
+                        $('#sectionModal').modal('hide');
+
+                        // Get selected class from modal
+                        var classId = $("#modalClassId").val();
+                        if (classId && window.parent && window.parent.RefreshSectionList) {
+                            window.parent.RefreshSectionList(classId);
+                        }
+                    } else {
+                        alert("Failed to create section. Please check the form.");
+                    }
+                },
+                error: function() {
+                    submitBtn.html(originalText).prop('disabled', false);
+                    alert("Error creating section");
+                }
+            });
         });
     });
 </script>

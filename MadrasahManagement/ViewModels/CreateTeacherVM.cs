@@ -32,16 +32,7 @@ namespace MadrasahManagement.ViewModels
         [Display(Name = "Profile Image")]
         public IFormFile? ImageFile { get; set; }
 
-        //// Optional: If admin wants to set password
-        //[DataType(DataType.Password)]
-        //[Display(Name = "Password (Leave blank to auto-generate)")]
-        //[MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
-        //public string? Password { get; set; }
-
-        //[DataType(DataType.Password)]
-        //[Display(Name = "Confirm Password")]
-        //[Compare("Password", ErrorMessage = "Passwords do not match")]
-        //public string? ConfirmPassword { get; set; }
+        
     }
 	public class EditTeacherVM
 	{
