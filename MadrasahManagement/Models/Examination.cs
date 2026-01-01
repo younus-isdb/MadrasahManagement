@@ -182,10 +182,12 @@ public class MeritCondition
         public int IncomeExpenseId { get; set; }
 
         public int ExamId { get; set; }
-
+        [ForeignKey("ExamId")]
+        public virtual Examination? Examination { get; set; }
+        public string  TypesOfExpense { get; set; }
         public decimal Amount { get; set; }
 
-        public string Type { get; set; } = "Income"; // Income / Expense
+         
     }
 }
 
