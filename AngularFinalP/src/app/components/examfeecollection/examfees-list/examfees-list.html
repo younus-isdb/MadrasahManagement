@@ -1,6 +1,4 @@
 <div class="examfee-list-page">
-
-
   <div class="container mt-4">
     <h2>Exam Fees</h2>
 
@@ -35,15 +33,13 @@
                   <th>Student</th>
                   <th>Fee</th>
                   <th>Total Subjects</th>
-                  <th>Year</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let coll of fee.feeCollections">
                   <td>{{ coll.studentName }}</td>
-                  <td>{{ coll.examFee }}</td>
+                  <td>{{ coll.examFeeAmount }}</td>
                   <td>{{ coll.totalSubject }}</td>
-                  <td>{{ coll.educationYear }}</td>
                 </tr>
               </tbody>
             </table>
@@ -56,4 +52,4 @@
       No exam fees found.
     </div>
   </div>
-  </div>
+</div>

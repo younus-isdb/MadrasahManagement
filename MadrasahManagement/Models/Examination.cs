@@ -34,9 +34,11 @@ namespace MadrasahManagement.Models
         public string EducationYear { get; set; } = string.Empty;
 
         public int ClassId { get; set; }
+        [ForeignKey(nameof(ClassId))]
         public Class Class { get; set; } = null!;
 
         public int ExamId { get; set; }
+        [ForeignKey(nameof(ExamId))]
         public Examination Examination { get; set; } = null!;
 
         public decimal ExamAmount { get; set; }
@@ -51,8 +53,9 @@ namespace MadrasahManagement.Models
 
         public int ExamFeeId { get; set; }
         public ExamFee ExamFee { get; set; } = null!;
-
+        [Required]
         public int StudentId { get; set; }
+        [ForeignKey(nameof(StudentId))]
         public Student Student { get; set; } = null!;
 
         public decimal ExamFeeAmount { get; set; }

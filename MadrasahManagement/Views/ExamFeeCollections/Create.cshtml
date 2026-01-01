@@ -1,67 +1,135 @@
-﻿@model MadrasahManagement.Models.ExamFeeCollection
+﻿@model MadrasahManagement.Dto.ExamFeesCreateDto
 
 @{
-    ViewData["Title"] = "Add Exam Fee Collection";
+    ViewData["Title"] = "Create Exam Fee";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2>Create Exam Fee</h2>
 
 <form asp-action="Create" method="post">
-   @*  <div class="form-group mb-3">
-        <label asp-for="EducationYear" class="form-label"></label>
-        <input asp-for="EducationYear" class="form-control" placeholder="e.g., 2025-2026" />
+    <div class="form-group">
+        <label asp-for="EducationYear"></label>
+        <input asp-for="EducationYear" class="form-control" />
         <span asp-validation-for="EducationYear" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="ExamId" class="form-label"></label>
-        <select asp-for="ExamId" class="form-select" asp-items="ViewBag.ExamId">
-            <option value="">-- Select Exam --</option>
-        </select>
-        <span asp-validation-for="ExamId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="ClassId" class="form-label"></label>
-        <select asp-for="ClassId" class="form-select" asp-items="ViewBag.ClassId">
-            <option value="">-- Select Class --</option>
-        </select>
+    <div class="form-group">
+        <label asp-for="ClassId"></label>
+        <select asp-for="ClassId" class="form-control" asp-items="@(new SelectList(ViewBag.Classes, "ClassId", "ClassName"))"></select>
         <span asp-validation-for="ClassId" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="StudentId" class="form-label"></label>
-        <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId">
-            <option value="">-- Select Student --</option>
-        </select>
-        <span asp-validation-for="StudentId" class="text-danger"></span>
+    <div class="form-group">
+        <label asp-for="ExamId"></label>
+        <select asp-for="ExamId" class="form-control" asp-items="@(new SelectList(ViewBag.Exams, "ExamId", "ExamName"))"></select>
+        <span asp-validation-for="ExamId" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="TotalSubject" class="form-label"></label>
-        <input asp-for="TotalSubject" class="form-control" placeholder="Total subjects" />
-        <span asp-validation-for="TotalSubject" class="text-danger"></span>
+    <div class="form-group">
+        <label asp-for="ExamAmount"></label>
+        <input asp-for="ExamAmount" class="form-control" />
+        <span asp-validation-for="ExamAmount" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="ExamFee" class="form-label"></label>
-        <input asp-for="ExamFee" class="form-control" placeholder="Fee amount" />
-        <span asp-validation-for="ExamFee" class="text-danger"></span>
-    </div>
-    <div class="form-group mb-3">
-        <label class="form-label">Subjects</label>
-        <select asp-for="SubjectIds" asp-items="ViewBag.SubjectId" class="form-select" multiple>
-        </select>
-        <span asp-validation-for="SubjectIds" class="text-danger"></span>
-    </div>
+    <h4>Fee Collections</h4>
+    <table class="table table-bordered" id="feeCollectionTable">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Exam Fee Amount</th>
+                <th>Total Subjects</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Initial row will be added by JS -->
+        </tbody>
+    </table>
 
- *@
-    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-success" id="addRowBtn">Add Student</button>
+    <br /><br />
+    <button type="submit" class="btn btn-primary">Create</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+        // Serialize students safely
+        let students = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Students));
+
+        function addFeeCollectionRow(studentId = "", amount = 0, totalSubjects = 0) {
+            let tbody = document.querySelector("#feeCollectionTable tbody");
+            let rowIndex = tbody.rows.length;
+
+            let tr = document.createElement("tr");
+
+            // Student dropdown
+            let tdStudent = document.createElement("td");
+            let select = document.createElement("select");
+            select.name = `FeeCollections[${rowIndex}].StudentId`;
+            select.classList.add("form-control");
+
+            students.forEach(s => {
+                let opt = document.createElement("option");
+                opt.value = s.studentId;
+                opt.text = s.studentName;
+                if (s.studentId == studentId) opt.selected = true;
+                select.appendChild(opt);
+            });
+            tdStudent.appendChild(select);
+            tr.appendChild(tdStudent);
+
+            // ExamFeeAmount
+            let tdAmount = document.createElement("td");
+            let inputAmount = document.createElement("input");
+            inputAmount.type = "number";
+            inputAmount.name = `FeeCollections[${rowIndex}].ExamFeeAmount`;
+            inputAmount.classList.add("form-control");
+            inputAmount.value = amount;
+            tdAmount.appendChild(inputAmount);
+            tr.appendChild(tdAmount);
+
+            // TotalSubjects
+            let tdSubjects = document.createElement("td");
+            let inputSubjects = document.createElement("input");
+            inputSubjects.type = "number";
+            inputSubjects.name = `FeeCollections[${rowIndex}].TotalSubject`;
+            inputSubjects.classList.add("form-control");
+            inputSubjects.value = totalSubjects;
+            tdSubjects.appendChild(inputSubjects);
+            tr.appendChild(tdSubjects);
+
+            // Remove button
+            let tdAction = document.createElement("td");
+            let btnRemove = document.createElement("button");
+            btnRemove.type = "button";
+            btnRemove.classList.add("btn", "btn-danger");
+            btnRemove.innerText = "Remove";
+            btnRemove.onclick = () => {
+                tr.remove();
+                updateRowIndices();
+            };
+            tdAction.appendChild(btnRemove);
+            tr.appendChild(tdAction);
+
+            tbody.appendChild(tr);
+        }
+
+        // Recalculate row indices for MVC model binding
+        function updateRowIndices() {
+            let tbody = document.querySelector("#feeCollectionTable tbody");
+            Array.from(tbody.rows).forEach((row, i) => {
+                row.querySelectorAll("select, input").forEach(input => {
+                    let prop = input.name.split(".")[1];
+                    input.name = `FeeCollections[${i}].${prop}`;
+                });
+            });
+        }
+
+        // Add first row on page load
+        document.addEventListener("DOMContentLoaded", () => {
+            addFeeCollectionRow();
+            document.getElementById("addRowBtn").addEventListener("click", () => addFeeCollectionRow());
+        });
+    </script>
 }

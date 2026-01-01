@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ExamFeesCreateDto, ExamFeesReadDto } from '../models/examfeeCollection';
+import { ExamFeesCreateDto, ExamFeesUpdateDto, ExamFeesReadDto } from '../models/examfeeCollection';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +27,7 @@ export class ExamfeecollectionService {
   }
 
   // ---------------- Update ExamFee + nested collections ----------------
-  update(id: number, examFee: ExamFeesCreateDto): Observable<ExamFeesReadDto> {
+  update(id: number, examFee: ExamFeesUpdateDto): Observable<ExamFeesReadDto> {
     return this.http.put<ExamFeesReadDto>(`${this.apiUrl}/${id}`, examFee);
   }
 
