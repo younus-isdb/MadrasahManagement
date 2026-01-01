@@ -3,124 +3,174 @@ using MadrasahManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace MadrasahManagement.ApiControllers
+namespace MadrasahManagement.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class ExamFeeCollectionController : ControllerBase
+    [Route("api/[controller]")]
+    public class ExamFeesCollectionController : ControllerBase
     {
         private readonly MadrasahDbContext _context;
 
-        public ExamFeeCollectionController(MadrasahDbContext context)
+        public ExamFeesCollectionController(MadrasahDbContext context)
         {
             _context = context;
         }
 
-        // GET ALL
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var data = await _context.ExamFeeCollections
-                .Include(x => x.Examination)
-                .Include(x => x.Class)
-                .Include(x => x.Student)
-                .Select(x => new ExamFeeCollectionReadDto
-                {
-                    FeeCollectionId = x.FeeCollectionId,
-                    EducationYear = x.EducationYear,
-                    ExamId = x.ExamId,
-                    ExamName = x.Examination!.ExamName,
-                    ClassId = x.ClassId,
-                    ClassName = x.Class!.ClassName,
-                    TotalSubject = x.TotalSubject,
-                    ExamFee = x.ExamFee,
-                    StudentId = x.StudentId,
-                    StudentName = x.Student!.StudentName
-                }).ToListAsync();
-
-            return Ok(data);
-        }
-
-        // GET BY ID
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var x = await _context.ExamFeeCollections
-                .Include(f => f.Examination)
-                .Include(f => f.Class)
-                .Include(f => f.Student)
-                .FirstOrDefaultAsync(f => f.FeeCollectionId == id);
-
-            if (x == null) return NotFound();
-
-            var dto = new ExamFeeCollectionReadDto
-            {
-                FeeCollectionId = x.FeeCollectionId,
-                EducationYear = x.EducationYear,
-                ExamId = x.ExamId,
-                ExamName = x.Examination!.ExamName,
-                ClassId = x.ClassId,
-                ClassName = x.Class!.ClassName,
-                TotalSubject = x.TotalSubject,
-                ExamFee = x.ExamFee,
-                StudentId = x.StudentId,
-                StudentName = x.Student!.StudentName
-            };
-
-            return Ok(dto);
-        }
-
-        // CREATE
+        // ------------------- CREATE -------------------
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ExamFeeCollectionCreateDto dto)
+        public async Task<ActionResult<ExamFeesReadDto>> Create([FromBody] ExamFeesCreateDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var entity = new ExamFeeCollection
+            var examFee = new ExamFee
             {
                 EducationYear = dto.EducationYear,
-                ExamId = dto.ExamId,
                 ClassId = dto.ClassId,
-                TotalSubject = dto.TotalSubject,
-                ExamFee = dto.ExamFee,
-                StudentId = dto.StudentId
+                ExamId = dto.ExamId,
+                ExamAmount = dto.ExamAmount,
+                FeeCollections = dto.FeeCollections.Select(fc => new ExamFeeCollection
+                {
+                    StudentId = fc.StudentId,
+                    ExamFeeAmount = fc.ExamFeeAmount,
+                    TotalSubject = fc.TotalSubject
+                }).ToList()
             };
 
-            _context.ExamFeeCollections.Add(entity);
+            _context.ExamFees.Add(examFee);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = entity.FeeCollectionId }, entity);
+            return await GetById(examFee.ExamFeeId);
         }
 
-        // UPDATE
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] ExamFeeCollectionUpdateDto dto)
+        // ------------------- READ ALL -------------------
+        [HttpGet]
+        public async Task<ActionResult<List<ExamFeesReadDto>>> GetAll()
         {
-            if (id != dto.FeeCollectionId) return BadRequest("Id mismatch");
+            var examFees = await _context.ExamFees
+                .Include(e => e.Class)
+                .Include(e => e.Examination)
+                .Include(e => e.FeeCollections)
+                    .ThenInclude(fc => fc.Student)
+                .Select(e => new ExamFeesReadDto
+                {
+                    ExamFeeId = e.ExamFeeId,
+                    EducationYear = e.EducationYear,
+                    ClassId = e.ClassId,
+                    ClassName = e.Class.ClassName,
+                    ExamId = e.ExamId,
+                    ExamName = e.Examination.ExamName,
+                    ExamAmount = e.ExamAmount,
+                    FeeCollections = e.FeeCollections.Select(fc => new ExamFeeCollectionReadDto
+                    {
+                        FeeCollectionId = fc.FeeCollectionId,
+                        StudentId = fc.StudentId,
+                        StudentName = fc.Student.StudentName,
+                        ExamFeeAmount = fc.ExamFeeAmount,
+                        TotalSubject = fc.TotalSubject
+                    }).ToList()
+                })
+                .ToListAsync();
 
-            var existing = await _context.ExamFeeCollections.FindAsync(id);
+            return Ok(examFees);
+        }
+
+        // ------------------- READ BY ID -------------------
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ExamFeesReadDto>> GetById(int id)
+        {
+            var examFee = await _context.ExamFees
+                .Include(e => e.Class)
+                .Include(e => e.Examination)
+                .Include(e => e.FeeCollections)
+                    .ThenInclude(fc => fc.Student)
+                .Where(e => e.ExamFeeId == id)
+                .Select(e => new ExamFeesReadDto
+                {
+                    ExamFeeId = e.ExamFeeId,
+                    EducationYear = e.EducationYear,
+                    ClassId = e.ClassId,
+                    ClassName = e.Class.ClassName,
+                    ExamId = e.ExamId,
+                    ExamName = e.Examination.ExamName,
+                    ExamAmount = e.ExamAmount,
+                    FeeCollections = e.FeeCollections.Select(fc => new ExamFeeCollectionReadDto
+                    {
+                        FeeCollectionId = fc.FeeCollectionId,
+                        StudentId = fc.StudentId,
+                        StudentName = fc.Student.StudentName,
+                        ExamFeeAmount = fc.ExamFeeAmount,
+                        TotalSubject = fc.TotalSubject
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (examFee == null) return NotFound();
+            return Ok(examFee);
+        }
+
+        // ------------------- UPDATE -------------------
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ExamFeesReadDto>> Update(int id, [FromBody] ExamFeesUpdateDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var existing = await _context.ExamFees
+                .Include(e => e.FeeCollections)
+                .FirstOrDefaultAsync(e => e.ExamFeeId == id);
+
             if (existing == null) return NotFound();
 
             existing.EducationYear = dto.EducationYear;
-            existing.ExamId = dto.ExamId;
             existing.ClassId = dto.ClassId;
-            existing.TotalSubject = dto.TotalSubject;
-            existing.ExamFee = dto.ExamFee;
-            existing.StudentId = dto.StudentId;
+            existing.ExamId = dto.ExamId;
+            existing.ExamAmount = dto.ExamAmount;
+
+            // Update FeeCollections
+            foreach (var fcDto in dto.FeeCollections)
+            {
+                if (fcDto.FeeCollectionId.HasValue)
+                {
+                    var existingFc = existing.FeeCollections.FirstOrDefault(f => f.FeeCollectionId == fcDto.FeeCollectionId.Value);
+                    if (existingFc != null)
+                    {
+                        existingFc.StudentId = fcDto.StudentId;
+                        existingFc.ExamFeeAmount = fcDto.ExamFeeAmount;
+                        existingFc.TotalSubject = fcDto.TotalSubject;
+                    }
+                    else
+                    {
+                        existing.FeeCollections.Add(new ExamFeeCollection
+                        {
+                            StudentId = fcDto.StudentId,
+                            ExamFeeAmount = fcDto.ExamFeeAmount,
+                            TotalSubject = fcDto.TotalSubject
+                        });
+                    }
+                }
+                else
+                {
+                    existing.FeeCollections.Add(new ExamFeeCollection
+                    {
+                        StudentId = fcDto.StudentId,
+                        ExamFeeAmount = fcDto.ExamFeeAmount,
+                        TotalSubject = fcDto.TotalSubject
+                    });
+                }
+            }
 
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return await GetById(id);
         }
 
-        // DELETE
+        // ------------------- DELETE -------------------
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var existing = await _context.ExamFeeCollections.FindAsync(id);
+            var existing = await _context.ExamFees.FindAsync(id);
             if (existing == null) return NotFound();
 
-            _context.ExamFeeCollections.Remove(existing);
+            _context.ExamFees.Remove(existing);
             await _context.SaveChangesAsync();
 
             return NoContent();

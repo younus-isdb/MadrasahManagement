@@ -1,0 +1,18 @@
+<div class="exam-edit-page">
+
+  <h3 class="page-title">Edit Examination</h3>
+
+  <form (ngSubmit)="update()">
+    <div class="mb-3">
+      <label class="exam-label">Exam Name</label>
+      <input class="form-control"
+             [value]="examName()"
+             (input)="examName.set($any($event.target).value)" />
+    </div>
+
+    <button class="btn update-btn" type="submit" [disabled]="loading()">
+      Update
+    </button>
+    <a [routerLink]="['/examination']" class="btn btn-sm btn-primary">Cancel</a>
+  </form>
+</div>

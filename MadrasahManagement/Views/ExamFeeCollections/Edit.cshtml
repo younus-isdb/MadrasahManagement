@@ -1,0 +1,149 @@
+﻿@model MadrasahManagement.Dto.ExamFeesUpdateDto
+
+@{
+    ViewData["Title"] = "Edit Exam Fee";
+}
+
+<h2>Edit Exam Fee</h2>
+
+<form asp-action="Edit" method="post">
+    <div class="form-group">
+        <label asp-for="EducationYear"></label>
+        <input asp-for="EducationYear" class="form-control" />
+        <span asp-validation-for="EducationYear" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ClassId"></label>
+        <select asp-for="ClassId" class="form-control"
+                asp-items="@(new SelectList(ViewBag.Classes, "ClassId", "ClassName", Model.ClassId))"></select>
+        <span asp-validation-for="ClassId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ExamId"></label>
+        <select asp-for="ExamId" class="form-control"
+                asp-items="@(new SelectList(ViewBag.Exams, "ExamId", "ExamName", Model.ExamId))"></select>
+        <span asp-validation-for="ExamId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ExamAmount"></label>
+        <input asp-for="ExamAmount" class="form-control" step="0.01" />
+        <span asp-validation-for="ExamAmount" class="text-danger"></span>
+    </div>
+
+    <h4>Fee Collections</h4>
+    <table class="table table-bordered" id="feeCollectionTable">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Exam Fee Amount</th>
+                <th>Total Subjects</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be dynamically added -->
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-success" id="addRowBtn">Add Student</button>
+    <br /><br />
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <script>
+        let students = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Students));
+
+        function addFeeCollectionRow(studentId = "", amount = 0, totalSubjects = 0) {
+            let tbody = document.querySelector("#feeCollectionTable tbody");
+            let rowIndex = tbody.rows.length;
+
+            let tr = document.createElement("tr");
+
+            // Student dropdown
+            let tdStudent = document.createElement("td");
+            let select = document.createElement("select");
+            select.name = `FeeCollections[${rowIndex}].StudentId`;
+            select.classList.add("form-control");
+
+            students.forEach(s => {
+                let opt = document.createElement("option");
+                opt.value = s.StudentId;
+                opt.text = s.StudentName;
+                if (s.StudentId == studentId) opt.selected = true;
+                select.appendChild(opt);
+            });
+            tdStudent.appendChild(select);
+            tr.appendChild(tdStudent);
+
+            // Exam Fee Amount
+            let tdAmount = document.createElement("td");
+            let inputAmount = document.createElement("input");
+            inputAmount.type = "number";
+            inputAmount.min = 0;
+            inputAmount.max = 50000;
+            inputAmount.step = 0.01;
+            inputAmount.name = `FeeCollections[${rowIndex}].ExamFeeAmount`;
+            inputAmount.classList.add("form-control");
+            inputAmount.value = amount;
+            tdAmount.appendChild(inputAmount);
+            tr.appendChild(tdAmount);
+
+            // Total Subjects
+            let tdSubjects = document.createElement("td");
+            let inputSubjects = document.createElement("input");
+            inputSubjects.type = "number";
+            inputSubjects.min = 0;
+            inputSubjects.name = `FeeCollections[${rowIndex}].TotalSubject`;
+            inputSubjects.classList.add("form-control");
+            inputSubjects.value = totalSubjects;
+            tdSubjects.appendChild(inputSubjects);
+            tr.appendChild(tdSubjects);
+
+            // Remove button
+            let tdAction = document.createElement("td");
+            let btnRemove = document.createElement("button");
+            btnRemove.type = "button";
+            btnRemove.classList.add("btn", "btn-danger");
+            btnRemove.innerText = "Remove";
+            btnRemove.onclick = () => {
+                tr.remove();
+                updateRowIndices();
+            };
+            tdAction.appendChild(btnRemove);
+            tr.appendChild(tdAction);
+
+            tbody.appendChild(tr);
+        }
+
+        function updateRowIndices() {
+            let tbody = document.querySelector("#feeCollectionTable tbody");
+            Array.from(tbody.rows).forEach((row, i) => {
+                row.querySelector("select").name = `FeeCollections[${i}].StudentId`;
+                let inputs = row.querySelectorAll("input");
+                inputs[0].name = `FeeCollections[${i}].ExamFeeAmount`;
+                inputs[1].name = `FeeCollections[${i}].TotalSubject`;
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Load existing FeeCollections
+            if (@(Model.FeeCollections?.Count ?? 0) > 0) {
+                @for (int i = 0; i < Model.FeeCollections.Count; i++)
+                {
+                        <text>
+                            addFeeCollectionRow(@Model.FeeCollections[i].StudentId, @Model.FeeCollections[i].ExamFeeAmount, @Model.FeeCollections[i].TotalSubject);
+                        </text>
+                }
+            } else {
+                addFeeCollectionRow();
+            }
+
+            document.getElementById("addRowBtn").addEventListener("click", () => addFeeCollectionRow());
+        });
+    </script>
+}

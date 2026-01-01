@@ -1,0 +1,21 @@
+.exam-create-page {
+  background: cyan;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 30px auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Page Title */
+.page-title {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+/* Buttons */
+button.btn {
+  width: 100%;
+}

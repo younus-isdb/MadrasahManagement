@@ -1,0 +1,71 @@
+<div class="exam-create-page">
+  <div class="container mt-4">
+    <h2>Create Exam Fee Collection</h2>
+
+    <form [formGroup]="examFeeForm" (ngSubmit)="onSubmit()">
+
+      <div class="mb-3">
+        <label class="form-label">Education Year</label>
+        <input type="text" class="form-control" formControlName="educationYear" placeholder="e.g. 2025-2026" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Class</label>
+        <select class="form-select" formControlName="classId">
+          <option [ngValue]="null">-- Select Class --</option>
+          <option *ngFor="let c of classes()" [ngValue]="c.classId">{{ c.className }}</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Exam</label>
+        <select class="form-select" formControlName="examId">
+          <option [ngValue]="null">-- Select Exam --</option>
+          <option *ngFor="let e of exams()" [ngValue]="e.examId">{{ e.examName }}</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Default Exam Amount</label>
+        <input type="number" class="form-control" formControlName="examAmount" />
+      </div>
+
+      <hr />
+
+      <div formArrayName="feeCollections">
+        <div *ngFor="let fee of feeCollections.controls; let i = index" [formGroupName]="i" class="card mb-3 p-3">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+              <label class="form-label">Student</label>
+              <select class="form-select" formControlName="studentId">
+                <option [ngValue]="null">-- Select Student --</option>
+                <option *ngFor="let s of students()" [ngValue]="s.studentId">{{ s.studentName }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Fee Amount</label>
+              <input type="number" class="form-control" formControlName="examFeeAmount" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Total Subjects</label>
+              <input type="number" class="form-control" formControlName="totalSubject" />
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="button" class="btn btn-danger w-100" (click)="removeStudentFee(i)">Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary mb-3" (click)="addStudentFee()">Add Student Fee</button>
+      <hr />
+
+      <button type="submit" class="btn btn-success" [disabled]="loading() || examFeeForm.invalid">
+        {{ loading() ? 'Submitting...' : 'Submit' }}
+      </button>
+    </form>
+  </div>
+  </div>

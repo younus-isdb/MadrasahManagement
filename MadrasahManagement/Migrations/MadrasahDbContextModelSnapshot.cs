@@ -538,8 +538,7 @@ namespace MadrasahManagement.Migrations
 
                     b.Property<string>("EducationYear")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("ExamAmount")
                         .HasColumnType("decimal(18,2)");
@@ -564,20 +563,13 @@ namespace MadrasahManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeeCollectionId"));
 
-                    b.Property<int>("ClassId")
+                    b.Property<int?>("ClassId")
                         .HasColumnType("int");
 
-                    b.Property<string>("EducationYear")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("ExamFeeAmount")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ExamFee")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ExamFeeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ExamId")
+                    b.Property<int>("ExamFeeId")
                         .HasColumnType("int");
 
                     b.Property<int>("StudentId")
@@ -586,17 +578,14 @@ namespace MadrasahManagement.Migrations
                     b.Property<int?>("SubjectId")
                         .HasColumnType("int");
 
-                    b.Property<string>("TotalSubject")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("TotalSubject")
+                        .HasColumnType("int");
 
                     b.HasKey("FeeCollectionId");
 
                     b.HasIndex("ClassId");
 
                     b.HasIndex("ExamFeeId");
-
-                    b.HasIndex("ExamId");
 
                     b.HasIndex("StudentId");
 
@@ -1929,19 +1918,13 @@ namespace MadrasahManagement.Migrations
 
             modelBuilder.Entity("MadrasahManagement.Models.ExamFeeCollection", b =>
                 {
-                    b.HasOne("MadrasahManagement.Models.Class", "Class")
+                    b.HasOne("MadrasahManagement.Models.Class", null)
                         .WithMany("ExamFeeCollections")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ClassId");
 
-                    b.HasOne("MadrasahManagement.Models.ExamFee", null)
-                        .WithMany("ExamFeeCollections")
-                        .HasForeignKey("ExamFeeId");
-
-                    b.HasOne("MadrasahManagement.Models.Examination", "Examination")
-                        .WithMany()
-                        .HasForeignKey("ExamId")
+                    b.HasOne("MadrasahManagement.Models.ExamFee", "ExamFee")
+                        .WithMany("FeeCollections")
+                        .HasForeignKey("ExamFeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1955,9 +1938,7 @@ namespace MadrasahManagement.Migrations
                         .WithMany("ExamFeeCollections")
                         .HasForeignKey("SubjectId");
 
-                    b.Navigation("Class");
-
-                    b.Navigation("Examination");
+                    b.Navigation("ExamFee");
 
                     b.Navigation("Student");
                 });
@@ -2493,7 +2474,7 @@ namespace MadrasahManagement.Migrations
 
             modelBuilder.Entity("MadrasahManagement.Models.ExamFee", b =>
                 {
-                    b.Navigation("ExamFeeCollections");
+                    b.Navigation("FeeCollections");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Examination", b =>

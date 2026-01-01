@@ -1,0 +1,21 @@
+.examfee-list-page {
+  background: azure;
+  padding: 25px;
+  border-radius: 12px;
+  min-height: 80vh;
+}
+
+/* Table Styling */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Buttons spacing */
+.btn + .btn {
+  margin-left: 5px;
+}
+
+/* Optional: Hover effect */
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}

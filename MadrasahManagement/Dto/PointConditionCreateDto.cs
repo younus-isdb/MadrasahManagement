@@ -13,6 +13,7 @@ namespace MadrasahManagement.Dto
 
         [Required]
         public int ExamId { get; set; }
+        public int SubjectId { get; set; }  
 
         [Required]
         public int PassMarks { get; set; }
@@ -49,10 +50,13 @@ namespace MadrasahManagement.Dto
         public int PointConditionId { get; set; }
         public string EducationYear { get; set; } = string.Empty;
         public int ClassId { get; set; }
+        public string ClassName { get; set; } = string.Empty;
         public int ExamId { get; set; }
+        public string ExamName { get; set; } = string.Empty;
+        public int SubjectId { get; set; }
+        public string SubjectName { get; set; } = string.Empty;
         public int PassMarks { get; set; }
         public int HighestMark { get; set; }
-
         public List<PointConditionDetailReadDto> Details { get; set; } = new();
     }
 

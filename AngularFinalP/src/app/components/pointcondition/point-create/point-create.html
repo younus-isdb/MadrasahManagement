@@ -1,0 +1,60 @@
+<div class="point-create-page">
+
+
+  <form (ngSubmit)="save()">
+
+    <div>
+      <label>Education Year</label>
+      <input type="text" [value]="educationYear()" (input)="educationYear.set($any($event.target).value)" required />
+    </div>
+
+    <div>
+      <label>Class</label>
+      <select (change)="classId.set(+$any($event.target).value)">
+        <option value="">Select Class</option>
+        <option *ngFor="let c of classes()" [value]="c.id">{{ c.name }}</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Exam</label>
+      <select (change)="examId.set(+$any($event.target).value)">
+        <option value="">Select Exam</option>
+        <option *ngFor="let e of exams()" [value]="e.id">{{ e.name }}</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Subject</label>
+      <select (change)="subjectId.set(+$any($event.target).value)">
+        <option value="">Select Subject</option>
+        <option *ngFor="let s of subjects()" [value]="s.id">{{ s.name }}</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Pass Marks</label>
+      <input type="number" [value]="passMarks()" (input)="passMarks.set(+$any($event.target).value)" required />
+    </div>
+
+    <div>
+      <label>Highest Marks</label>
+      <input type="number" [value]="highestMark()" (input)="highestMark.set(+$any($event.target).value)" required />
+    </div>
+
+    <hr />
+    <h4>Details</h4>
+    <button type="button" (click)="addDetail()">Add Detail</button>
+
+    <div *ngFor="let d of details(); let i = index">
+      <input type="number" placeholder="From" [(ngModel)]="d.fromMark" name="from{{i}}" required />
+      <input type="number" placeholder="To" [(ngModel)]="d.toMark" name="to{{i}}" required />
+      <input type="text" placeholder="Division" [(ngModel)]="d.division" name="division{{i}}" required />
+      <input type="checkbox" [(ngModel)]="d.isSilverColor" name="silver{{i}}" /> Silver
+      <button type="button" (click)="removeDetail(i)">Remove</button>
+    </div>
+
+    <button type="submit" [disabled]="loading()">Save</button>
+    <a [routerLink]="['/point']" class="btn btn-sm btn-primary">Cancel</a>
+  </form>
+  </div>

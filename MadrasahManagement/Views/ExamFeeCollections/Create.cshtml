@@ -1,67 +1,156 @@
-﻿@model MadrasahManagement.Models.ExamFeeCollection
+﻿@model MadrasahManagement.Dto.ExamFeesCreateDto
 
 @{
-    ViewData["Title"] = "Add Exam Fee Collection";
+    ViewData["Title"] = "Create Exam Fee";
 }
 
 <h2>@ViewData["Title"]</h2>
 
 <form asp-action="Create" method="post">
     <div class="form-group mb-3">
-        <label asp-for="EducationYear" class="form-label"></label>
-        <input asp-for="EducationYear" class="form-control" placeholder="e.g., 2025-2026" />
+        <label asp-for="EducationYear"></label>
+        <input asp-for="EducationYear" class="form-control" />
         <span asp-validation-for="EducationYear" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">
-        <label asp-for="ExamId" class="form-label"></label>
-        <select asp-for="ExamId" class="form-select" asp-items="ViewBag.ExamId">
-            <option value="">-- Select Exam --</option>
-        </select>
-        <span asp-validation-for="ExamId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="ClassId" class="form-label"></label>
-        <select asp-for="ClassId" class="form-select" asp-items="ViewBag.ClassId">
-            <option value="">-- Select Class --</option>
-        </select>
+        <label asp-for="ClassId"></label>
+        <select asp-for="ClassId" class="form-control"
+                asp-items="@(new SelectList(ViewBag.Classes, "ClassId", "ClassName"))"></select>
         <span asp-validation-for="ClassId" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">
-        <label asp-for="StudentId" class="form-label"></label>
-        <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId">
-            <option value="">-- Select Student --</option>
-        </select>
-        <span asp-validation-for="StudentId" class="text-danger"></span>
+        <label asp-for="ExamId"></label>
+        <select asp-for="ExamId" class="form-control"
+                asp-items="@(new SelectList(ViewBag.Exams, "ExamId", "ExamName"))"></select>
+        <span asp-validation-for="ExamId" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">
-        <label asp-for="TotalSubject" class="form-label"></label>
-        <input asp-for="TotalSubject" class="form-control" placeholder="Total subjects" />
-        <span asp-validation-for="TotalSubject" class="text-danger"></span>
+        <label asp-for="ExamAmount"></label>
+        <input asp-for="ExamAmount" class="form-control" step="0.01" />
+        <span asp-validation-for="ExamAmount" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="ExamFee" class="form-label"></label>
-        <input asp-for="ExamFee" class="form-control" placeholder="Fee amount" />
-        <span asp-validation-for="ExamFee" class="text-danger"></span>
-    </div>
-   @*  <div class="form-group mb-3">
-        <label class="form-label">Subjects</label>
-        <select asp-for="SubjectIds" asp-items="ViewBag.SubjectId" class="form-select" multiple>
-        </select>
-        <span asp-validation-for="SubjectIds" class="text-danger"></span>
-    </div> *@
+    <h4>Fee Collections</h4>
+    <table class="table table-bordered" id="feeCollectionTable">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Exam Fee Amount</th>
+                <th>Total Subjects</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows added dynamically -->
+        </tbody>
+    </table>
 
-
+    <button type="button" class="btn btn-success mb-3" id="addRowBtn">Add Student</button>
+    <br />
     <button type="submit" class="btn btn-primary">Save</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+        // Students list from ViewBag
+        let students = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Students));
+
+        // Add a FeeCollection row
+        function addFeeCollectionRow(studentId = "", amount = 0, totalSubjects = 0) {
+            let tbody = document.querySelector("#feeCollectionTable tbody");
+            let rowIndex = tbody.rows.length;
+
+            let tr = document.createElement("tr");
+
+            // Student dropdown
+            let tdStudent = document.createElement("td");
+            let select = document.createElement("select");
+            select.name = `FeeCollections[${rowIndex}].StudentId`;
+            select.classList.add("form-control");
+            select.required = true;
+
+            students.forEach(s => {
+                let opt = document.createElement("option");
+                opt.value = s.StudentId;
+                opt.text = s.StudentName;
+                if (s.StudentId == studentId) opt.selected = true;
+                select.appendChild(opt);
+            });
+            tdStudent.appendChild(select);
+            tr.appendChild(tdStudent);
+
+            // Exam Fee Amount
+            let tdAmount = document.createElement("td");
+            let inputAmount = document.createElement("input");
+            inputAmount.type = "number";
+            inputAmount.min = 0;
+            inputAmount.max = 50000;
+            inputAmount.step = 0.01;
+            inputAmount.name = `FeeCollections[${rowIndex}].ExamFeeAmount`;
+            inputAmount.classList.add("form-control");
+            inputAmount.required = true;
+            inputAmount.value = amount;
+            tdAmount.appendChild(inputAmount);
+            tr.appendChild(tdAmount);
+
+            // Total Subjects
+            let tdSubjects = document.createElement("td");
+            let inputSubjects = document.createElement("input");
+            inputSubjects.type = "number";
+            inputSubjects.min = 0;
+            inputSubjects.name = `FeeCollections[${rowIndex}].TotalSubject`;
+            inputSubjects.classList.add("form-control");
+            inputSubjects.value = totalSubjects;
+            tdSubjects.appendChild(inputSubjects);
+            tr.appendChild(tdSubjects);
+
+            // Remove button
+            let tdAction = document.createElement("td");
+            let btnRemove = document.createElement("button");
+            btnRemove.type = "button";
+            btnRemove.classList.add("btn", "btn-danger");
+            btnRemove.innerText = "Remove";
+            btnRemove.onclick = () => {
+                tr.remove();
+                updateRowIndices();
+            };
+            tdAction.appendChild(btnRemove);
+            tr.appendChild(tdAction);
+
+            tbody.appendChild(tr);
+        }
+
+        // Update indices for MVC binding
+        function updateRowIndices() {
+            let tbody = document.querySelector("#feeCollectionTable tbody");
+            Array.from(tbody.rows).forEach((row, i) => {
+                row.querySelector("select").name = `FeeCollections[${i}].StudentId`;
+                let inputs = row.querySelectorAll("input");
+                inputs[0].name = `FeeCollections[${i}].ExamFeeAmount`;
+                inputs[1].name = `FeeCollections[${i}].TotalSubject`;
+            });
+        }
+
+        // Initialize
+        document.addEventListener("DOMContentLoaded", () => {
+            // If model has existing FeeCollections (for edit), populate
+            if (@(Model.FeeCollections?.Count ?? 0) > 0) {
+                @for (int i = 0; i < Model.FeeCollections.Count; i++)
+                {
+                        <text>
+                            addFeeCollectionRow(@Model.FeeCollections[i].StudentId, @Model.FeeCollections[i].ExamFeeAmount, @Model.FeeCollections[i].TotalSubject);
+                        </text>
+                }
+            } else {
+                // First empty row for create
+                addFeeCollectionRow();
+            }
+
+            document.getElementById("addRowBtn").addEventListener("click", () => addFeeCollectionRow());
+        });
+    </script>
 }

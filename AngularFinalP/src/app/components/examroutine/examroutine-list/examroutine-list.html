@@ -1,0 +1,61 @@
+<div class="exam-list-page">
+
+  <!-- Loading Indicator -->
+  <div *ngIf="loading()" class="text-center my-3">
+    <strong>Loading...</strong>
+  </div>
+
+  <!-- Add Exam Button -->
+  <a routerLink="/create" class="btn btn-success mb-3">
+    + Add Exam Routine
+  </a>
+
+  <!-- Exam Table -->
+  <table class="table table-bordered table-striped table-hover text-center"
+         *ngIf="!loading() && Routines().length > 0">
+
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Education Year</th>
+        <th>Class Name</th>
+        <th>Exam Name</th>
+        <th>Subject Name</th>
+        <th>Room Number</th>
+        <th>ExamDate</th>
+        <th>Exam Day</th>
+        <th>Exam Start Time</th>
+        <th>Exam EndTime</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let exam of Routines(); trackBy: trackById">
+        <td>{{ exam.examRoutineId}}</td>
+        <td>{{ exam.educationYear }}</td>
+        <td>{{ exam.className }}</td>
+        <td>{{ exam.examName }}</td>
+        <td>{{ exam.subjectName }}</td>
+        <td>{{ exam.roomNumber }}</td>
+        <td>{{ exam.examDate }}</td>
+        <td>{{ exam.examDay }}</td>
+        <td>{{ exam.examStartTime }}</td>
+        <td>{{ exam.examEndTime }}</td>
+        <td>
+          <a [routerLink]="['/edit', exam.examRoutineId]" class="btn btn-sm btn-primary me-1">
+            Edit
+          </a>
+          <button (click)="deleteExam(exam.examRoutineId)" class="btn btn-sm btn-danger">
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Empty List -->
+  <div *ngIf="!loading() && Routines().length === 0"
+       class="text-center text-muted mt-4">
+    No examinations found
+  </div>
+</div>
