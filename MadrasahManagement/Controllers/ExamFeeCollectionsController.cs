@@ -1,6 +1,7 @@
 ﻿using MadrasahManagement.Dto;
 using MadrasahManagement.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace MadrasahManagement.Controllers
@@ -14,7 +15,7 @@ namespace MadrasahManagement.Controllers
             _context = context;
         }
 
-        // ------------------- INDEX / LIST -------------------
+        // ------------------- INDEX -------------------
         public async Task<IActionResult> Index()
         {
             var examFees = await _context.ExamFees
@@ -75,7 +76,6 @@ namespace MadrasahManagement.Controllers
                 .FirstOrDefaultAsync();
 
             if (examFee == null) return NotFound();
-
             return View(examFee);
         }
 
@@ -83,29 +83,30 @@ namespace MadrasahManagement.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.Classes = _context.Classes.ToList();
-            ViewBag.Exams = _context.Examinations.ToList();
-            ViewBag.Students = _context.Students.ToList();
-
-            return View();
+            PopulateDropdowns();
+            return View(new ExamFeesCreateDto());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ExamFeesCreateDto dto)
         {
-            if (!ModelState.IsValid)
+            // Make sure FeeCollections list is not null
+            if (dto.FeeCollections == null) dto.FeeCollections = new List<ExamFeeCollectionCreateDto>();
+
+            if (!ModelState.IsValid || !dto.FeeCollections.Any())
             {
-                ViewBag.Classes = _context.Classes.ToList();
-                ViewBag.Exams = _context.Examinations.ToList();
-                ViewBag.Students = _context.Students.ToList();
+                if (!dto.FeeCollections.Any())
+                    ModelState.AddModelError("", "At least one Fee Collection is required.");
+
+                PopulateDropdowns();
                 return View(dto);
             }
 
-            // Filter out invalid students
-            var validStudents = _context.Students.Select(s => s.StudentId).ToHashSet();
+            // Filter valid students
+            var validStudentIds = await _context.Students.Select(s => s.StudentId).ToHashSetAsync();
             var feeCollections = dto.FeeCollections
-                .Where(fc => validStudents.Contains(fc.StudentId))
+                .Where(fc => validStudentIds.Contains(fc.StudentId))
                 .Select(fc => new ExamFeeCollection
                 {
                     StudentId = fc.StudentId,
@@ -153,10 +154,7 @@ namespace MadrasahManagement.Controllers
                 }).ToList()
             };
 
-            ViewBag.Classes = _context.Classes.ToList();
-            ViewBag.Exams = _context.Examinations.ToList();
-            ViewBag.Students = _context.Students.ToList();
-
+            PopulateDropdowns();
             return View(dto);
         }
 
@@ -164,11 +162,11 @@ namespace MadrasahManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ExamFeesUpdateDto dto)
         {
+            if (dto.FeeCollections == null) dto.FeeCollections = new List<ExamFeeCollectionUpdateDto>();
+
             if (!ModelState.IsValid)
             {
-                ViewBag.Classes = _context.Classes.ToList();
-                ViewBag.Exams = _context.Examinations.ToList();
-                ViewBag.Students = _context.Students.ToList();
+                PopulateDropdowns();
                 return View(dto);
             }
 
@@ -183,12 +181,15 @@ namespace MadrasahManagement.Controllers
             existing.ExamId = dto.ExamId;
             existing.ExamAmount = dto.ExamAmount;
 
-            // Update FeeCollections
-            var existingStudentIds = existing.FeeCollections.Select(f => f.FeeCollectionId).ToHashSet();
+            // Remove FeeCollections that are no longer present
+            var dtoIds = dto.FeeCollections.Where(f => f.FeeCollectionId.HasValue).Select(f => f.FeeCollectionId.Value).ToHashSet();
+            var toRemove = existing.FeeCollections.Where(f => !dtoIds.Contains(f.FeeCollectionId)).ToList();
+            _context.Set<ExamFeeCollection>().RemoveRange(toRemove);
 
+            // Add or update FeeCollections
             foreach (var fcDto in dto.FeeCollections)
             {
-                if (fcDto.FeeCollectionId.HasValue && existingStudentIds.Contains(fcDto.FeeCollectionId.Value))
+                if (fcDto.FeeCollectionId.HasValue)
                 {
                     // Update existing
                     var existingFc = existing.FeeCollections.First(f => f.FeeCollectionId == fcDto.FeeCollectionId.Value);
@@ -229,13 +230,33 @@ namespace MadrasahManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var existing = await _context.ExamFees.FindAsync(id);
+            var existing = await _context.ExamFees
+                .Include(e => e.FeeCollections)
+                .FirstOrDefaultAsync(e => e.ExamFeeId == id);
+
             if (existing == null) return NotFound();
 
+            _context.ExamFeeCollections.RemoveRange(existing.FeeCollections);
             _context.ExamFees.Remove(existing);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // ------------------- HELPER -------------------
+        private void PopulateDropdowns()
+        {
+            ViewBag.Classes = _context.Classes
+                .Select(c => new { c.ClassId, c.ClassName })
+                .ToList();
+
+            ViewBag.Exams = _context.Examinations
+                .Select(e => new { e.ExamId, e.ExamName })
+                .ToList();
+
+            ViewBag.Students = _context.Students
+                .Select(s => new { s.StudentId, s.StudentName })
+                .ToList();
         }
     }
 }
