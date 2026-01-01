@@ -492,11 +492,11 @@ namespace MadrasahManagement.Models
                    .HasForeignKey(t => t.SectionId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            // Subject Relationship
-            builder.HasOne(t => t.Subject)
-                   .WithMany(s => s.Timetables)
-                   .HasForeignKey(t => t.SubjectId)
-                   .OnDelete(DeleteBehavior.Restrict);
+            //// Subject Relationship
+            //builder.HasOne(t => t.Subject)
+            //       .WithMany(s => s.Timetables)
+            //       .HasForeignKey(t => t.SubjectId)
+            //       .OnDelete(DeleteBehavior.Restrict);
 
             // Teacher Relationship
             builder.HasOne(t => t.Teacher)

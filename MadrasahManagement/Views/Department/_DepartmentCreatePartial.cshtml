@@ -3,9 +3,9 @@
     ViewData["Title"] = "Create Department";
 }
 
-<h1>Create Department</h1>
+<form id="deptCreateForm" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
 
-<form id="deptCreateForm" asp-action="Create" method="post" class="needs-validation" novalidate>
     <div class="mb-3">
         <label asp-for="DepartmentName" class="form-label"></label>
         <input asp-for="DepartmentName" class="form-control" placeholder="Enter Department Name" required />
@@ -17,6 +17,7 @@
         <textarea asp-for="Description" class="form-control" placeholder="Enter Description"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
+
     <div class="d-flex justify-content-between">
         <button type="submit" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Create
@@ -26,27 +27,50 @@
             <i class="bi bi-x-circle"></i> Close
         </button>
     </div>
-
 </form>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
-
 <script>
-    $("#deptCreateForm").submit(function (e) {
-        e.preventDefault();
+    $(document).ready(function() {
+        $("#deptCreateForm").submit(function (e) {
+            e.preventDefault();
 
-        $.ajax({
-            url: "/Department/Create",
-            type: "POST",
-            data: $(this).serialize(),
-            success: function (res) {
-                if (res.success) {
-                    $('#departmentModal').modal('hide');
+            var form = $(this);
+            var submitBtn = form.find('.btn-primary');
+            var originalText = submitBtn.html();
+
+            // Show loading
+            submitBtn.html('<span class="spinner-border spinner-border-sm"></span> Creating...').prop('disabled', true);
+
+            $.ajax({
+                url: "/Department/Save", // CORRECT URL
+                type: "POST",
+                data: form.serialize(),
+                    // In _DepartmentCreatePartial.cshtml, update the success callback:
+       success: function (res) {
+        submitBtn.html(originalText).prop('disabled', false);
+
+        if (res.success) {
+            alert('✅ Department created successfully!');
+            $('#departmentModal').modal('hide');
+
+            // Call the global refresh function
+            setTimeout(function() {
+                if (typeof RefreshDepartmentList === 'function') {
                     RefreshDepartmentList();
+                } else {
+                    console.error("RefreshDepartmentList not found");
+                    location.reload();
                 }
-            }
+            }, 300);
+        } else {
+            alert("Please fix the errors and try again.");
+        }
+    },
+                error: function(xhr, status, error) {
+                    submitBtn.html(originalText).prop('disabled', false);
+                    alert("Error creating department: " + error);
+                }
+            });
         });
     });
 </script>

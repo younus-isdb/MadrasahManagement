@@ -76,23 +76,40 @@ public class ClassController : Controller
 	}
 
 
-	// ===========================
-	//  INDEX
-	// ===========================
-	public async Task<IActionResult> Index()
-	{
-		var data = await _context.Classes
-			.Include(c => c.Department)
-			.ToListAsync();
+	//// ===========================
+	////  INDEX
+	//// ===========================
+	//public async Task<IActionResult> Index()
+	//{
+	//	var data = await _context.Classes
+	//		.Include(c => c.Department)
+	//		.ToListAsync();
 
-		return View(data);
-	}
+	//	return View(data);
+	//}
 
+    // GET: Class
+    public async Task<IActionResult> Index(int? departmentId)
+    {
+        var query = _context.Classes
+            .Include(c => c.Department)
+            
+            .AsQueryable();
 
-	// ===========================
-	//  EDIT
-	// ===========================
-	public async Task<IActionResult> Edit(int id)
+        // Apply department filter if provided
+        if (departmentId.HasValue)
+        {
+            query = query.Where(c => c.DepartmentId == departmentId.Value);
+            ViewBag.SelectedDepartmentId = departmentId.Value;
+        }
+
+        var classes = await query.ToListAsync();
+        return View(classes);
+    }
+    // ===========================
+    //  EDIT
+    // ===========================
+    public async Task<IActionResult> Edit(int id)
 	{
 		var data = await _context.Classes.FindAsync(id);
 		if (data == null) return NotFound();
