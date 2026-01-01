@@ -1,39 +1,111 @@
 ﻿@model IEnumerable<MadrasahManagement.Dto.ExamFeesReadDto>
 
-@{
-    ViewData["Title"] = "Exam Fees";
-}
-
-<h2>Exam Fees</h2>
-
+<h2>Exam Fee Collection List</h2>
 <p>
-    <a asp-action="Create" class="btn btn-primary">Create New Exam Fee</a>
+    <a asp-action="Create" class="btn btn-success">Create New Exam Fee</a>
 </p>
+
+@* --- Declare totals upfront so they are in scope everywhere --- *@
+@{
+    decimal totalExamFee = Model?.Sum(f => f.ExamAmount) ?? 0;
+    decimal totalCollected = Model?.Sum(f => f.FeeCollections.Sum(fc => fc.ExamFeeAmount)) ?? 0;
+    decimal totalDue = totalExamFee - totalCollected;
+}
 
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
+            <th>#</th>
             <th>Education Year</th>
             <th>Class</th>
             <th>Exam</th>
-            <th>Amount</th>
+            <th>Exam Fee Amount</th>
+            <th>Total Collected</th>
+            <th>Students Count</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var fee in Model)
+        @if (Model != null && Model.Any())
+        {
+            int index = 1;
+            foreach (var fee in Model)
+            {
+                var collected = fee.FeeCollections.Sum(fc => fc.ExamFeeAmount);
+                <tr>
+                    <td>@index</td>
+                    <td>@fee.EducationYear</td>
+                    <td>@fee.ClassName</td>
+                    <td>@fee.ExamName</td>
+                    <td>@fee.ExamAmount.ToString("0.00")</td>
+                    <td>@collected.ToString("0.00")</td>
+                    <td>@fee.FeeCollections.Count</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@fee.ExamFeeId" class="btn btn-info btn-sm">Details</a>
+                        <a asp-action="Edit" asp-route-id="@fee.ExamFeeId" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@fee.ExamFeeId" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+
+                <!-- Nested student table with per-student due -->
+                <tr>
+                    <td colspan="8" class="p-0">
+                        @if (fee.FeeCollections != null && fee.FeeCollections.Any())
+                        {
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr class="table-secondary">
+                                        <th>Student Name</th>
+                                        <th>Paid Amount</th>
+                                        <th>Total Subjects</th>
+                                        <th>Due</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var student in fee.FeeCollections)
+                                    {
+                                        var due = fee.ExamAmount - student.ExamFeeAmount;
+                                        <tr style="@(due > 0 ? "background-color:#f8d7da;" : "")">
+                                            <td>@student.StudentName</td>
+                                            <td>@student.ExamFeeAmount.ToString("0.00")</td>
+                                            <td>@student.TotalSubject</td>
+                                            <td>@due.ToString("0.00")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="text-center small text-muted">No student payments yet.</div>
+                        }
+                    </td>
+                </tr>
+
+                index++;
+            }
+        }
+        else
         {
             <tr>
-                <td>@fee.EducationYear</td>
-                <td>@fee.ClassName</td>
-                <td>@fee.ExamName</td>
-                <td>@fee.ExamAmount</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@fee.ExamFeeId" class="btn btn-info btn-sm">Details</a>
-                    <a asp-action="Edit" asp-route-id="@fee.ExamFeeId" class="btn btn-warning btn-sm">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@fee.ExamFeeId" class="btn btn-danger btn-sm">Delete</a>
-                </td>
+                <td colspan="8" class="text-center">No exam fees found.</td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- --- Totals summary boxes --- -->
+<div style="margin-top:20px; display:flex; gap:20px;">
+    <div style="padding:10px; border:1px solid #007bff; background-color:#cce5ff; flex:1; text-align:center;">
+        <strong>Total Exam Fee</strong>
+        <div>@totalExamFee.ToString("0.00")</div>
+    </div>
+    <div style="padding:10px; border:1px solid #28a745; background-color:#d4edda; flex:1; text-align:center;">
+        <strong>Total Collected</strong>
+        <div>@totalCollected.ToString("0.00")</div>
+    </div>
+    <div style="padding:10px; border:1px solid #dc3545; background-color:#f8d7da; flex:1; text-align:center;">
+        <strong>Total Due</strong>
+        <div>@totalDue.ToString("0.00")</div>
+    </div>
+</div>
