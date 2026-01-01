@@ -1,48 +1,68 @@
 <div class="examfee-list-page">
   <div class="container mt-4">
-    <h2>Exam Fees</h2>
+    <h2>Exam Fee Collection List</h2>
 
     <div *ngIf="loading()">Loading...</div>
     <div *ngIf="error()" class="text-danger">{{ error() }}</div>
+
     <a routerLink="/examfeecollectioncreate" class="btn btn-success mb-3">
       + Add Exam Fee
     </a>
 
-    <table class="table table-bordered" *ngIf="!loading() && examFees().length">
+    <table class="table table-bordered table-striped" *ngIf="!loading() && examFees().length">
       <thead class="table-light">
         <tr>
-          <th>Exam Fee ID</th>
+          <th>#</th>
           <th>Education Year</th>
           <th>Class</th>
           <th>Exam</th>
-          <th>Amount</th>
-          <th>Collections</th>
+          <th>Exam Fee Amount</th>
+          <th>Total Collected</th>
+          <th>Students Count</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let fee of examFees()">
-          <td>{{ fee.examFeeId }}</td>
+        <tr *ngFor="let fee of examFees(); let i = index">
+          <td>{{ i + 1 }}</td>
           <td>{{ fee.educationYear }}</td>
           <td>{{ fee.className }}</td>
           <td>{{ fee.examName }}</td>
-          <td>{{ fee.examAmount }}</td>
+          <td>{{ fee.examAmount | number:'1.2-2' }}</td>
+          <td>{{ getCollected(fee) | number:'1.2-2' }}</td>
+          <td>{{ fee.feeCollections.length }}</td>
           <td>
-            <table class="table table-sm table-striped mb-0">
-              <thead>
+            <a [routerLink]="['/examfeecollectiondetails', fee.examFeeId]" class="btn btn-info btn-sm">Details</a>
+            <a [routerLink]="['/examfeecollectionedit', fee.examFeeId]" class="btn btn-warning btn-sm">Edit</a>
+            <button (click)="delete(fee.examFeeId)" class="btn btn-danger btn-sm">Delete</button>
+          </td>
+        </tr>
+
+        <!-- Nested student table -->
+        <tr *ngFor="let fee of examFees()">
+          <td colspan="8" class="p-0">
+            <table class="table table-sm table-striped mb-0" *ngIf="fee.feeCollections.length">
+              <thead class="table-secondary">
                 <tr>
-                  <th>Student</th>
-                  <th>Fee</th>
+                  <th>Student Name</th>
+                  <th>Paid Amount</th>
                   <th>Total Subjects</th>
+                  <th>Due</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let coll of fee.feeCollections">
+                <tr *ngFor="let coll of fee.feeCollections"
+                    [ngClass]="{'table-danger': getDue(fee, coll) > 0}">
                   <td>{{ coll.studentName }}</td>
-                  <td>{{ coll.examFeeAmount }}</td>
+                  <td>{{ coll.examFeeAmount | number:'1.2-2' }}</td>
                   <td>{{ coll.totalSubject }}</td>
+                  <td>{{ getDue(fee, coll) | number:'1.2-2' }}</td>
                 </tr>
               </tbody>
             </table>
+            <div *ngIf="!fee.feeCollections.length" class="text-center small text-muted">
+              No student payments yet.
+            </div>
           </td>
         </tr>
       </tbody>
@@ -50,6 +70,22 @@
 
     <div *ngIf="!loading() && !examFees().length" class="text-muted">
       No exam fees found.
+    </div>
+
+    <!-- Totals summary -->
+    <div style="margin-top:20px; display:flex; gap:20px;" *ngIf="!loading() && examFees().length">
+      <div style="padding:10px; border:1px solid #007bff; background-color:#cce5ff; flex:1; text-align:center;">
+        <strong>Total Exam Fee</strong>
+        <div>{{ getTotalExamFee() | number:'1.2-2' }}</div>
+      </div>
+      <div style="padding:10px; border:1px solid #28a745; background-color:#d4edda; flex:1; text-align:center;">
+        <strong>Total Collected</strong>
+        <div>{{ getTotalCollected() | number:'1.2-2' }}</div>
+      </div>
+      <div style="padding:10px; border:1px solid #dc3545; background-color:#f8d7da; flex:1; text-align:center;">
+        <strong>Total Due</strong>
+        <div>{{ getTotalDue() | number:'1.2-2' }}</div>
+      </div>
     </div>
   </div>
 </div>
