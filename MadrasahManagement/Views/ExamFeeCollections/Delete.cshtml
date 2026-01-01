@@ -1,0 +1,58 @@
+﻿@model MadrasahManagement.Models.ExamFee
+
+@{
+    ViewData["Title"] = "Delete Exam Fee";
+}
+
+<h2>Delete Exam Fee</h2>
+
+<h4>Are you sure you want to delete this exam fee?</h4>
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Education Year</dt>
+        <dd class="col-sm-10">@Model.EducationYear</dd>
+
+        <dt class="col-sm-2">Class</dt>
+        <dd class="col-sm-10">@Model.Class?.ClassName</dd>
+
+        <dt class="col-sm-2">Exam</dt>
+        <dd class="col-sm-10">@Model.Examination?.ExamName</dd>
+
+        <dt class="col-sm-2">Exam Amount</dt>
+        <dd class="col-sm-10">@Model.ExamAmount.ToString("0.00")</dd>
+    </dl>
+</div>
+
+<h4>Student Fee Collections</h4>
+@if (Model.FeeCollections != null && Model.FeeCollections.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Paid Amount</th>
+                <th>Total Subjects</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var fc in Model.FeeCollections)
+            {
+                <tr>
+                    <td>@fc.Student?.StudentName</td>
+                    <td>@fc.ExamFeeAmount.ToString("0.00")</td>
+                    <td>@fc.TotalSubject</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="text-muted">No student payments found.</div>
+}
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="ExamFeeId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

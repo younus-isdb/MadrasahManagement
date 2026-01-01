@@ -1,33 +1,33 @@
-﻿@model MadrasahManagement.Dto.ExamFeesCreateDto
+﻿@model MadrasahManagement.Dto.ExamFeesUpdateDto
 
 @{
-    ViewData["Title"] = "Create Exam Fee";
+    ViewData["Title"] = "Edit Exam Fee";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2>Edit Exam Fee</h2>
 
-<form asp-action="Create" method="post">
-    <div class="form-group mb-3">
+<form asp-action="Edit" method="post">
+    <div class="form-group">
         <label asp-for="EducationYear"></label>
         <input asp-for="EducationYear" class="form-control" />
         <span asp-validation-for="EducationYear" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
+    <div class="form-group">
         <label asp-for="ClassId"></label>
         <select asp-for="ClassId" class="form-control"
-                asp-items="@(new SelectList(ViewBag.Classes, "ClassId", "ClassName"))"></select>
+                asp-items="@(new SelectList(ViewBag.Classes, "ClassId", "ClassName", Model.ClassId))"></select>
         <span asp-validation-for="ClassId" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
+    <div class="form-group">
         <label asp-for="ExamId"></label>
         <select asp-for="ExamId" class="form-control"
-                asp-items="@(new SelectList(ViewBag.Exams, "ExamId", "ExamName"))"></select>
+                asp-items="@(new SelectList(ViewBag.Exams, "ExamId", "ExamName", Model.ExamId))"></select>
         <span asp-validation-for="ExamId" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
+    <div class="form-group">
         <label asp-for="ExamAmount"></label>
         <input asp-for="ExamAmount" class="form-control" step="0.01" />
         <span asp-validation-for="ExamAmount" class="text-danger"></span>
@@ -44,22 +44,20 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Rows added dynamically -->
+            <!-- Rows will be dynamically added -->
         </tbody>
     </table>
 
-    <button type="button" class="btn btn-success mb-3" id="addRowBtn">Add Student</button>
-    <br />
+    <button type="button" class="btn btn-success" id="addRowBtn">Add Student</button>
+    <br /><br />
     <button type="submit" class="btn btn-primary">Save</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
     <script>
-        // Students list from ViewBag
         let students = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Students));
 
-        // Add a FeeCollection row
         function addFeeCollectionRow(studentId = "", amount = 0, totalSubjects = 0) {
             let tbody = document.querySelector("#feeCollectionTable tbody");
             let rowIndex = tbody.rows.length;
@@ -71,7 +69,6 @@
             let select = document.createElement("select");
             select.name = `FeeCollections[${rowIndex}].StudentId`;
             select.classList.add("form-control");
-            select.required = true;
 
             students.forEach(s => {
                 let opt = document.createElement("option");
@@ -92,7 +89,6 @@
             inputAmount.step = 0.01;
             inputAmount.name = `FeeCollections[${rowIndex}].ExamFeeAmount`;
             inputAmount.classList.add("form-control");
-            inputAmount.required = true;
             inputAmount.value = amount;
             tdAmount.appendChild(inputAmount);
             tr.appendChild(tdAmount);
@@ -124,7 +120,6 @@
             tbody.appendChild(tr);
         }
 
-        // Update indices for MVC binding
         function updateRowIndices() {
             let tbody = document.querySelector("#feeCollectionTable tbody");
             Array.from(tbody.rows).forEach((row, i) => {
@@ -135,9 +130,8 @@
             });
         }
 
-        // Initialize
         document.addEventListener("DOMContentLoaded", () => {
-            // If model has existing FeeCollections (for edit), populate
+            // Load existing FeeCollections
             if (@(Model.FeeCollections?.Count ?? 0) > 0) {
                 @for (int i = 0; i < Model.FeeCollections.Count; i++)
                 {
@@ -146,7 +140,6 @@
                         </text>
                 }
             } else {
-                // First empty row for create
                 addFeeCollectionRow();
             }
 
