@@ -1,0 +1,102 @@
+﻿@using MadrasahManagement.Dto
+@* Views/Subject/Edit.cshtml *@
+@model SubjectUpdateDto
+
+@{
+    ViewData["Title"] = "Edit Subject";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Edit Subject</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post" id="editForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="SubjectId" />
+                <input type="hidden" asp-for="ClassId" /> @* Hidden field *@
+                <input type="hidden" asp-for="DepartmentId" /> @* Hidden field *@
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="SubjectName" class="control-label"></label>
+                            <input asp-for="SubjectName" class="form-control" />
+                            <span asp-validation-for="SubjectName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="SubjectCode" class="control-label"></label>
+                            <input asp-for="SubjectCode" class="form-control" />
+                            <span asp-validation-for="SubjectCode" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Class</label>
+                            <div class="form-control" style="background-color: #f8f9fc;">
+                                @ViewBag.ClassName
+                            </div>
+                            <small class="form-text text-muted">Class cannot be changed</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Department</label>
+                            <div class="form-control" style="background-color: #f8f9fc;">
+                                @ViewBag.DepartmentName
+                            </div>
+                            <small class="form-text text-muted">Department cannot be changed</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group form-check">
+                            <input asp-for="IsOptional" class="form-check-input" />
+                            <label asp-for="IsOptional" class="form-check-label">Is Optional Subject</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update Subject
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Client-side validation for subject code (edit)
+            $('#SubjectCode').on('blur', function() {
+                var subjectCode = $(this).val();
+                var subjectId = $('#SubjectId').val();
+                if (subjectCode) {
+                    $.get('@Url.Action("IsSubjectCodeUniqueEdit", "Subject")',
+                        { subjectCode: subjectCode, subjectId: subjectId })
+                        .done(function(isUnique) {
+                            if (!isUnique) {
+                                $('#SubjectCode').addClass('is-invalid');
+                                $('#SubjectCode').next('.text-danger').text('Subject Code already exists.');
+                            } else {
+                                $('#SubjectCode').removeClass('is-invalid');
+                                $('#SubjectCode').next('.text-danger').text('');
+                            }
+                        });
+                }
+            });
+        });
+    </script>
+}

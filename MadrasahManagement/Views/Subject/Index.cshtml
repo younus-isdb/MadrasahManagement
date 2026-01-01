@@ -1,0 +1,160 @@
+﻿@using MadrasahManagement.ViewModels
+@model IEnumerable<SubjectVM>
+
+@{
+    ViewData["Title"] = "Subjects";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Subjects</h6>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create New
+            </a>
+        </div>
+        <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            <!-- Filter Form -->
+            <form method="get" class="mb-4" id="filterForm">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Department</label>
+                        <select name="departmentId" id="departmentId" class="form-control" onchange="this.form.submit()">
+                            <option value="">All Departments</option>
+                            @foreach (var item in ViewBag.Departments as List<SelectListItem>)
+                            {
+                                <option value="@item.Value" selected="@(item.Value == ViewBag.SelectedDepartmentId?.ToString())">
+                                    @item.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Class</label>
+                        <select name="classId" id="classId" class="form-control">
+                            <option value="">All Classes</option>
+                            @if (ViewBag.Classes != null)
+                            {
+                                foreach (var item in ViewBag.Classes as List<SelectListItem>)
+                                {
+                                    <option value="@item.Value" selected="@(item.Value == ViewBag.SelectedClassId?.ToString())">
+                                        @item.Text
+                                    </option>
+                                }
+                            }
+                            else
+                            {
+                                // Show all classes if no department is selected
+                                @foreach (var item in ViewBag.AllClasses as List<SelectListItem>)
+                                {
+                                    <option value="@item.Value" selected="@(item.Value == ViewBag.SelectedClassId?.ToString())">
+                                        @item.Text
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>&nbsp;</label><br />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Filter Subjects
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">Clear</a>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                @if (Model != null && Model.Any())
+                {
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Subject Name</th>
+                                <th>Code</th>
+                                <th>Class</th>
+                                <th>Department</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.SubjectName</td>
+                                    <td>
+                                       @item.SubjectCode
+                                    </td>
+                                    <td>@item.ClassName</td>
+                                    <td>@item.DepartmentName</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.SubjectId"
+                                               class="btn btn-info">
+                                                Details
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.SubjectId"
+                                               class="btn btn-warning">
+                                                Edit
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.SubjectId"
+                                               class="btn btn-danger">
+                                                Delete
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        @if (ViewBag.SelectedDepartmentId != null || ViewBag.SelectedClassId != null)
+                        {
+                            <p>No subjects found for the selected filters.</p>
+                        }
+                        else
+                        {
+                            <p>No subjects available. Use the filter options to view subjects.</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Only initialize DataTable if there's data
+            if ($('#dataTable').length) {
+                $('#dataTable').DataTable({
+                    "order": [[2, "asc"], [0, "asc"]] // Sort by Class then Subject Name
+                });
+            }
+        });
+    </script>
+}

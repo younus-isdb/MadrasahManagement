@@ -1,18 +1,9 @@
 ﻿@model MadrasahManagement.Models.Class
 
-@{
-    ViewData["Title"] = "Create Class";
-}
+<form id="classCreateForm" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
 
-<h1>Create Class</h1>
-
-<form id="classCreateForm" asp-action="Create" method="post" class="needs-validation" novalidate>
-
-    <div class="mb-3">
-        <label asp-for="ClassName" class="form-label"></label>
-        <input asp-for="ClassName" class="form-control" placeholder="Enter Class Name" required />
-        <span asp-validation-for="ClassName" class="text-danger"></span>
-    </div>
+   
 
     <div class="mb-3">
         <label asp-for="DepartmentId" class="form-label"></label>
@@ -25,7 +16,11 @@
         </select>
         <span asp-validation-for="DepartmentId" class="text-danger"></span>
     </div>
-
+    <div class="mb-3">
+        <label asp-for="ClassName" class="form-label"></label>
+        <input asp-for="ClassName" class="form-control" placeholder="Enter Class Name" required />
+        <span asp-validation-for="ClassName" class="text-danger"></span>
+    </div>
     <div class="d-flex justify-content-between">
         <button type="submit" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Create
@@ -37,24 +32,42 @@
     </div>
 </form>
 
-
-    <partial name="_ValidationScriptsPartial" />
-
-
 <script>
-    $("#classCreateForm").submit(function (e) {
-        e.preventDefault();
+    $(document).ready(function() {
+        $("#classCreateForm").submit(function (e) {
+            e.preventDefault();
 
-        $.ajax({
-            url: "/Class/CreateModalPost",
-            type: "POST",
-            data: $(this).serialize(),
-            success: function (res) {
-                if (res.success) {
-                    $('#classModal').modal('hide');
-                    RefreshClassList();
+            var form = $(this);
+            var submitBtn = form.find('.btn-primary');
+            var originalText = submitBtn.html();
+
+            // Show loading
+            submitBtn.html('<span class="spinner-border spinner-border-sm"></span> Creating...').prop('disabled', true);
+
+            $.ajax({
+                url: "/Class/CreateModalPost", // CORRECT URL
+                type: "POST",
+                data: form.serialize(),
+                success: function (res) {
+                    submitBtn.html(originalText).prop('disabled', false);
+
+                    if (res.success) {
+                        $('#classModal').modal('hide');
+
+                        // Get selected department
+                        var deptId = $("#classCreateForm [name='DepartmentId']").val();
+                        if (deptId && window.parent && window.parent.RefreshClassList) {
+                            window.parent.RefreshClassList(deptId);
+                        }
+                    } else {
+                        alert("Failed to create class. Please check the form.");
+                    }
+                },
+                error: function() {
+                    submitBtn.html(originalText).prop('disabled', false);
+                    alert("Error creating class");
                 }
-            }
+            });
         });
     });
 </script>

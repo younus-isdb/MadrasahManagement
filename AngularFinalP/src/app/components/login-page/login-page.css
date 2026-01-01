@@ -1,0 +1,86 @@
+/* Container */
+form {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  background: #ffffff; /* white background */
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  font-family: 'Arial', sans-serif;
+  border: 3px solid #007a33; /* Nigeria green border */
+  background: linear-gradient(145deg, #ffffff 0%, #dff6dd 100%);
+}
+
+/* Fieldset */
+fieldset {
+  border: none;
+  padding: 0;
+}
+
+legend {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #007a33; /* Nigeria green */
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: 'Impact', sans-serif;
+  text-shadow: 1px 1px #a6d785;
+}
+
+/* Form groups */
+div > label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  font-weight: bold;
+  color: #004d1a; /* darker green text */
+}
+
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #007a33;
+  outline: none;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  background-color: #e6f2e6; /* light greenish background */
+}
+
+  input:focus {
+    border-color: #004d1a;
+    box-shadow: 0 0 5px #007a33;
+  }
+
+/* Buttons */
+button {
+  width: 100%;
+  padding: 12px;
+  background: #007a33;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+  button:hover {
+    background: #004d1a;
+    transform: scale(1.05);
+  }
+
+/* Links */
+a {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  color: #007a33;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+  a:hover {
+    color: #004d1a;
+  }

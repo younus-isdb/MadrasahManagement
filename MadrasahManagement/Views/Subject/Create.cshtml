@@ -1,0 +1,103 @@
+﻿@using MadrasahManagement.Dto
+@model SubjectCreateDto
+
+@{
+    ViewData["Title"] = "Create Subject";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Create New Subject</h6>
+        </div>
+        <div class="card-body">
+            <!-- Separate form for department selection (GET request) -->
+            @if (ViewBag.SelectedDepartmentId == null)
+            {
+                <form method="get" asp-action="Create">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Department</label>
+                                <select name="departmentId" class="form-control" onchange="this.form.submit()">
+                                    <option value="">-- Select Department --</option>
+                                    @foreach (var dept in ViewBag.Departments as List<SelectListItem>)
+                                    {
+                                        <option value="@dept.Value">@dept.Text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <!-- Main form for creating subject (POST request) -->
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="DepartmentId" value="@ViewBag.SelectedDepartmentId" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Department</label>
+                                <div class="form-control bg-light">
+                                    @ViewBag.SelectedDepartmentName
+                                </div>
+                                <small class="form-text text-muted">
+                                    <a asp-action="Create">Change Department</a>
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ClassId" class="control-label"></label>
+                                <select asp-for="ClassId" asp-items="ViewBag.Classes" class="form-control">
+                                    <option value="">-- Select Class --</option>
+                                </select>
+                                <span asp-validation-for="ClassId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="SubjectName" class="control-label"></label>
+                                <input asp-for="SubjectName" class="form-control" />
+                                <span asp-validation-for="SubjectName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="SubjectCode" class="control-label"></label>
+                                <input asp-for="SubjectCode" class="form-control" />
+                                <span asp-validation-for="SubjectCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-check">
+                                <input asp-for="IsOptional" class="form-check-input" />
+                                <label asp-for="IsOptional" class="form-check-label">Is Optional Subject</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create Subject
+                        </button>
+                        <a asp-action="Create" class="btn btn-warning">Change Department</a>
+                        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>

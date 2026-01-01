@@ -79,4 +79,6 @@ public class StudentCreateVM
     public IFormFile? DocumentFile { get; set; }
 
     public bool IsActive { get; set; } = true;
+    public DateTime? LeavingDate { get; set; }      // ❗ ADDED
+    public string? LeavingReason { get; set; }
 }

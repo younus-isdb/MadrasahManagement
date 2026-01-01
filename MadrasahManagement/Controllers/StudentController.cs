@@ -26,10 +26,18 @@ namespace MadrasahManagement.Controllers
         // ---------------------------------------------------
         // GET: Student/Create
         // ---------------------------------------------------
+        [HttpGet]
         public IActionResult Create()
         {
-            LoadDropdowns();
-            return View();
+            var vm = new StudentCreateVM
+            {
+                AdmissionDate = DateTime.Today,
+                IsActive = true
+            };
+
+            LoadDropdowns(); // This loads ViewBag.DepartmentList, ViewBag.ClassList, ViewBag.SectionList
+
+            return View(vm);
         }
 
 
@@ -78,16 +86,29 @@ namespace MadrasahManagement.Controllers
         {
             if (!ModelState.IsValid)
             {
-                LoadDropdowns();
+                LoadDropdowns(vm.DepartmentId, vm.ClassId); // Keep selections
                 return View(vm);
             }
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
-
-            var student = new Student
+            try
             {
-                UserId = user.Id,
+                // Check for duplicate RegNo
+                bool regNoExists = await _context.Students
+                    .AnyAsync(s => s.RegNo == vm.RegNo);
+
+                if (regNoExists)
+                {
+                    ModelState.AddModelError("RegNo", $"Registration Number '{vm.RegNo}' already exists.");
+                    LoadDropdowns();
+                    return View(vm);
+                }
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return Unauthorized();
+
+                var student = new Student
+                {
+                    UserId = user.Id,
                 StudentName = vm.StudentName,
                 ArabicStudentName = vm.ArabicStudentName,
                 BanglaStudentName = vm.BanglaStudentName,
@@ -126,21 +147,37 @@ namespace MadrasahManagement.Controllers
 
                 IsActive = vm.IsActive,
                 CreatedAt = DateTimeOffset.UtcNow
-            };
+                };
 
-            // 🔹 Profile Image
-            if (vm.ProfileImage != null)
-                student.ProfileImageUrl = await SaveFile(vm.ProfileImage, "students");
+                // 🔹 Profile Image
+                if (vm.ProfileImage != null)
+                    student.ProfileImageUrl = await SaveFile(vm.ProfileImage, "students");
 
-            // 🔹 Document
-            if (vm.DocumentFile != null)
-                student.DocumentUrl = await SaveFile(vm.DocumentFile, "documents");
+                // 🔹 Document
+                if (vm.DocumentFile != null)
+                    student.DocumentUrl = await SaveFile(vm.DocumentFile, "documents");
 
-            _context.Students.Add(student);
-            await _context.SaveChangesAsync();
+                _context.Students.Add(student);
+                await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+                TempData["SuccessMessage"] = "Student created successfully!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Registration Number already exists. Please use a unique RegNo.");
+                LoadDropdowns();
+                return View(vm);
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "An error occurred. Please try again.");
+                LoadDropdowns();
+                return View(vm);
+            }
         }
+
+
 
         // ---------------------------------------------------
         // AJAX: Get Classes by Department
@@ -154,6 +191,8 @@ namespace MadrasahManagement.Controllers
 
             return Json(classes);
         }
+
+
 
         // ---------------------------------------------------
         // AJAX: Get Sections by Class
@@ -251,116 +290,114 @@ namespace MadrasahManagement.Controllers
 
 
 
-
-
+        [HttpGet]
         public IActionResult Edit(int id)
         {
-            var s = _context.Students.Find(id);
-            if (s == null) return NotFound();
+            var student = _context.Students
+                .Include(s => s.Department)
+                .Include(s => s.Class)
+                .Include(s => s.Section)
+                .FirstOrDefault(s => s.StudentId == id);
+
+            if (student == null) return NotFound();
 
             var vm = new StudentEditVM
             {
-                StudentId = s.StudentId,
-                StudentName = s.StudentName,
-                ArabicStudentName = s.ArabicStudentName,
-                BanglaStudentName = s.BanglaStudentName,
+                StudentId = student.StudentId,
+                StudentName = student.StudentName,
+                ArabicStudentName = student.ArabicStudentName,
+                BanglaStudentName = student.BanglaStudentName,
 
-                DepartmentId = s.DepartmentId,
-                ClassId = s.ClassId,
-                SectionId = s.SectionId,
+                // Display only fields (cannot edit)
+                DepartmentName = student.Department?.DepartmentName,
+                ClassName = student.Class?.ClassName,
+                SectionName = student.Section?.SectionName,
+                RegNo = student.RegNo,
+                NationalId = student.NationalId,
+                Country = student.Country,
+                PreviousSchoolName = student.PreviousSchoolName,
+                PreviousResult = student.PreviousResult,
 
-                RegNo = s.RegNo,
-                NationalId = s.NationalId,
-                AdmissionDate = s.AdmissionDate.ToDateTime(TimeOnly.MinValue),
-
-                Gender = s.Gender,
-                DOB = s.DOB,
-                BloodGroup = s.BloodGroup,
-
-                FatherName = s.FatherName,
-                FatherPhone = s.FatherPhone,
-                MotherName = s.MotherName,
-                MotherPhone = s.MotherPhone,
-
-                GuardianName = s.GuardianName,
-                GuardianPhone = s.GuardianPhone,
-                GuardianEmail = s.GuardianEmail,
-
-                Address = s.Address,
-                City = s.City,
-                Country = s.Country,
-
-                EmergencyContactName = s.EmergencyContactName,
-                EmergencyPhone = s.EmergencyPhone,
-                MedicalNotes = s.MedicalNotes,
-
-                PreviousSchoolName = s.PreviousSchoolName,
-                PreviousResult = s.PreviousResult,
-
-                ExistingProfileImageUrl = s.ProfileImageUrl,
-                ExistingDocumentUrl = s.DocumentUrl,
-
-                IsActive = s.IsActive,
-                LeavingDate = s.LeavingDate?.DateTime,
-                LeavingReason = s.LeavingReason
+                // Editable fields
+                AdmissionDate = student.AdmissionDate.ToDateTime(TimeOnly.MinValue),
+                Gender = student.Gender,
+                DOB = student.DOB, // Already nullable
+                BloodGroup = student.BloodGroup,
+                FatherName = student.FatherName,
+                FatherPhone = student.FatherPhone,
+                MotherName = student.MotherName,
+                MotherPhone = student.MotherPhone,
+                GuardianName = student.GuardianName,
+                GuardianPhone = student.GuardianPhone,
+                GuardianEmail = student.GuardianEmail,
+                Address = student.Address,
+                City = student.City,
+                EmergencyContactName = student.EmergencyContactName,
+                EmergencyPhone = student.EmergencyPhone,
+                MedicalNotes = student.MedicalNotes,
+                ExistingProfileImageUrl = student.ProfileImageUrl,
+                ExistingDocumentUrl = student.DocumentUrl,
+                IsActive = student.IsActive,
+                LeavingDate = student.LeavingDate?.DateTime,
+                LeavingReason = student.LeavingReason
             };
 
-            LoadDropdowns(s.DepartmentId, s.ClassId);
             return View(vm);
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(StudentEditVM vm)
         {
             if (!ModelState.IsValid)
             {
-                LoadDropdowns(vm.DepartmentId, vm.ClassId);
                 return View(vm);
             }
 
             var student = await _context.Students.FindAsync(vm.StudentId);
             if (student == null) return NotFound();
 
+            // 🔥 UPDATE ONLY editable fields
             student.StudentName = vm.StudentName;
             student.ArabicStudentName = vm.ArabicStudentName;
             student.BanglaStudentName = vm.BanglaStudentName;
 
-            student.DepartmentId = vm.DepartmentId;
-            student.ClassId = vm.ClassId;
-            student.SectionId = vm.SectionId;
-
-            student.RegNo = vm.RegNo;
-            student.NationalId = vm.NationalId;
+            // Editable personal info
             student.AdmissionDate = DateOnly.FromDateTime(vm.AdmissionDate);
-
             student.Gender = vm.Gender;
-            student.DOB = vm.DOB;
+            student.DOB = vm.DOB; // Now both are nullable
             student.BloodGroup = vm.BloodGroup;
 
+            // Parents info
             student.FatherName = vm.FatherName;
             student.FatherPhone = vm.FatherPhone;
             student.MotherName = vm.MotherName;
             student.MotherPhone = vm.MotherPhone;
 
+            // Guardian info
             student.GuardianName = vm.GuardianName;
             student.GuardianPhone = vm.GuardianPhone;
             student.GuardianEmail = vm.GuardianEmail;
 
+            // Address
             student.Address = vm.Address;
             student.City = vm.City;
-            student.Country = vm.Country;
+            // Country is NOT updated (display only)
 
+            // Emergency
             student.EmergencyContactName = vm.EmergencyContactName;
             student.EmergencyPhone = vm.EmergencyPhone;
             student.MedicalNotes = vm.MedicalNotes;
 
-            student.PreviousSchoolName = vm.PreviousSchoolName;
-            student.PreviousResult = vm.PreviousResult;
+            // Previous school info is NOT updated (display only)
 
+            // Status
             student.IsActive = vm.IsActive;
             student.LeavingDate = vm.LeavingDate;
+            student.LeavingReason = vm.LeavingReason;
 
-            // 🔹 File replace (optional)
+            // File uploads
             if (vm.ProfileImage != null)
                 student.ProfileImageUrl = await SaveFile(vm.ProfileImage, "students");
 
@@ -370,6 +407,7 @@ namespace MadrasahManagement.Controllers
             student.UpdatedAt = DateTimeOffset.UtcNow;
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Student updated successfully!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -427,7 +465,5 @@ namespace MadrasahManagement.Controllers
                 "SectionId",
                 "SectionName");
         }
-
-
     }
 }

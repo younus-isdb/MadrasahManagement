@@ -29,12 +29,42 @@ namespace MadrasahManagement.Controllers
             _uploadService = uploadService;
         }
 
-        //Get: TeacherController
-        public async Task<IActionResult> Index()
+        ////Get: TeacherController
+        //public async Task<IActionResult> Index()
+        //{
+        //    var teachers = await _db.Teachers
+        //       // .Include(s => s.Department)
+        //      //  .Include(s => s.AppUser)
+        //        .ToListAsync();
+
+        //    return View(teachers);
+        //}
+
+        public async Task<IActionResult> Index(int? departmentId)
         {
-            var teachers = await _db.Teachers
-               // .Include(s => s.Department)
-              //  .Include(s => s.AppUser)
+            // Eager loading of Department
+            var query = _db.Teachers
+                .Include(t => t.Department)  // Include Department navigation property
+                .AsQueryable();
+
+            // Apply filter if departmentId is provided
+            if (departmentId.HasValue)
+            {
+                query = query.Where(t => t.DepartmentId == departmentId.Value);
+                ViewBag.SelectedDepartmentId = departmentId.Value;
+            }
+
+            // Get all departments for dropdown
+            var allDepartments = await _db.Departments
+                .Select(d => new { d.DepartmentId, d.DepartmentName })
+                .OrderBy(d => d.DepartmentName)
+                .ToListAsync();
+
+            ViewBag.Departments = allDepartments;
+
+            var teachers = await query
+                .OrderBy(t => t.Department.DepartmentName)
+                .ThenBy(t => t.Name)
                 .ToListAsync();
 
             return View(teachers);
@@ -81,10 +111,19 @@ namespace MadrasahManagement.Controllers
                 return View(model);
             }
 
-            // Check email
-            if (await _userManager.FindByEmailAsync(model.Email) != null)
+            try
             {
-                ModelState.AddModelError("Email", "Email already registered.");
+                if (await _userManager.FindByEmailAsync(model.Email) != null)
+                {
+                    ModelState.AddModelError("Email", "Email already registered.");
+                    ViewBag.Departments = await GetDepartmentsAsync();
+                    return View(model);
+                }
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Sequence contains more than one element"))
+            {
+                // Handle duplicate email scenario
+                ModelState.AddModelError("Email", "Email already registered. (Duplicate found)");
                 ViewBag.Departments = await GetDepartmentsAsync();
                 return View(model);
             }
@@ -287,9 +326,28 @@ namespace MadrasahManagement.Controllers
 				return View(model);
 			}
 		}
+		
 
-		// POST: Teacher/Delete/5
-		[HttpPost]
+
+
+        // GET: Teacher/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            var teacher = await _db.Teachers
+                .Include(t => t.Department)
+                .FirstOrDefaultAsync(t => t.TeacherId == id);
+
+            if (teacher == null)
+            {
+                return NotFound();
+            }
+
+            return View(teacher);
+        }
+
+
+        // POST: Teacher/Delete/5
+        [HttpPost]
 		[ValidateAntiForgeryToken]
 		[ActionName("Delete")]
 		public async Task<IActionResult> DeleteConfirmed(int id)
@@ -332,20 +390,7 @@ namespace MadrasahManagement.Controllers
 			return RedirectToAction(nameof(Index));
 		}
 
-		// GET: Teacher/Delete/5
-		public async Task<IActionResult> Delete(int id)
-		{
-			var teacher = await _db.Teachers
-				.Include(t => t.Department)
-				.FirstOrDefaultAsync(t => t.TeacherId == id);
-
-			if (teacher == null)
-			{
-				return NotFound();
-			}
-
-			return View(teacher);
-		}
+		
 
 
 
