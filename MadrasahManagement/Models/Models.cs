@@ -628,6 +628,9 @@ namespace MadrasahManagement.Models
         [Key]
         public int FeeTypeId { get; set; }
 
+        [ForeignKey(nameof(Department))]
+        public int DepartmentId { get; set; }
+
         [ForeignKey(nameof(Class))]
         public int ClassId { get; set; }
 
@@ -639,6 +642,7 @@ namespace MadrasahManagement.Models
         public FeeFrequency Frequency { get; set; }
 
         public Class Class { get; set; } = default!;
+        public Department Department { get; set; } = default!;
     }
 
     // -------------------------
@@ -1164,6 +1168,7 @@ namespace MadrasahManagement.Models
         public ICollection<Section> Sections { get; set; } = new HashSet<Section>();
         public ICollection<Teacher> Teachers { get; set; } = new List<Teacher>();
         public List<Student>? Students { get; set; }
+        public ICollection<FeeType> FeeTypes { get; set; } = new HashSet<FeeType>();
 
     }
 }

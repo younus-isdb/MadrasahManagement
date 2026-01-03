@@ -1,11 +1,173 @@
 ﻿@model MadrasahManagement.Models.Class
+@{
+    ViewData["Title"] = "Class Details";
+}
 
-<h2>Class Details</h2>
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+            <i class="fas fa-info-circle"></i> @ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body">
+        <!-- Class Information -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-graduation-cap"></i> Class Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Class ID:</th>
+                                <td>@Model.ClassId</td>
+                            </tr>
+                            <tr>
+                                <th>Class Name:</th>
+                                <td><strong>@Model.ClassName</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Session Year:</th>
+                                <td>@(Model.SessionYear ?? "Not Set")</td>
+                            </tr>
+                            <tr>
+                                <th>Department:</th>
+                                <td>@Model.Department?.DepartmentName</td>
+                            </tr>
+                            <tr>
+                                <th>Total Subjects:</th>
+                                <td><span class="badge bg-primary">@(Model.Subjects?.Count ?? 0)</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-<table class="table table-bordered">
-    <tr><th>Class Name</th><td>@Model.ClassName</td></tr>
-    <tr><th>Session</th><td>@Model.SessionYear</td></tr>
-    <tr><th>Department</th><td>@Model.Department.DepartmentName</td></tr>
-</table>
+            <div class="col-md-8">
+                <div class="d-flex justify-content-end gap-2 mb-3">
+                    <a asp-action="AddSubjects" asp-route-id="@Model.ClassId"
+                       class="btn btn-success btn-sm">
+                        <i class="fas fa-plus"></i> Add More Subjects
+                    </a>
+                    <a asp-action="ClassSubjects" asp-route-id="@Model.ClassId"
+                       class="btn btn-info btn-sm">
+                        <i class="fas fa-book"></i> View Full Subjects List
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.ClassId"
+                       class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.ClassId"
+                       class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
 
-<a href="/Class/Index" class="btn btn-secondary">Back</a>
+                <!-- Subjects List -->
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-book"></i> Subjects (@(Model.Subjects?.Count ?? 0))
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Subjects != null && Model.Subjects.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Subject Code</th>
+                                            <th>Subject Name</th>
+                                            <th>Type</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var subject in Model.Subjects.OrderBy(s => s.SubjectName))
+                                        {
+                                            <tr>
+                                                <td>@subject.SubjectId</td>
+                                                <td><code>@subject.SubjectCode</code></td>
+                                                <td>@subject.SubjectName</td>
+                                                <td>
+                                                    @if (subject.IsOptional)
+                                                    {
+                                                        <span class="badge bg-warning">Optional</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-primary">Mandatory</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <button onclick="deleteSubject(@Model.ClassId, @subject.SubjectId)"
+                                                            class="btn btn-sm btn-danger" title="Delete Subject">
+                                                        <i class="fas fa-trash"></i>Delete
+                                                    </button>
+                                                   
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Add to action buttons -->
+                            <a asp-action="AssignTeachers" asp-route-id="@Model.ClassId"
+                               class="btn btn-warning btn-sm">
+                                <i class="fas fa-chalkboard-teacher"></i> Assign Teachers
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> No subjects found for this class.
+                                <a asp-action="AddSubjects" asp-route-id="@Model.ClassId" class="alert-link">
+                                    Add subjects now
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="mt-4">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Classes List
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteSubject(classId, subjectId) {
+            if (confirm('Are you sure you want to delete this subject?')) {
+                fetch(`/Class/DeleteSubject?classId=${classId}&subjectId=${subjectId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload(); // Refresh the page
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the subject.');
+                });
+            }
+        }
+    </script>
+}

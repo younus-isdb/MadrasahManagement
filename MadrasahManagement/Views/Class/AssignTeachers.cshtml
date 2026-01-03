@@ -1,0 +1,109 @@
+﻿@using MadrasahManagement.ViewModels
+@model AssignTeachersViewModel
+@{
+    ViewData["Title"] = "Assign Teachers to Subjects";
+}
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+            <i class="fas fa-chalkboard-teacher"></i> @ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <h5>@Model.ClassName</h5>
+            <p class="mb-0">Department: @Model.DepartmentName</p>
+        </div>
+
+        <form method="post" asp-action="AssignTeachers">
+            <input type="hidden" asp-for="ClassId" />
+            <input type="hidden" asp-for="ClassName" />
+            <input type="hidden" asp-for="DepartmentName" />
+
+            @Html.AntiForgeryToken()
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Subject Code</th>
+                            <th>Subject Name</th>
+                            <th>Type</th>
+                            <th>Current Teacher</th>
+                            <th>Assign Teacher</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Subjects.Count; i++)
+                        {
+                            var subject = Model.Subjects[i];
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>
+                                    <code>@subject.SubjectCode</code>
+                                    <input type="hidden" asp-for="Subjects[i].SubjectId" />
+                                    <input type="hidden" asp-for="Subjects[i].SubjectName" />
+                                    <input type="hidden" asp-for="Subjects[i].SubjectCode" />
+                                </td>
+                                <td>@subject.SubjectName</td>
+                                <td>
+                                    @if (subject.IsOptional)
+                                    {
+                                        <span class="badge bg-warning">Optional</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary">Mandatory</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(subject.CurrentTeacherName))
+                                    {
+                                        <span class="text-success">
+                                            <i class="fas fa-user-check"></i> @subject.CurrentTeacherName
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">
+                                            <i class="fas fa-user-times"></i> Not Assigned
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <select asp-for="Subjects[i].CurrentTeacherId" class="form-select form-select-sm">
+                                        <option value="">-- Select Teacher --</option>
+                                        @foreach (var teacher in subject.AvailableTeachers)
+                                        {
+                                            <option value="@teacher.TeacherId"
+                                                    selected="@(subject.CurrentTeacherId == teacher.TeacherId)">
+                                                @teacher.Name
+                                                @if (!string.IsNullOrEmpty(teacher.Designation))
+                                                {
+                                                    <text>(@teacher.Designation)</text>
+                                                }
+                                                - @teacher.DepartmentName
+                                                
+                                            </option>
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save All Assignments
+                </button>
+                <a asp-action="ClassSubjects" asp-route-id="@Model.ClassId" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Class
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

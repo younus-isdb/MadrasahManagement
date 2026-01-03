@@ -1,44 +1,115 @@
-﻿@model FeeType
-
-<h2>Create Fee Type</h2>
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
+﻿@using MadrasahManagement.ViewModels
+@model CreateFeeTypeViewModel
+@{
+    ViewData["Title"] = "Create Fee Type";
 }
 
-<form method="post">
-    <div>
-        <label>Name:</label>
-        <input asp-for="Name" class="form-control" required />
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0"><i class="fas fa-money-bill-wave"></i> @ViewData["Title"]</h4>
     </div>
+    <div class="card-body">
+        <form method="get" id="filterForm">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="DepartmentId" class="form-label"></label>
+                        <select asp-for="DepartmentId"
+                                asp-items="ViewBag.Departments"
+                                class="form-select"
+                                onchange="this.form.submit()">
+                            <option value="">-- Select Department --</option>
+                        </select>
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
 
-    <div>
-        <label>Class:</label>
-        <select asp-for="ClassId" class="form-control" required>
-            <option value="">-- Select --</option>
-            @foreach (var c in (List<SelectListItem>)ViewBag.Classes)
-            {
-                <option value="@c.Value">@c.Text</option>
-            }
-        </select>
+        <form method="post" asp-action="CreateFeeType">
+            @Html.AntiForgeryToken()
+
+            <!-- Hidden field to preserve DepartmentId in POST -->
+            <input type="hidden" asp-for="DepartmentId" />
+
+            <div class="row">
+                <!-- Class Dropdown (cascading) -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ClassId" class="form-label"></label>
+                        <select asp-for="ClassId"
+                                asp-items="ViewBag.Classes"
+                                class="form-select"
+                                required>
+                            @if (Model.DepartmentId == 0)
+                            {
+                                <option value="">-- Select Department First --</option>
+                            }
+                            else
+                            {
+                                <option value="">-- Select Class --</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ClassId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Other fields -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Amount" class="form-label"></label>
+                        <input asp-for="Amount" class="form-control" step="0.01" />
+                        <span asp-validation-for="Amount" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Frequency" class="form-label"></label>
+                <select asp-for="Frequency" asp-items="Html.GetEnumSelectList<FeeFrequency>()"
+                        class="form-control">
+                    <option value="">-- Select Frequency --</option>
+                </select>
+                <span asp-validation-for="Frequency" class="text-danger"></span>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Create Fee Type
+                </button>
+                <a asp-action="Feetypes" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div>
-        <label>Amount:</label>
-        <input asp-for="Amount" class="form-control" required type="number" />
-    </div>
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Enable/disable submit button based on department selection
+            var hasDept = @Model.DepartmentId > 0;
+            $('button[type="submit"]').prop('disabled', !hasDept);
 
-    <div>
-        <label>Frequency:</label>
-        <select asp-for="Frequency" class="form-control" required>
-            <option value="0">Monthly</option>
-            <option value="1">Quarterly</option>
-            <option value="2">Half Yearly</option>
-            <option value="3">Yearly</option>
-            <option value="4">One Time</option>
-        </select>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3">Save</button>
-</form>
+            // Validate form on submit
+            $('form[method="post"]').on('submit', function(e) {
+                var classId = $('#ClassId').val();
+                if (!classId) {
+                    e.preventDefault();
+                    alert('Please select a class.');
+                    return false;
+                }
+                return true;
+            });
+        });
+    </script>
+}

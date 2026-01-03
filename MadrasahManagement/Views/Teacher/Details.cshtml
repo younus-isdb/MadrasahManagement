@@ -1,94 +1,329 @@
 ﻿@model MadrasahManagement.Models.Teacher
-
 @{
     ViewData["Title"] = "Teacher Details";
 }
+
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="text-center mb-5">
-                <h1 class="h2 text-dark mb-2">Teacher Information</h1>
-                <p class=" text-muted
-
-">Detailed view of teacher profile</p>
-
-                </div>
+        <div class="col-lg-10">
             <div class="card shadow border-0">
-                <div class="card-body p-4">
+                <!-- Header -->
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-tie"></i> Teacher Details
+                        </h4>
+                        <div>
+                            <a asp-action="Index" class="btn btn-light btn-sm">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@Model.TeacherId"
+                               class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
                     <div class="row">
-                        <!-- Teacher Image -->
-                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                        {
-                            <div class="col-md-4 text-center mb-4">
-                                <div class="bg-light rounded p-3">
-                                    <img src="@Model.ImageFile" alt="@Model.Name" class="img-fluid rounded shadow" style="max-height: 300px;">
+                        <!-- Left Column - Basic Info & Image -->
+                        <div class="col-md-4">
+                            <!-- Teacher Image -->
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div class="text-center mb-4">
+                                    <div class="bg-light rounded p-3">
+                                        <img src="@Model.ImageUrl" alt="@Model.Name"
+                                             class="img-fluid rounded shadow" style="max-height: 250px; object-fit: cover;">
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center mb-4">
+                                    <div class="bg-light rounded p-3" style="height: 250px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-user-tie fa-6x text-secondary"></i>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Basic Information Card -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-info-circle"></i> Basic Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">Name</small>
+                                        <div class="fw-bold">@Model.Name</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Email</small>
+                                        <div>@Model.Email</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Contact</small>
+                                        <div>@Model.Contact</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Designation</small>
+                                        <div>@Model.Designation</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Department</small>
+                                        <div class="badge bg-primary">@Model.Department?.DepartmentName</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Qualification</small>
+                                        <div>@Model.Qualification</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Joining Date</small>
+                                        <div>@Model.JoiningDate.ToString("dd MMMM yyyy")</div>
+                                    </div>
                                 </div>
                             </div>
-                        }
-                       
-                        <!-- Teacher Information -->
-                        <div class="@(string.IsNullOrEmpty(Model.ImageUrl) ? "col-12" : "col-md-8")">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class=" form-label
 
-    fw-semibold text-muted small mb-1">Name</label>
-
-                                        <div class="fs-5 text-dark">@Model.Name</div>
+                            <!-- Quick Stats -->
+                            <div class="card">
+                                <div class="card-header bg-secondary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-chart-bar"></i> Quick Stats</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-6 mb-3">
+                                            <div class="text-primary fw-bold h5">@Model.Salaries?.Count</div>
+                                            <small class="text-muted">Salary Records</small>
+                                        </div>
+                                        <div class="col-6 mb-3">
+                                            <div class="text-success fw-bold h5">@Model.ClassSubjects?.Count</div>
+                                            <small class="text-muted">Assigned Classes</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-warning fw-bold h5">@Model.Assignments?.Count</div>
+                                            <small class="text-muted">Assignments</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-info fw-bold h5">@Model.Timetables?.Count</div>
+                                            <small class="text-muted">Timetables</small>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class=" form-label
+                                </div>
+                            </div>
+                        </div>
 
-    fw-semibold text-muted small mb-1">Email</label>
+                        <!-- Right Column - Detailed Information -->
+                        <div class="col-md-8">
+                            <!-- Salary Information Card -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="fas fa-money-bill-wave"></i> Salary Information</h6>
+                                   
+                                </div>
+                                <div class="card-body">
+                                    @if (Model.Salaries != null && Model.Salaries.Any())
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Month</th>
+                                                        <th>Year</th>
+                                                        <th>Basic Salary</th>
+                                                        <th>Allowances</th>
+                                                        <th>Deductions</th>
+                                                        <th>Net Amount</th>
+                                                        <th>Payment Date</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var salary in Model.Salaries.OrderByDescending(s => s.PaymentDate))
+                                                    {
+                                                        <tr>
+                                                            <td>@salary.MonthName</td>
+                                                            <td>@salary.Year</td>
+                                                            <td>@salary.BasicSalary.ToString("N2")</td>
+                                                            <td class="text-success">+@salary.Allowances.ToString("N2")</td>
+                                                            <td class="text-danger">-@salary.Deductions.ToString("N2")</td>
+                                                            <td class="fw-bold">@salary.NetAmount.ToString("N2")</td>
+                                                            <td>@salary.PaymentDate.ToString("dd/MM/yyyy")</td>
+                                                            <td>
+                                                                @if (salary.PaymentStatus == PaymentStatus.Paid)
+                                                                {
+                                                                    <span class="badge bg-success">Paid</span>
+                                                                }
+                                                                else if (salary.PaymentStatus == PaymentStatus.Pending)
+                                                                {
+                                                                    <span class="badge bg-warning">Pending</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge bg-danger">Not Paid</span>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="table-active">
+                                                        <td colspan="5" class="text-end fw-bold">Total:</td>
+                                                        <td class="fw-bold">@Model.Salaries.Sum(s => s.NetAmount).ToString("N2")</td>
+                                                        <td colspan="2"></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i> No salary records found for this teacher.
+                                        </div>
+                                    }
+                                </div>
+                            </div>
 
-                                        <div class="fs-6 text-dark">@Model.Email</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class=" form-label
+                            <!-- Assigned Classes & Subjects -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> Assigned Classes & Subjects</h6>
+                                </div>
+                                <div class="card-body">
+                                    @if (Model.ClassSubjects != null && Model.ClassSubjects.Any())
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Class</th>
+                                                        <th>Subject</th>
+                                                        <th>Subject Code</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var assignment in Model.ClassSubjects.OrderBy(cs => cs.Class?.ClassName))
+                                                    {
+                                                        <tr>
+                                                            <td>@assignment.Class?.ClassName</td>
+                                                            <td>@assignment.Subject?.SubjectName</td>
+                                                            <td><code>@assignment.Subject?.SubjectCode</code></td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle"></i> No class assignments found.
+                                        </div>
+                                    }
+                                </div>
+                            </div>
 
-    fw-semibold text-muted small mb-1">Contact</label>
+                            <!-- Other Information (Collapsible) -->
+                            <div class="accordion" id="teacherAccordion">
+                                <!-- Assignments -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#assignmentsCollapse">
+                                            <i class="fas fa-tasks me-2"></i> Assignments (@Model.Assignments?.Count)
+                                        </button>
+                                    </h2>
+                                   @*  <div id="assignmentsCollapse" class="accordion-collapse collapse" data-bs-parent="#teacherAccordion">
+                                        <div class="accordion-body">
+                                            @if (Model.Assignments != null && Model.Assignments.Any())
+                                            {
+                                                <div class="list-group">
+                                                    @foreach (var assignment in Model.Assignments.OrderByDescending(a => a.AssignmentDate))
+                                                    {
+                                                        <div class="list-group-item">
+                                                            <div class="d-flex justify-content-between">
+                                                                <div>
+                                                                    <strong>@assignment.Title</strong>
+                                                                    <div class="text-muted small">@assignment.Description</div>
+                                                                </div>
+                                                                <span class="badge bg-info">@assignment.AssignmentDate.ToString("dd/MM/yyyy")</span>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No assignments found.</p>
+                                            }
+                                        </div>
+                                    </div> *@
+                                </div>
 
-                                        <div class="fs-6 text-dark">@Model.Contact</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class=" form-label fw-semibold text-muted small mb-1">salary</label>
-
-                                        <div class="fs-6 text-dark">@Model.Salaries</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class=" form-label fw-semibold text-muted small mb-1">Assignments</label>
-
-                                        <div class="fs-6 text-dark">@Model.Assignments</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class=" form-label fw-semibold text-muted small mb-1">Timetables</label>
-
-                                        <div class="fs-6 text-dark">@Model.Timetables</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class=" form-label fw-semibold text-muted small mb-1">ClassSubjects</label>
-
-                                        <div class="fs-6 text-dark">@Model.ClassSubjects</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class=" form-label fw-semibold text-muted small mb-1">Department</label>
-
-                                        <div class="fs-6 text-dark">@Model.Department</div>
-                                    </div>
+                                <!-- Timetables -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#timetablesCollapse">
+                                            <i class="fas fa-calendar-alt me-2"></i> Timetables (@Model.Timetables?.Count)
+                                        </button>
+                                    </h2>
+                                   @*  <div id="timetablesCollapse" class="accordion-collapse collapse" data-bs-parent="#teacherAccordion">
+                                        <div class="accordion-body">
+                                            @if (Model.Timetables != null && Model.Timetables.Any())
+                                            {
+                                                <div class="row">
+                                                    @foreach (var timetable in Model.Timetables.OrderBy(t => t.DayOfWeek).ThenBy(t => t.StartTime))
+                                                    {
+                                                        <div class="col-md-6 mb-2">
+                                                            <div class="card border">
+                                                                <div class="card-body p-2">
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <span class="fw-bold">@timetable.DayOfWeek</span>
+                                                                        <span>@timetable.StartTime.ToString("hh\\:mm") - @timetable.EndTime.ToString("hh\\:mm")</span>
+                                                                    </div>
+                                                                    <div class="text-muted small">@timetable.Subject?.SubjectName</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No timetables found.</p>
+                                            }
+                                        </div>
+                                    </div> *@
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="mt-4 text-center">
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-            </div>
         </div>
-
     </div>
-
 </div>
 
+@* @section Styles {
+    <style>
+        .card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
 
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+        }
+
+        .badge {
+            font-size: 0.75em;
+            padding: 0.35em 0.65em;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+        }
+    </style>
+} *@
