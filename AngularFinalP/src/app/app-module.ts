@@ -20,6 +20,12 @@ import { ExamroutineList } from './components/examroutine/examroutine-list/examr
 import { RegisterPage } from './components/register-page/register-page';
 import { LoginPage } from './components/login-page/login-page';
 import { AdminDashboardComponent } from './components/admindashboard-component/admindashboard-component';
+import { ExamIncomeIndex } from './components/examincome/exam-income-index/exam-income-index';
+import { ExamIncomeCreate } from './components/examincome/exam-income-create/exam-income-create';
+import { ExamIncomeEdit } from './components/examincome/exam-income-edit/exam-income-edit';
+import { Examroutinecreate } from './components/examroutine/examroutinecreate/examroutinecreate';
+import { ExamroutineEdit } from './components/examroutine/examroutine-edit/examroutine-edit';
+import { ExamfeecollectionEdit } from './components/examfeecollection/examfeecollection-edit/examfeecollection-edit';
 
 
 @NgModule({
@@ -40,7 +46,13 @@ import { AdminDashboardComponent } from './components/admindashboard-component/a
     ExamroutineList,
     RegisterPage,
     LoginPage,
-    AdminDashboardComponent
+    AdminDashboardComponent,
+    ExamIncomeIndex,
+    ExamIncomeCreate,
+    ExamIncomeEdit,
+    Examroutinecreate,
+    ExamroutineEdit,
+    ExamfeecollectionEdit
     
   ],
   imports: [

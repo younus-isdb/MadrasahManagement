@@ -1,0 +1,37 @@
+<div class="container mt-3">
+  <h4>Create Exam Income / Expense</h4>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+
+    <!-- Exam dropdown -->
+    <div class="mb-3">
+      <label class="form-label">Exam</label>
+      <select class="form-control" formControlName="examId">
+        <option value="">-- Select Exam --</option>
+        <option *ngFor="let e of exams()" [value]="e.examId">
+          {{ e.examName }}
+        </option>
+      </select>
+      <div class="text-danger"
+           *ngIf="form.get('examId')?.invalid && form.get('examId')?.touched">
+        Exam is required
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Type of Expense</label>
+      <input type="text" class="form-control" formControlName="typesOfExpense">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Amount</label>
+      <input type="number" class="form-control" formControlName="amount">
+      <div class="text-danger"
+           *ngIf="form.get('amount')?.invalid && form.get('amount')?.touched">
+        Amount is required
+      </div>
+    </div>
+
+    <button class="btn btn-success" [disabled]="form.invalid || loading()">Save</button>
+  </form>
+</div>

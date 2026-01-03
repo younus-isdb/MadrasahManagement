@@ -1,0 +1,116 @@
+<div class="container mt-3">
+  <h4>Create Exam Routine</h4>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+
+    <!-- Education Year -->
+    <div class="mb-3">
+      <label class="form-label">Education Year</label>
+      <input type="text" class="form-control" formControlName="educationYear" placeholder="e.g. 2025-2026">
+      <div class="text-danger"
+           *ngIf="form.get('educationYear')?.invalid && form.get('educationYear')?.touched">
+        Education Year is required
+      </div>
+    </div>
+
+    <!-- Class Dropdown -->
+    <div class="mb-3">
+      <label class="form-label">Class</label>
+      <select class="form-control" formControlName="classId">
+        <option value="">-- Select Class --</option>
+        <option *ngFor="let c of classes()" [value]="c.id">
+          {{ c.name }}
+        </option>
+      </select>
+      <div class="text-danger"
+           *ngIf="form.get('classId')?.invalid && form.get('classId')?.touched">
+        Class is required
+      </div>
+    </div>
+
+    <!-- Exam Dropdown -->
+    <div class="mb-3">
+      <label class="form-label">Exam</label>
+      <select class="form-control" formControlName="examId">
+        <option value="">-- Select Exam --</option>
+        <option *ngFor="let e of exams()" [value]="e.id">
+          {{ e.name }}
+        </option>
+      </select>
+      <div class="text-danger"
+           *ngIf="form.get('examId')?.invalid && form.get('examId')?.touched">
+        Exam is required
+      </div>
+    </div>
+
+    <!-- Subject Dropdown -->
+    <div class="mb-3">
+      <label class="form-label">Subject</label>
+      <select class="form-control" formControlName="subjectId">
+        <option value="">-- Select Subject --</option>
+        <option *ngFor="let s of subjects()" [value]="s.id">
+          {{ s.name }}
+        </option>
+      </select>
+      <div class="text-danger"
+           *ngIf="form.get('subjectId')?.invalid && form.get('subjectId')?.touched">
+        Subject is required
+      </div>
+    </div>
+
+    <!-- Room Number -->
+    <div class="mb-3">
+      <label class="form-label">Room Number</label>
+      <input type="number" class="form-control" formControlName="roomNumber" placeholder="Enter Room Number">
+      <div class="text-danger"
+           *ngIf="form.get('roomNumber')?.invalid && form.get('roomNumber')?.touched">
+        Room Number is required
+      </div>
+    </div>
+
+    <!-- Exam Date -->
+    <div class="mb-3">
+      <label class="form-label">Exam Date</label>
+      <input type="date" class="form-control" formControlName="examDate">
+      <div class="text-danger"
+           *ngIf="form.get('examDate')?.invalid && form.get('examDate')?.touched">
+        Exam Date is required
+      </div>
+    </div>
+
+    <!-- Exam Day -->
+    <div class="mb-3">
+      <label class="form-label">Exam Day</label>
+      <input type="text" class="form-control" formControlName="examDay" placeholder="e.g. Monday">
+      <div class="text-danger"
+           *ngIf="form.get('examDay')?.invalid && form.get('examDay')?.touched">
+        Exam Day is required
+      </div>
+    </div>
+
+    <!-- Exam Start Time -->
+    <div class="mb-3">
+      <label class="form-label">Exam Start Time</label>
+      <input type="time" class="form-control" formControlName="examStartTime">
+      <div class="text-danger"
+           *ngIf="form.get('examStartTime')?.invalid && form.get('examStartTime')?.touched">
+        Exam Start Time is required
+      </div>
+    </div>
+
+    <!-- Exam End Time -->
+    <div class="mb-3">
+      <label class="form-label">Exam End Time</label>
+      <input type="time" class="form-control" formControlName="examEndTime">
+      <div class="text-danger"
+           *ngIf="form.get('examEndTime')?.invalid && form.get('examEndTime')?.touched">
+        Exam End Time is required
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-success" [disabled]="form.invalid || loading()">
+      Create Exam Routine
+    </button>
+  </form>
+</div>

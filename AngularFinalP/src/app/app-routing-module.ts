@@ -15,8 +15,9 @@ import { LoginPage } from './components/login-page/login-page';
 import { RegisterPage } from './components/register-page/register-page';
 import { AppGuard } from '../app-guard';
 import { AdminDashboardComponent } from './components/admindashboard-component/admindashboard-component';
-
-
+import { ExamIncomeCreate } from './components/examincome/exam-income-create/exam-income-create';
+import { ExamIncomeIndex } from './components/examincome/exam-income-index/exam-income-index';
+import { ExamIncomeEdit } from './components/examincome/exam-income-edit/exam-income-edit';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -39,7 +40,10 @@ const routes: Routes = [
   { path: 'pointedit/:id', component: PointEdit },
   { path: 'examfeecollection', component: ExamFeesList },
   { path: 'examfeecollectioncreate', component: ExamFeeCollectionCreate },
-  { path: 'examroutine', component: ExamroutineList}
+  { path: 'examroutine', component: ExamroutineList },
+  { path: 'exam-income', component: ExamIncomeIndex },
+  { path: 'examincomecreate', component: ExamIncomeCreate },
+  { path: 'examincomeedit/:id', component: ExamIncomeEdit } 
 
 ];
 

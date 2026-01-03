@@ -1,0 +1,96 @@
+<div class="exam-fee-edit-container">
+  <h2>Edit Exam Fee Collection</h2>
+
+  <form [formGroup]="examFeeForm" (ngSubmit)="onSubmit()">
+
+    <!-- Education Year -->
+    <div class="form-group">
+      <label for="educationYear">Education Year</label>
+      <input id="educationYear" type="text" formControlName="educationYear" placeholder="e.g. 2025-2026" />
+      <div *ngIf="examFeeForm.get('educationYear')?.touched && examFeeForm.get('educationYear')?.invalid" class="error">
+        Education Year is required and max 10 characters.
+      </div>
+    </div>
+
+    <!-- Class Dropdown -->
+    <div class="form-group">
+      <label for="classId">Class</label>
+      <select id="classId" formControlName="classId">
+        <option value="">-- Select Class --</option>
+        <option *ngFor="let c of classes()" [value]="c.id">{{ c.name }}</option>
+      </select>
+      <div *ngIf="examFeeForm.get('classId')?.touched && examFeeForm.get('classId')?.invalid" class="error">
+        Class is required.
+      </div>
+    </div>
+
+    <!-- Exam Dropdown -->
+    <div class="form-group">
+      <label for="examId">Exam</label>
+      <select id="examId" formControlName="examId">
+        <option value="">-- Select Exam --</option>
+        <option *ngFor="let e of exams()" [value]="e.id">{{ e.name }}</option>
+      </select>
+      <div *ngIf="examFeeForm.get('examId')?.touched && examFeeForm.get('examId')?.invalid" class="error">
+        Exam is required.
+      </div>
+    </div>
+
+    <!-- Exam Amount -->
+    <div class="form-group">
+      <label for="examAmount">Exam Amount</label>
+      <input id="examAmount" type="number" formControlName="examAmount" min="0" />
+      <div *ngIf="examFeeForm.get('examAmount')?.touched && examFeeForm.get('examAmount')?.invalid" class="error">
+        Exam Amount is required and must be ≥ 0.
+      </div>
+    </div>
+
+    <!-- Fee Collections FormArray -->
+    <div formArrayName="feeCollections" class="fee-collections">
+      <h3>Student Fee Collections</h3>
+      <div *ngFor="let fee of feeCollections.controls; let i = index" [formGroupName]="i" class="fee-row">
+
+        <!-- Student Dropdown -->
+        <select formControlName="studentId">
+          <option value="">-- Select Student --</option>
+          <option *ngFor="let s of students()" [value]="s.id">{{ s.name }}</option>
+        </select>
+        <div *ngIf="fee.get('studentId')?.touched && fee.get('studentId')?.invalid" class="error">
+          Student is required.
+        </div>
+
+        <!-- Exam Fee Amount -->
+        <input type="number" formControlName="examFeeAmount" placeholder="Fee Amount" min="0" />
+        <div *ngIf="fee.get('examFeeAmount')?.touched && fee.get('examFeeAmount')?.invalid" class="error">
+          Fee Amount is required and ≥ 0.
+        </div>
+
+        <!-- Total Subjects -->
+        <input type="number" formControlName="totalSubject" placeholder="Total Subjects" min="1" />
+        <div *ngIf="fee.get('totalSubject')?.touched && fee.get('totalSubject')?.invalid" class="error">
+          Total Subjects is required and ≥ 1.
+        </div>
+
+        <!-- Remove Button -->
+        <button type="button" (click)="removeStudentFee(i)" [disabled]="feeCollections.length === 1" class="btn-remove">
+          Remove
+        </button>
+      </div>
+
+      <!-- Add New Student Button -->
+      <button type="button" (click)="addStudentFee()" class="btn-add">
+        Add Student
+      </button>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-group submit-btn">
+      <button type="submit" [disabled]="loading()">
+        {{ loading() ? 'Updating...' : 'Update Exam Fee Collection' }}
+      </button>
+    </div>
+
+  </form>
+</div>
+
+
