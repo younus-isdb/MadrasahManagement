@@ -1,209 +1,159 @@
-﻿@model MadrasahManagement.Models.Class
-
+﻿@using MadrasahManagement.ViewModels
+@model ClassCreateViewModel
 @{
-    ViewData["Title"] = "Create Class";
+    ViewData["Title"] = "Create Class with Subjects";
 }
 
-<h2 class="mb-4">Create New Class</h2>
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+            <i class="fas fa-plus-circle"></i> @ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body">
+        <div asp-validation-summary="All" class="alert alert-danger"></div>
+        <form id="createForm" method="post" asp-action="Create">
+            @Html.AntiForgeryToken()
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-
-                <form asp-action="Create" method="post">
-                    @Html.AntiForgeryToken()
-
-                    <!-- Class Name -->
-                    <div class="mb-3">
+            <!-- Class Information -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label asp-for="ClassName" class="form-label"></label>
-                        <input asp-for="ClassName" class="form-control" placeholder="Enter Class Name" />
+                        <input asp-for="ClassName" class="form-control" />
                         <span asp-validation-for="ClassName" class="text-danger"></span>
                     </div>
-
-                    <!-- Session Year -->
-                    <div class="mb-3">
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
                         <label asp-for="SessionYear" class="form-label"></label>
-                        <input asp-for="SessionYear" class="form-control" placeholder="2024-2025" />
+                        <input asp-for="SessionYear" class="form-control" />
                         <span asp-validation-for="SessionYear" class="text-danger"></span>
                     </div>
-
-                    <!-- Department -->
-                    <div class="mb-3">
-                        <label asp-for="DepartmentId"></label>
-
-                        <div class="input-group">
-                            <select asp-for="DepartmentId"
-                                    asp-items="@(new SelectList(ViewBag.DepartmentList, "DepartmentId", "DepartmentName"))"
-                                    class="form-control">
-                                <option value="">-- Select Department --</option>
-                            </select>
-
-                            <!-- + Button -->
-                            <button type="button"
-                                    class="btn btn-success"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#departmentModal">
-                                +
-                            </button>
-                        </div>
-
-                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="d-flex justify-content-between">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Create
-                        </button>
-                        <a asp-action="Index" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left-circle"></i> Back
-                        </a>
-                    </div>
-
-                </form>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- 🔥 Bootstrap Modal for Department Create -->
-<div class="modal fade" id="departmentModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Create Department</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body" id="departmentModalBody">
-                <!-- AJAX দ্বারা Department Create Form লোড হবে -->
-                Loading...
-            </div>
-        </div>
-    </div>
-</div>
-
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
-    <script>
-        // 🚀 Modal ওপেন হবার সাথে সাথে AJAX দিয়ে Create Dept Form লোড
-        $('#departmentModal').on('show.bs.modal', function () {
-            $("#departmentModalBody").load('/Department/CreateModal');
-        });
-
-        // 🚀 Department তৈরি হওয়ার পর select list রিফ্রেশ
-        function RefreshDepartmentList() {
-            $.get('/Department/GetAll', function (data) {
-                let ddl = $('#DepartmentId');
-                ddl.empty();
-                ddl.append('<option value="">-- Select Department --</option>');
-                $.each(data, function (i, dept) {
-                    ddl.append(`<option value="${dept.departmentId}">${dept.departmentName}</option>`);
-                });
-            });
-        }
-    </script>
-}
-
-
-
-
-
-
-
-@* @model MadrasahManagement.Models.Class
-
-@{
-    ViewData["Title"] = "Create Class";
-}
-
-<h2 class="mb-4">Create New Class</h2>
-
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-
-                <form asp-action="Create" method="post">
-                    @Html.AntiForgeryToken()
-
-                    <!-- Class Name -->
-                    <div class="mb-3">
-                        <label asp-for="ClassName" class="form-label"></label>
-                        <input asp-for="ClassName" class="form-control" placeholder="Enter Class Name" />
-                        <span asp-validation-for="ClassName" class="text-danger"></span>
-                    </div>
-
-                    <!-- Session Year -->
-                    <div class="mb-3">
-                        <label asp-for="SessionYear" class="form-label"></label>
-                        <input asp-for="SessionYear" class="form-control" placeholder="2024-2025" />
-                        <span asp-validation-for="SessionYear" class="text-danger"></span>
-                    </div>
-
-                    <!-- Department -->
-                    <div class="mb-3">
-                        <label asp-for="DepartmentId"></label>
-                        <select asp-for="DepartmentId"
-                                asp-items="@(new SelectList(ViewBag.DepartmentList, "DepartmentId", "DepartmentName"))"
-                                class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label asp-for="DepartmentId" class="form-label"></label>
+                        <select asp-for="DepartmentId" class="form-select"
+                                asp-items="@(ViewBag.DepartmentList as IEnumerable<SelectListItem>)">
                             <option value="">-- Select Department --</option>
                         </select>
                         <span asp-validation-for="DepartmentId" class="text-danger"></span>
                     </div>
-
-                    <!-- Buttons -->
-                    <div class="d-flex justify-content-between">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Create
-                        </button>
-                        <a asp-action="Index" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left-circle"></i> Back
-                        </a>
-                    </div>
-                </form>
-
+                </div>
             </div>
-        </div>
+
+            <hr />
+
+            <!-- Subjects Section -->
+            <h5 class="mb-3">
+                <i class="fas fa-book"></i> Subjects
+                <button type="button" class="btn btn-sm btn-success float-end" onclick="addSubjectRow()">
+                    <i class="fas fa-plus"></i> Add Subject
+                </button>
+            </h5>
+
+            <div id="subjectsContainer">
+                @for (int i = 0; i < Model.Subjects.Count; i++)
+                {
+                    <div class="subject-row row mb-3 border p-3 rounded" data-index="@i">
+                        <div class="col-md-4">
+                            <label class="form-label">Subject Name</label>
+                            <input asp-for="Subjects[i].SubjectName" class="form-control subject-name" />
+                            <span asp-validation-for="Subjects[i].SubjectName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Subject Code</label>
+                            <input asp-for="Subjects[i].SubjectCode" class="form-control subject-code" />
+                            <span asp-validation-for="Subjects[i].SubjectCode" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Optional?</label>
+                            <div class="form-check mt-2">
+                                <input asp-for="Subjects[i].IsOptional" class="form-check-input" />
+                                <label asp-for="Subjects[i].IsOptional" class="form-check-label">Yes</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            @if (i > 0)
+                            {
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectRow(this)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Class & Subjects
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <script>
+        let subjectIndex = @Model.Subjects.Count;
+
+        function addSubjectRow() {
+            const container = document.getElementById('subjectsContainer');
+            const template = `
+                <div class="subject-row row mb-3 border p-3 rounded" data-index="${subjectIndex}">
+                    <div class="col-md-4">
+                        <label class="form-label">Subject Name</label>
+                        <input name="Subjects[${subjectIndex}].SubjectName" class="form-control subject-name" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Subject Code</label>
+                        <input name="Subjects[${subjectIndex}].SubjectCode" class="form-control subject-code" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Optional?</label>
+                        <div class="form-check mt-2">
+                            <input name="Subjects[${subjectIndex}].IsOptional" class="form-check-input" type="checkbox" />
+                            <label class="form-check-label">Yes</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectRow(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', template);
+            subjectIndex++;
+        }
+
+        function removeSubjectRow(button) {
+            const row = button.closest('.subject-row');
+            row.remove();
+        }
+
+        // Form validation
+        document.getElementById('createForm').addEventListener('submit', function(e) {
+            const subjectRows = document.querySelectorAll('.subject-row');
+            let hasEmptyRows = true;
+
+            subjectRows.forEach(row => {
+                const name = row.querySelector('.subject-name').value.trim();
+                const code = row.querySelector('.subject-code').value.trim();
+                if (name || code) {
+                    hasEmptyRows = false;
+                }
+            });
+
+            if (hasEmptyRows) {
+                e.preventDefault();
+                alert('Please add at least one subject with name and code.');
+            }
+        });
+    </script>
 }
-  *@
-
-@*@
-@using Microsoft.AspNetCore.Mvc.Rendering
-@using MadrasahManagement.Models
-@model Class
-
-<h2>Create Class</h2>
-
-<form asp-action="Create" method="post">
-    <div class="form-group mb-2">
-        <label asp-for="ClassName"></label>
-        <input asp-for="ClassName" class="form-control" />
-        <span asp-validation-for="ClassName" class="text-danger"></span>
-    </div>
-
-    
-
-    <div class="form-group mb-3">
-        <label asp-for="DepartmentId"></label>
-        <select asp-for="DepartmentId"
-                asp-items="@(new SelectList(ViewBag.DepartmentList, "DepartmentId", "DepartmentName"))"
-                class="form-control">
-            <option value="">-- Select Department --</option>
-        </select>
-        <span asp-validation-for="DepartmentId" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save</button>
-</form>
- *@

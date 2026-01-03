@@ -220,7 +220,9 @@ namespace MadrasahManagement.Models
             builder.Property(t => t.Designation).HasMaxLength(150);
             builder.HasOne(t => t.AppUser).WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(t => t.Department).WithMany(d => d.Teachers).HasForeignKey(t => t.DepartmentId).OnDelete(DeleteBehavior.Restrict);
+
         }
+    
     }
 
     public class ClassConfiguration : IEntityTypeConfiguration<Class>
@@ -266,6 +268,7 @@ namespace MadrasahManagement.Models
             builder.ToTable("ClassSubjects");
             builder.HasKey(cs => new { cs.ClassId, cs.SubjectId });
             builder.HasOne(cs => cs.Class).WithMany(c => c.ClassSubjects).HasForeignKey(cs => cs.ClassId).OnDelete(DeleteBehavior.Cascade);
+
             builder.HasOne(cs => cs.Subject).WithMany(s => s.ClassSubjects).HasForeignKey(cs => cs.SubjectId).OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(cs => cs.Teacher).WithMany(t => t.ClassSubjects).HasForeignKey(cs => cs.TeacherId).OnDelete(DeleteBehavior.Restrict);
         }
