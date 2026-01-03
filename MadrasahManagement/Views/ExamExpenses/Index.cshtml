@@ -1,0 +1,44 @@
+﻿@model IEnumerable<MadrasahManagement.Dto.ExamIncomeExpenseReadDto>
+
+@{
+    ViewData["Title"] = "Exam Expenses";
+}
+
+<h2>Exam Expenses</h2>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Add New Expense</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Exam Name</th>
+            <th>Type of Expense</th>
+            <th>Amount</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ExamName</td>
+                <td>@item.TypesOfExpense</td>
+                <td>@item.Amount.ToString("C")</td>
+                <td>
+                    <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.IncomeExpenseId">Details</a>
+                    <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.IncomeExpenseId">Edit</a>
+                    <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.IncomeExpenseId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="2" class="text-right">Total:</th>
+            <th>@ViewBag.TotalAmount.ToString("C")</th>
+            <th></th>
+        </tr>
+    </tfoot>
+</table>
