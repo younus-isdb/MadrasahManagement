@@ -10,6 +10,8 @@ import { PointCreate } from './components/pointcondition/point-create/point-crea
 import { PointEdit } from './components/pointcondition/point-edit/point-edit';
 import { ExamFeesList } from './components/examfeecollection/examfees-list/examfees-list';
 import { ExamFeeCollectionCreate } from './components/examfeecollection/examfeecollection-create/examfeecollection-create';
+import { ExamfeecollectionEdit } from './components/examfeecollection/examfeecollection-edit/examfeecollection-edit';
+
 import { ExamroutineList } from './components/examroutine/examroutine-list/examroutine-list';
 import { LoginPage } from './components/login-page/login-page';
 import { RegisterPage } from './components/register-page/register-page';
@@ -40,6 +42,7 @@ const routes: Routes = [
   { path: 'pointedit/:id', component: PointEdit },
   { path: 'examfeecollection', component: ExamFeesList },
   { path: 'examfeecollectioncreate', component: ExamFeeCollectionCreate },
+  { path: 'examfeecollectionedit/:id', component: ExamfeecollectionEdit },
   { path: 'examroutine', component: ExamroutineList },
   { path: 'exam-income', component: ExamIncomeIndex },
   { path: 'examincomecreate', component: ExamIncomeCreate },
