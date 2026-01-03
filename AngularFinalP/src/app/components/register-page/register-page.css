@@ -1,0 +1,81 @@
+/* Container */
+form {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  background: #fff0f0; /* light red background */
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  border: 3px solid #e50914; /* KFC red border */
+  font-family: 'Arial', sans-serif;
+}
+
+/* Fieldset */
+fieldset {
+  border: none;
+  padding: 0;
+}
+
+legend {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #e50914;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Form groups */
+div > label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  font-weight: bold;
+  color: #b71c1c; /* dark red text */
+}
+
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #e50914;
+  outline: none;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+  input:focus {
+    border-color: #ff3b30;
+    box-shadow: 0 0 5px #ff3b30;
+  }
+
+/* Buttons */
+button {
+  width: 100%;
+  padding: 12px;
+  background: #e50914;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+  button:hover {
+    background: #b71c1c;
+  }
+
+/* Links */
+a {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  color: #e50914;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+  a:hover {
+    color: #b71c1c;
+  }

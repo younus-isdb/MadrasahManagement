@@ -1,0 +1,118 @@
+﻿@using MadrasahManagement.ViewModels
+@model AddSubjectsViewModel
+@{
+    ViewData["Title"] = "Add Subjects to Class";
+}
+
+<div class="card">
+    <div class="card-header bg-warning text-dark">
+        <h4 class="mb-0">
+            <i class="fas fa-book-medical"></i> @ViewData["Title"]
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <h5>@Model.ClassName</h5>
+            <p class="mb-0">Department: @Model.DepartmentName</p>
+        </div>
+
+        <form id="addSubjectsForm" method="post" asp-action="AddSubjects">
+            <input type="hidden" asp-for="ClassId" />
+            <input type="hidden" asp-for="ClassName" />
+            <input type="hidden" asp-for="DepartmentName" />
+
+            <!-- Subjects Section -->
+            <h5 class="mb-3">
+                <i class="fas fa-book"></i> New Subjects
+                <button type="button" class="btn btn-sm btn-success float-end" onclick="addSubjectRow()">
+                    <i class="fas fa-plus"></i> Add Subject Row
+                </button>
+            </h5>
+
+            <div id="subjectsContainer">
+                @for (int i = 0; i < Model.Subjects.Count; i++)
+                {
+                    <div class="subject-row row mb-3 border p-3 rounded" data-index="@i">
+                        <div class="col-md-4">
+                            <label class="form-label">Subject Name *</label>
+                            <input asp-for="Subjects[i].SubjectName" class="form-control subject-name" required />
+                            <span asp-validation-for="Subjects[i].SubjectName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Subject Code *</label>
+                            <input asp-for="Subjects[i].SubjectCode" class="form-control subject-code" required />
+                            <span asp-validation-for="Subjects[i].SubjectCode" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Optional?</label>
+                            <div class="form-check mt-2">
+                                <input asp-for="Subjects[i].IsOptional" class="form-check-input" />
+                                <label class="form-check-label">Yes</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            @if (i > 0)
+                            {
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectRow(this)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Subjects
+                </button>
+                <a asp-action="ClassSubjects" asp-route-id="@Model.ClassId" class="btn btn-secondary">
+                    Back to Class
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let subjectIndex = @Model.Subjects.Count;
+
+        function addSubjectRow() {
+            const container = document.getElementById('subjectsContainer');
+            const template = `
+                <div class="subject-row row mb-3 border p-3 rounded" data-index="${subjectIndex}">
+                    <div class="col-md-4">
+                        <label class="form-label">Subject Name *</label>
+                        <input name="Subjects[${subjectIndex}].SubjectName" class="form-control subject-name" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Subject Code *</label>
+                        <input name="Subjects[${subjectIndex}].SubjectCode" class="form-control subject-code" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Optional?</label>
+                        <div class="form-check mt-2">
+                            <input name="Subjects[${subjectIndex}].IsOptional" class="form-check-input" type="checkbox" />
+                            <label class="form-check-label">Yes</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectRow(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', template);
+            subjectIndex++;
+        }
+
+        function removeSubjectRow(button) {
+            const row = button.closest('.subject-row');
+            row.remove();
+        }
+    </script>
+}

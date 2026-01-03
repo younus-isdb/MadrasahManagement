@@ -11,10 +11,25 @@ import { PointEdit } from './components/pointcondition/point-edit/point-edit';
 import { ExamFeesList } from './components/examfeecollection/examfees-list/examfees-list';
 import { ExamFeeCollectionCreate } from './components/examfeecollection/examfeecollection-create/examfeecollection-create';
 import { ExamroutineList } from './components/examroutine/examroutine-list/examroutine-list';
+import { LoginPage } from './components/login-page/login-page';
+import { RegisterPage } from './components/register-page/register-page';
+import { AppGuard } from '../app-guard';
+import { AdminDashboardComponent } from './components/admindashboard-component/admindashboard-component';
+
 
 
 const routes: Routes = [
-  { path: 'examination', component: ExaminationList },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginPage },
+  { path: 'register', component: RegisterPage },
+  {
+    path: 'admin-dashboard',
+    component: AdminDashboardComponent ,
+    canActivate: [AppGuard],
+    data: { roles: ['Admin'] }
+  },
+
+  { path: 'examination', component: ExaminationList, canActivate: [AppGuard] },
   { path: 'create', component: ExaminationForm },
   { path: 'edit/:id', component: ExaminationEdit },
   { path: 'examfee', component: ExamfeeList },

@@ -17,6 +17,9 @@ import { PointEdit } from './components/pointcondition/point-edit/point-edit';
 import { ExamFeesList } from './components/examfeecollection/examfees-list/examfees-list';
 import { ExamFeeCollectionCreate } from './components/examfeecollection/examfeecollection-create/examfeecollection-create';
 import { ExamroutineList } from './components/examroutine/examroutine-list/examroutine-list';
+import { RegisterPage } from './components/register-page/register-page';
+import { LoginPage } from './components/login-page/login-page';
+import { AdminDashboardComponent } from './components/admindashboard-component/admindashboard-component';
 
 
 @NgModule({
@@ -34,7 +37,10 @@ import { ExamroutineList } from './components/examroutine/examroutine-list/examr
     PointEdit,
     ExamFeesList,
     ExamFeeCollectionCreate,
-    ExamroutineList
+    ExamroutineList,
+    RegisterPage,
+    LoginPage,
+    AdminDashboardComponent
     
   ],
   imports: [
