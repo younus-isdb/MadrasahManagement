@@ -77,7 +77,8 @@ namespace MadrasahManagement.Controllers
             {
                 return NotFound();
             }
-            var teachers = await _db.Teachers.Include(a => a.Department).Include(a => a.ClassSubjects).Include(a => a.Salaries).Include(a => a.Assignments).Include(a => a.MarkedAttendances).Include(a => a.TeacherAttendances).FirstOrDefaultAsync(a => a.TeacherId == id);
+            var teachers = await _db.Teachers.Include(a => a.Department).Include(a => a.ClassSubjects).ThenInclude(c=>c.Class).Include(a => a.ClassSubjects).ThenInclude(c=>c.Subject).Include(a => a.Salaries).Include(a => a.Assignments).Include(a => a.MarkedAttendances).Include(a => a.TeacherAttendances).FirstOrDefaultAsync(a => a.TeacherId == id);
+
             if (teachers == null) return NotFound();
 
 
@@ -390,72 +391,6 @@ namespace MadrasahManagement.Controllers
 			return RedirectToAction(nameof(Index));
 		}
 
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		//private string GenerateRandomPassword()
-		//{
-		//    // Simple random password generator
-		//    const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
-		//    var random = new Random();
-		//    return new string(Enumerable.Repeat(chars,6)
-		//        .Select(s => s[random.Next(s.Length)]).ToArray());
-		//}
-
-
-
-		//private async Task SendWelcomeEmail(string email, string name)
-		//{
-		//    try
-		//    {
-		//        var subject = "Welcome to School Management System";
-
-		//        var body = $@"
-		//Dear {name},
-
-		//Your teacher account has been created successfully.
-
-		//Login Details:
-		//Email: {email}
-
-
-		//Please login and change your password immediately.
-
-		//Login URL: https://localhost:7113/Account/Login
-
-		//Regards,
-		//School Administration";
-
-		//        Console.WriteLine($"Email sent to {email}");
-		//    }
-		//    catch
-		//    {         
-		//        Console.WriteLine($"Failed to send email to {email}");
-		//    }
-		//}
 
 	}
 }

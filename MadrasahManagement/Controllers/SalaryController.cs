@@ -22,7 +22,7 @@ public class SalaryController : Controller
         return View(salaries);
     }
 
-    // Pay salary form
+    // GET: Pay salary form
     public IActionResult PaySalary()
     {
         ViewBag.Teachers = _context.Teachers.ToList();
@@ -33,47 +33,66 @@ public class SalaryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken] // Add this for security
     public async Task<IActionResult> PaySalary(Salary model)
     {
-        
-            // Calculate net amount
-            model.NetAmount = model.BasicSalary + model.Allowances - model.Deductions;
-            model.PaymentDate = DateTime.Now;
-            model.PaymentStatus = PaymentStatus.Paid;
+        // Check if either TeacherId or StaffId is selected
+        if (model.TeacherId == null && model.StaffId == null)
+        {
+            ModelState.AddModelError("", "Please select either a teacher or staff member.");
+        }
 
-            _context.Salaries.Add(model);
-            await _context.SaveChangesAsync();
+        // Check for duplicate payment
+        if (ModelState.IsValid)
+        {
+            bool alreadyPaid = await _context.Salaries.AnyAsync(s =>
+                (s.TeacherId == model.TeacherId || s.StaffId == model.StaffId) &&
+                s.MonthName == model.MonthName &&
+                s.PaymentDate.Year == DateTime.Now.Year);
 
-            return RedirectToAction("Index");
-       
+            if (alreadyPaid)
+            {
+                ModelState.AddModelError("", "Salary has already been paid for this employee this month.");
+            }
+            else
+            {
+                model.NetAmount = model.BasicSalary + model.Allowances - model.Deductions;
+                model.PaymentDate = DateTime.Now;
+                model.PaymentStatus = PaymentStatus.Paid;
+
+                _context.Salaries.Add(model);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index");
+            }
+        }
+
+        // If we get here, something went wrong - repopulate ViewBag
+        ViewBag.Teachers = _context.Teachers.ToList();
+        ViewBag.Staff = _context.Staffs.ToList();
+        ViewBag.Months = Enum.GetValues(typeof(Month)).Cast<Month>();
+        ViewBag.PaymentMethod = Enum.GetValues(typeof(PaymentMethodType)).Cast<PaymentMethodType>();
+
+        return View(model);
     }
 
     //[HttpPost]
     //public async Task<IActionResult> PaySalary(Salary model)
     //{
 
-    //    bool alreadyPaid = await _context.Salaries.AnyAsync(s =>
-    //        s.TeacherId == model.TeacherId || s.StaffId == model.StaffId &&
-    //        s.PaymentDate.Month == model.PaymentDate.Month &&
-    //        s.PaymentDate.Year == model.PaymentDate.Year);
+    //        // Calculate net amount
+    //        model.NetAmount = model.BasicSalary + model.Allowances - model.Deductions;
+    //        model.PaymentDate = DateTime.Now;
+    //        model.PaymentStatus = PaymentStatus.Paid;
 
-    //    if (alreadyPaid)
-    //    {
-    //        ModelState.AddModelError("", "Salary has already been paid for this employee this month.");
-    //        return View(model);
-    //    }
+    //        _context.Salaries.Add(model);
+    //        await _context.SaveChangesAsync();
 
+    //        return RedirectToAction("Index");
 
-    //    model.NetAmount = model.BasicSalary + model.Allowances - model.Deductions;
-    //    model.PaymentDate = DateTime.Now;
-    //    model.PaymentStatus = PaymentStatus.Paid;
-
-
-    //    _context.Salaries.Add(model);
-    //    await _context.SaveChangesAsync();
-
-    //    return RedirectToAction("Index");
     //}
+
+
 
 
     // Edit salary

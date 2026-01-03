@@ -4,6 +4,7 @@ using MadrasahManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    partial class MadrasahDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260102113606_Write")]
+    partial class Write
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -817,9 +820,6 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DepartmentId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Frequency")
                         .HasColumnType("int");
 
@@ -831,8 +831,6 @@ namespace MadrasahManagement.Migrations
                     b.HasKey("FeeTypeId");
 
                     b.HasIndex("ClassId");
-
-                    b.HasIndex("DepartmentId");
 
                     b.ToTable("FeeTypes", (string)null);
                 });
@@ -2051,15 +2049,7 @@ namespace MadrasahManagement.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("MadrasahManagement.Models.Department", "Department")
-                        .WithMany("FeeTypes")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Class");
-
-                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.HostelResident", b =>
@@ -2485,8 +2475,6 @@ namespace MadrasahManagement.Migrations
             modelBuilder.Entity("MadrasahManagement.Models.Department", b =>
                 {
                     b.Navigation("Classes");
-
-                    b.Navigation("FeeTypes");
 
                     b.Navigation("Sections");
 

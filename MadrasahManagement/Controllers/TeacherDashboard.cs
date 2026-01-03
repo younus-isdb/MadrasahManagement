@@ -26,7 +26,7 @@ namespace MadrasahManagement.Controllers
 
             var teacher = await _db.Teachers
                 .Include(t => t.Department)
-                .Include(t => t.ClassSubjects)
+               // .Include(t => t.ClassSubjects)
                 .Include(t => t.Timetables)
                 .FirstOrDefaultAsync(t => t.UserId == userId);
 

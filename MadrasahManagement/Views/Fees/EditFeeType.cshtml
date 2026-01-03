@@ -1,39 +1,131 @@
-﻿@model FeeType
+﻿@using MadrasahManagement.ViewModels
+@model EditFeeTypeViewModel
+@{
+    ViewData["Title"] = "Edit Fee Type";
+}
 
-<h2>Edit Fee Type</h2>
-
-<form asp-action="EditFeeType" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="FeeTypeId" />
-
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0"><i class="fas fa-edit"></i> @ViewData["Title"]</h4>
     </div>
+    <div class="card-body">
+        <form method="post" asp-action="EditFeeType">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="FeeTypeId" />
 
-    <div class="form-group">
-        <label asp-for="ClassId"></label>
-        <select asp-for="ClassId" asp-items="ViewBag.Classes" class="form-control">
-            <option value="">-- Select Class --</option>
-        </select>
-        <span asp-validation-for="ClassId" class="text-danger"></span>
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="row">
+                <!-- Department Dropdown -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="DepartmentId" class="form-label"></label>
+                        <select asp-for="DepartmentId"
+                                asp-items="ViewBag.Departments"
+                                class="form-select"
+                                id="departmentDropdown">
+                            <option value="">-- Select Department --</option>
+                        </select>
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Class Dropdown (cascading) -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ClassId" class="form-label"></label>
+                        <select asp-for="ClassId"
+                                asp-items="ViewBag.Classes"
+                                class="form-select"
+                                id="classDropdown">
+                            @if (Model.DepartmentId == 0)
+                            {
+                                <option value="">-- Select Department First --</option>
+                            }
+                            else
+                            {
+                                <option value="">-- Select Class --</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ClassId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Other fields -->
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Amount" class="form-label"></label>
+                        <input asp-for="Amount" class="form-control" step="0.01" />
+                        <span asp-validation-for="Amount" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Frequency" class="form-label"></label>
+                <select asp-for="Frequency" asp-items="Html.GetEnumSelectList<FeeFrequency>()"
+                        class="form-control">
+                    <option value="">-- Select Frequency --</option>
+                </select>
+                <span asp-validation-for="Frequency" class="text-danger"></span>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Fee Type
+                </button>
+                <a asp-action="FeeTypes" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Amount"></label>
-        <input asp-for="Amount" class="form-control" />
-        <span asp-validation-for="Amount" class="text-danger"></span>
-    </div>
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Cascading dropdown for Edit
+            $('#departmentDropdown').on('change', function() {
+                var departmentId = $(this).val();
+                var classDropdown = $('#classDropdown');
 
-    <div class="form-group">
-        <label asp-for="Frequency"></label>
-        <select asp-for="Frequency" class="form-control" asp-items="Html.GetEnumSelectList<FeeFrequency>()">
-            <option value="">-- Select Frequency --</option>
-        </select>
-        <span asp-validation-for="Frequency" class="text-danger"></span>
-    </div>
+                if (!departmentId) {
+                    classDropdown.empty().append('<option value="">-- Select Department First --</option>');
+                    return;
+                }
 
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a asp-action="FeeTypes" class="btn btn-secondary">Cancel</a>
-</form>
+                // AJAX call to get classes for selected department
+                $.ajax({
+                    url: '@Url.Action("GetClassesByDepartment", "Fee")',
+                    type: 'GET',
+                    data: { departmentId: departmentId },
+                    success: function(data) {
+                        classDropdown.empty();
+                        classDropdown.append('<option value="">-- Select Class --</option>');
+
+                        $.each(data, function(index, item) {
+                            classDropdown.append($('<option>', {
+                                value: item.value,
+                                text: item.text
+                            }));
+                        });
+
+                        // Preselect the current class if any
+                        var currentClassId = '@Model.ClassId';
+                        if (currentClassId) {
+                            classDropdown.val(currentClassId);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}
