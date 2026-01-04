@@ -1,0 +1,125 @@
+<div class="d-flex">
+  <!-- ================= Sidebar ================= -->
+  <!--<app-sidebar *ngIf="auth.hasRole('Admin')"></app-sidebar>-->
+
+  <!-- ================= Main Content ================= -->
+  <div class="flex-grow-1 p-3">
+
+    <!-- ---------------- Dashboard Title ---------------- -->
+    <h2 class="mb-4 text-center">Admin Dashboard</h2>
+
+    <!-- ---------------- Quick Actions ---------------- -->
+    <div class="mb-4">
+      <button class="btn btn-primary me-2" (click)="goCreateUser()">➕ Create User</button>
+      <button class="btn btn-success me-2" (click)="goAddStudent()">➕ Add Student</button>
+      <button class="btn btn-success me-2" (click)="goAddTeacher()">➕ Add Teacher</button>
+      <button class="btn btn-warning me-2" (click)="goCollectFee()">💰 Collect Fee</button>
+      <button class="btn btn-info me-2" (click)="goAddExpense()">📝 Add Expense</button>
+      <button class="btn btn-dark me-2" (click)="goMarkAttendance()">📋 Mark Attendance</button>
+    </div>
+
+    <!-- ---------------- Summary Cards ---------------- -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3" *ngFor="let card of cards">
+        <div class="card shadow-sm border-0" [style.borderLeft]="'6px solid ' + card.color">
+          <div class="card-body">
+            <h6>{{ card.title }}</h6>
+            <h3>{{ card.value }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- ---------------- Users Management ---------------- -->
+    <h4>Users Management</h4>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Roles</th>
+          <th>Assign Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.email }}</td>
+          <td>
+            <span *ngFor="let r of user.roles" class="badge bg-info me-1">{{ r }}</span>
+          </td>
+          <td>
+            <select [(ngModel)]="assignRoleMap[user.id]" class="form-select form-select-sm">
+              <option value="">Select Role</option>
+              <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+            </select>
+            <button class="btn btn-sm btn-primary mt-1" (click)="onAssignRole(user)">Assign</button>
+          </td>
+          <td>
+            <button *ngFor="let r of user.roles" class="btn btn-sm btn-warning me-1" (click)="onRemoveRole(user, r)">Remove {{ r }}</button>
+            <button class="btn btn-sm btn-danger" (click)="onDeleteUser(user)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr />
+
+    <!-- ---------------- Attendance Overview ---------------- -->
+    <h4>Today's Attendance</h4>
+    <table class="table table-striped">
+      <tr><th>Student</th><th>Status</th></tr>
+      <tr *ngFor="let a of todaysAttendanceList">
+        <td>{{ a.student.studentName }}</td>
+        <td>{{ a.status }}</td>
+      </tr>
+    </table>
+
+    <!-- ---------------- Fee Collection ---------------- -->
+    <h4 class="mt-4">Today's Payments</h4>
+    <table class="table table-striped">
+      <tr><th>Student</th><th>Amount</th><th>Status</th></tr>
+      <tr *ngFor="let p of todaysPayments">
+        <td>{{ p.student.studentName }}</td>
+        <td>{{ p.amountPaid }}</td>
+        <td>{{ p.status }}</td>
+      </tr>
+    </table>
+
+    <!-- ---------------- Expenses ---------------- -->
+    <h4 class="mt-4">Today's Expenses</h4>
+    <table class="table table-striped">
+      <tr><th>Description</th><th>Amount</th></tr>
+      <tr *ngFor="let e of todayExpenses">
+        <td>{{ e.description }}</td>
+        <td>{{ e.amount }}</td>
+      </tr>
+    </table>
+
+    <hr />
+
+    <!-- ---------------- Charts ---------------- -->
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <h5>Monthly Fee Collection</h5>
+        <canvas id="feeChart" height="120"></canvas>
+      </div>
+      <div class="col-md-6">
+        <h5>Monthly Expenses</h5>
+        <canvas id="expenseChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <h5>Attendance Pie (Today)</h5>
+        <canvas id="attendancePie" height="120"></canvas>
+      </div>
+      <div class="col-md-6">
+        <h5>Payment Status Donut</h5>
+        <canvas id="paymentDonut" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+</div>

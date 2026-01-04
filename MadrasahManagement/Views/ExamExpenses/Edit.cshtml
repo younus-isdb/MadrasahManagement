@@ -1,0 +1,38 @@
+﻿@model MadrasahManagement.Dto.ExamIncomeExpenseUpdateDto
+
+@{
+    ViewData["Title"] = "Edit Exam Expense";
+}
+
+<h2>Edit Exam Expense</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="IncomeExpenseId" />
+
+    <div class="form-group">
+        <label asp-for="ExamId">Exam</label>
+        <select asp-for="ExamId" class="form-control" asp-items="@(new SelectList(ViewBag.Exams, "ExamId", "ExamName"))">
+            <option value="">-- Select Exam --</option>
+        </select>
+        <span asp-validation-for="ExamId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TypesOfExpense">Type of Expense</label>
+        <input asp-for="TypesOfExpense" class="form-control" />
+        <span asp-validation-for="TypesOfExpense" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Amount">Amount</label>
+        <input asp-for="Amount" class="form-control" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -73,7 +73,36 @@ namespace MadrasahManagement.ApiControllers
 
             return CreatedAtAction(nameof(GetById), new { id = entity.IncomeExpenseId }, entity);
         }
+        // UPDATE
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] ExamIncomeExpenseUpdateDto dto)
+        {
+            if (id != dto.IncomeExpenseId) return BadRequest("Id mismatch");
 
+            var existing = await _context.ExamIncomeExpenses.FindAsync(id);
+            if (existing == null) return NotFound();
 
+           existing.ExamId = dto.ExamId;
+            existing.TypesOfExpense=dto.TypesOfExpense;
+            existing.Amount = dto.Amount;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // DELETE
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var existing = await _context.ExamIncomeExpenses.FindAsync(id);
+            if (existing == null) return NotFound();
+
+            _context.ExamIncomeExpenses.Remove(existing);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
+
 }
+

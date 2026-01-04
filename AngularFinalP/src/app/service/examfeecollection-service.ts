@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ExamFeesCreateDto, ExamFeesUpdateDto, ExamFeesReadDto } from '../models/examfeeCollection';
+import { ExamFeesCreateDto, ExamFeesUpdateDto, ExamFeesReadDto, ExamFeeCollectionReadDto } from '../models/examfeeCollection';
 
 @Injectable({
   providedIn: 'root'
@@ -35,4 +35,9 @@ export class ExamfeecollectionService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+  // Get only eligible students (due nai)
+  getEligibleStudents(examFeeId: number): Observable<ExamFeeCollectionReadDto[]> {
+    return this.http.get<ExamFeeCollectionReadDto[]>(`${this.apiUrl}/eligible-students/${examFeeId}`);
+  }
+
 }

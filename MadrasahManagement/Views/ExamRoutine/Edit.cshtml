@@ -12,7 +12,8 @@
     </div>
     <div class="card-body">
         <form asp-action="Edit" id="examRoutineForm" method="post">
-            @Html.AntiForgeryToken()
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ExamRoutineId" />
 
             <!-- Hidden fields for primary keys -->
             <input type="hidden" asp-for="EducationYear" />
@@ -26,7 +27,7 @@
                     <div class="form-group">
                         <label>Education Year</label>
                         <input class="form-control" value="@Model.EducationYear" readonly />
-                    </div>
+    </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
@@ -55,7 +56,7 @@
                         <label asp-for="RoomNumber" class="control-label"></label>
                         <input asp-for="RoomNumber" type="number" min="1" max="999" class="form-control" />
                         <span asp-validation-for="RoomNumber" class="text-danger"></span>
-                    </div>
+    </div>
                 </div>
             </div>
 
@@ -89,7 +90,7 @@
                                         <select name="Subjects[@i].SubjectId"
                                                 class="form-control subject-select"
                                                 data-index="@i">
-                                            <option value="">-- Select Subject --</option>
+            <option value="">-- Select Subject --</option>
                                             @foreach (var subject in ViewBag.Subjects)
                                             {
                                                 if (Model.Subjects[i].SubjectId == subject.SubjectId)
@@ -110,7 +111,7 @@
                                                     </option>
                                                 }
                                             }
-                                        </select>
+        </select>
                                         <input type="hidden" name="Subjects[@i].ExamRoutineId" value="@Model.Subjects[i].ExamRoutineId" />
                                         <input type="hidden" name="Subjects[@i].SubjectName" class="subject-name" value="@Model.Subjects[i].SubjectName" />
                                         <input type="hidden" name="Subjects[@i].SubjectCode" class="subject-code" value="@Model.Subjects[i].SubjectCode" />
@@ -159,7 +160,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+    </div>
 
             <div class="form-group">
                 <button type="submit" class="btn btn-warning">
@@ -169,7 +170,7 @@
             </div>
         </form>
     </div>
-</div>
+    </div>
 
 @section Scripts {
     <script>

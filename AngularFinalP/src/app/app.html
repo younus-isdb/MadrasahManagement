@@ -1,39 +1,92 @@
+<!-- Header / Navbar -->
 <header class="lambo-header">
-  <h1>Halishahar Mohila Madrasa</h1>
+  <div class="lambo-nav container-fluid">
+    <a class="lambo-brand" routerLink="/">Halishahar Mohila Madrasah</a>
+
+    <div class="lambo-user">
+      <ng-container *ngIf="!loggedIn()">
+        <a class="lambo-btn" routerLink="/login">Login</a>
+        <a class="lambo-btn" routerLink="/register">Register</a>
+      </ng-container>
+      <ng-container *ngIf="loggedIn()">
+        <span class="lambo-username">Hello, {{ name() }}</span>
+        <button class="lambo-btn" (click)="auth.logout()">Logout</button>
+      </ng-container>
+    </div>
+  </div>
 </header>
 
+<!-- Body: Sidebar + Main Content -->
 <section class="lambo-container">
+  <!-- Sidebar -->
   <aside class="lambo-sidebar">
-    <h2>MENU</h2>
+    <h2 class="lambo-menu-title">MENU</h2>
 
-    <!-- Examination Parent Menu -->
-    <div class="dropdown">
-      <button class="dropbtn">
-         Examination
-        <span class="arrow">&#9662;</span>
-      </button>
-      <div class="dropdown-content">
-        <a routerLink="/examination" routerLinkActive="active">Examination Tab</a>
-        <a routerLink="/examfee" routerLinkActive="active">Exam Fee</a>
-        <a routerLink="/point" routerLinkActive="active">Point Based Condition</a>
-        <a routerLink="/examfeecollection" routerLinkActive="active">Exam Fee Collection</a>
-        <a routerLink="/examroutine" routerLinkActive="active">Exam Routine</a>
+    <!-- Admin Menu -->
+    <ng-container *ngIf="isAdmin()">
+      <a routerLink="/admin-dashboard" routerLinkActive="active">AdminDashboard</a>
+      <a routerLink="/students" routerLinkActive="active">👨‍🎓 Students</a>
+      <a routerLink="/teachers" routerLinkActive="active">👩‍🏫 Teachers</a>
+      <a routerLink="/classes" routerLinkActive="active">Classes</a>
+      <a routerLink="/subjects" routerLinkActive="active">Subjects</a>
 
-        <!-- Add more entries here -->
+      <!-- Dropdown: Examination -->
+      <div class="lambo-dropdown">
+        <button class="lambo-dropbtn" (click)="toggleDropdown('exam')">
+          Examination <span class="arrow">&#9662;</span>
+        </button>
+        <div class="lambo-dropdown-content" [class.show]="dropdowns['exam']">
+          <a routerLink="/examination" routerLinkActive="active">Enter Exam Name</a>
+          <a routerLink="/examfee" routerLinkActive="active">Set Exam Fee</a>
+          <a routerLink="/point" routerLinkActive="active">Point Based Condition</a>
+          <a routerLink="/examfeecollection" routerLinkActive="active">Collect Exam Fee</a>
+          <a routerLink="/examroutine" routerLinkActive="active">Exam Routine</a>
+          <a routerLink="/exam-income" routerLinkActive="active">Exam Income Expense</a>
+
+        </div>
       </div>
-    </div>
 
-    <!-- Other menus -->
-    <a routerLink="/students" routerLinkActive="active">👨‍🎓 Students</a>
-    <a routerLink="/teachers" routerLinkActive="active">👩‍🏫 Teachers</a>
+      <!-- Dropdown: Results -->
+      <div class="lambo-dropdown">
+        <button class="lambo-dropbtn" (click)="toggleDropdown('results')">
+          Results <span class="arrow">&#9662;</span>
+        </button>
+        <div class="lambo-dropdown-content" [class.show]="dropdowns['results']">
+          <a routerLink="/point-results" routerLinkActive="active">Point Based Results Entry</a>
+          <a routerLink="/present-absent" routerLinkActive="active">Present/Absent</a>
+          <a routerLink="/marksheet" routerLinkActive="active">Point Based MarkSheet</a>
+          <a routerLink="/report" routerLinkActive="active">Point Based Report</a>
+          <a routerLink="/online-result" routerLinkActive="active">Online Result Published</a>
+        </div>
+      </div>
 
+      <a routerLink="/department" routerLinkActive="active">Department</a>
+      <a routerLink="/issuedbook" routerLinkActive="active">Issued Book</a>
+      <a routerLink="/section" routerLinkActive="active">Section</a>
+    </ng-container>
+
+    <!-- Teacher Menu -->
+    <ng-container *ngIf="isTeacher()">
+      <a routerLink="/teacher/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/assignments" routerLinkActive="active">My Assignments</a>
+      <a routerLink="/attendance" routerLinkActive="active">Mark Attendance</a>
+    </ng-container>
+
+    <!-- Student Menu -->
+    <ng-container *ngIf="isStudent()">
+      <a routerLink="/student/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/assignments" routerLinkActive="active">Assignments</a>
+      <a routerLink="/results" routerLinkActive="active">Exam Results</a>
+    </ng-container>
   </aside>
 
+  <!-- Main Content -->
   <main class="lambo-content">
     <router-outlet></router-outlet>
   </main>
 </section>
 
+<!-- Footer -->
 <footer class="lambo-footer">
   © MYS Enterpraise
 </footer>

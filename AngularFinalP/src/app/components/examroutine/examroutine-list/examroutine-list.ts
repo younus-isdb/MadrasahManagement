@@ -1,59 +1,49 @@
-import { Component ,signal,OnInit} from '@angular/core';
-import { ExamRoutineReadDto } from '../../../models/ExamRoutine';
+import { Component, signal, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ExamroutineService } from '../../../service/examroutine-service';
 
 @Component({
   selector: 'app-examroutine-list',
   standalone: false,
-  templateUrl: './examroutine-list.html',
-  styleUrl: './examroutine-list.css',
+  templateUrl: './examroutine-list.html'
 })
 export class ExamroutineList implements OnInit {
-  // Signals for state management
-  Routines = signal<ExamRoutineReadDto[]>([]);
-  loading = signal<boolean>(false);
-  errorMessage = signal<string>('');
+  Routines = signal<any[]>([]);
+  loading = signal(false);
 
-  constructor(private examRoutine: ExamroutineService) { }
+  constructor(private service: ExamroutineService, private router: Router) { }
 
-  ngOnInit(): void {
-    this.loadData();
-  }
+  ngOnInit(): void { this.loadData(); }
 
-  // API theke data fetch kora
   loadData(): void {
     this.loading.set(true);
-    this.examRoutine.getAll().subscribe({
+    this.service.getMasterDetails().subscribe({
       next: (data) => {
-        this.Routines.set(data);
+        // Grouping logic to merge same Exam/Class into one header
+        const grouped = data.reduce((acc: any[], current: any) => {
+          const key = `${current.examName}-${current.className}-${current.educationYear}`;
+          const existing = acc.find(r => `${r.examName}-${r.className}-${r.educationYear}` === key);
+
+          if (existing) {
+            existing.subjects.push(...(current.subjects || []));
+          } else {
+            acc.push({ ...current, subjects: [...(current.subjects || [])] });
+          }
+          return acc;
+        }, []);
+
+        this.Routines.set(grouped);
         this.loading.set(false);
       },
-      error: (err) => {
-        this.errorMessage.set('Failed to load examinations. Please try again later.');
-        this.loading.set(false);
-        console.error(err);
-      }
+      error: () => this.loading.set(false)
     });
   }
-  trackById(index: number, item: ExamRoutineReadDto) {
-    return item.examRoutineId;
-  }
 
-
-  // Delete korar logic
-  deleteExam(id: number): void {
-    if (confirm('Are you sure you want to delete this examination?')) {
-      this.examRoutine.delete(id).subscribe({
-        next: () => {
-          // List theke delete kora item-ti remove kora (UI refresh)
-          this.Routines.update(exams => exams.filter(e => e.examId !== id));
-        },
-        error: (err) => {
-          alert('Could not delete the item.');
-          console.error(err);
-        }
-      });
+  deleteExamRoutine(id: number) {
+    if (confirm('Delete this routine?')) {
+      this.service.delete(id).subscribe(() => this.loadData());
     }
   }
 
+  editExam(id: number) { this.router.navigate(['/routineedit', id]); }
 }

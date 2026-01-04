@@ -10,11 +10,31 @@ import { PointCreate } from './components/pointcondition/point-create/point-crea
 import { PointEdit } from './components/pointcondition/point-edit/point-edit';
 import { ExamFeesList } from './components/examfeecollection/examfees-list/examfees-list';
 import { ExamFeeCollectionCreate } from './components/examfeecollection/examfeecollection-create/examfeecollection-create';
-import { ExamroutineList } from './components/examroutine/examroutine-list/examroutine-list';
+import { ExamfeecollectionEdit } from './components/examfeecollection/examfeecollection-edit/examfeecollection-edit';
 
+import { ExamroutineList } from './components/examroutine/examroutine-list/examroutine-list';
+import { LoginPage } from './components/login-page/login-page';
+import { RegisterPage } from './components/register-page/register-page';
+import { AppGuard } from '../app-guard';
+import { AdminDashboardComponent } from './components/admindashboard-component/admindashboard-component';
+import { ExamIncomeCreate } from './components/examincome/exam-income-create/exam-income-create';
+import { ExamIncomeIndex } from './components/examincome/exam-income-index/exam-income-index';
+import { ExamIncomeEdit } from './components/examincome/exam-income-edit/exam-income-edit';
+import { Examroutinecreate } from './components/examroutine/examroutinecreate/examroutinecreate';
+import { ExamroutineEdit } from './components/examroutine/examroutine-edit/examroutine-edit';
 
 const routes: Routes = [
-  { path: 'examination', component: ExaminationList },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginPage },
+  { path: 'register', component: RegisterPage },
+  {
+    path: 'admin-dashboard',
+    component: AdminDashboardComponent ,
+    canActivate: [AppGuard],
+    data: { roles: ['Admin'] }
+  },
+
+  { path: 'examination', component: ExaminationList, canActivate: [AppGuard] },
   { path: 'create', component: ExaminationForm },
   { path: 'edit/:id', component: ExaminationEdit },
   { path: 'examfee', component: ExamfeeList },
@@ -24,7 +44,13 @@ const routes: Routes = [
   { path: 'pointedit/:id', component: PointEdit },
   { path: 'examfeecollection', component: ExamFeesList },
   { path: 'examfeecollectioncreate', component: ExamFeeCollectionCreate },
-  { path: 'examroutine', component: ExamroutineList}
+  { path: 'examfeecollectionedit/:id', component: ExamfeecollectionEdit },
+  { path: 'examroutine', component: ExamroutineList },
+  { path: 'routinecreate', component: Examroutinecreate },
+  { path: 'routineedit/:id', component: ExamroutineEdit }, 
+  { path: 'exam-income', component: ExamIncomeIndex },
+  { path: 'examincomecreate', component: ExamIncomeCreate },
+  { path: 'examincomeedit/:id', component: ExamIncomeEdit } 
 
 ];
 
