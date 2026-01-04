@@ -1,0 +1,54 @@
+﻿@* Views/ExamRoutine/_SubjectRowPartial.cshtml *@
+@{
+    var index = ViewBag.RowIndex ?? 0;
+}
+
+<tr class="subject-row">
+    <td>
+        <select name="Subjects[@index].SubjectId"
+                class="form-control subject-select"
+                data-index="@index">
+            <option value="">-- Select Subject --</option>
+        </select>
+        <input type="hidden" name="Subjects[@index].SubjectName" class="subject-name" />
+        <input type="hidden" name="Subjects[@index].SubjectCode" class="subject-code" />
+        <span class="text-danger" id="Subjects[@index].SubjectId-error"></span>
+    </td>
+    <td class="subject-code-display">
+        <!-- Subject code will be displayed here -->
+    </td>
+    <td>
+        <input name="Subjects[@index].ExamDate"
+               type="date"
+               class="form-control exam-date"
+               data-index="@index"
+               value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        <span class="text-danger" id="Subjects[@index].ExamDate-error"></span>
+    </td>
+    <td>
+        <input name="Subjects[@index].ExamDay"
+               class="form-control exam-day"
+               data-index="@index"
+               readonly />
+        <span class="text-danger" id="Subjects[@index].ExamDay-error"></span>
+    </td>
+    <td>
+        <input name="Subjects[@index].ExamStartTime"
+               type="time"
+               class="form-control"
+               value="09:00" />
+        <span class="text-danger" id="Subjects[@index].ExamStartTime-error"></span>
+    </td>
+    <td>
+        <input name="Subjects[@index].ExamEndTime"
+               type="time"
+               class="form-control"
+               value="11:00" />
+        <span class="text-danger" id="Subjects[@index].ExamEndTime-error"></span>
+    </td>
+    <td>
+        <button type="button" class="btn btn-danger btn-sm remove-row">
+            <i class="fas fa-times"></i>
+        </button>
+    </td>
+</tr>

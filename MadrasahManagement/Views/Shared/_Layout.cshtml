@@ -122,13 +122,13 @@
                 <li class="nav-item"><a class="nav-link" href="/swagger">Api Doc</a></li>
                 @if (User.IsInRole("Admin"))
                 {
-                    <li class="nav-item"><a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="AdminDashboard" asp-action="Index">Dashboard</a></li>
                    
                     <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Index">Students</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Teacher" asp-action="Index">Teachers</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Class" asp-action="Index">Classes</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Subject" asp-action="Index">Subjects</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Exam" asp-action="Index">Exams</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Examination" asp-action="Index">Exams</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Department" asp-action="Index">Department</a></li>
                    
                     <li class="nav-item"><a class="nav-link" asp-controller="IssuedBook" asp-action="Index">Issued Book</a></li>

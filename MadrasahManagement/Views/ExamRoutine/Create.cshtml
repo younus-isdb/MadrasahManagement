@@ -1,73 +1,317 @@
-﻿@model MadrasahManagement.Models.ExamRoutine
+﻿@* Views/ExamRoutine/Create.cshtml - UPDATED *@
+@model MadrasahManagement.ViewModels.ExamRoutineBatchViewModel
+
 @{
     ViewData["Title"] = "Create Exam Routine";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
-
-    <div class="form-group mb-3">
-        <label asp-for="EducationYear"></label>
-        <input asp-for="EducationYear" class="form-control" />
-        <span asp-validation-for="EducationYear" class="text-danger"></span>
+<div class="card">
+    <div class="card-header">
+        <h4>Create New Exam Routine</h4>
     </div>
+    <div class="card-body">
+        <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+            <span id="errorMessage"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="ClassId">Class</label>
-        <select asp-for="ClassId" asp-items="ViewBag.ClassId" class="form-select">
-            <option value="">-- Select Class --</option>
-        </select>
-        <span asp-validation-for="ClassId" class="text-danger"></span>
+        <form asp-action="Create" id="examRoutineForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Master Section -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label asp-for="EducationYear" class="control-label"></label>
+                        <input asp-for="EducationYear" class="form-control" />
+                        <span asp-validation-for="EducationYear" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label asp-for="DepartmentId" class="control-label"></label>
+                        <select asp-for="DepartmentId" asp-items="ViewBag.DepartmentId"
+                                class="form-control" id="departmentSelect">
+                            <option value="">-- Select Department --</option>
+                        </select>
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label asp-for="ClassId" class="control-label"></label>
+                        <select asp-for="ClassId" class="form-control" id="classSelect">
+                            <option value="">-- Select Class --</option>
+                        </select>
+                        <span asp-validation-for="ClassId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label asp-for="ExamId" class="control-label"></label>
+                        <select asp-for="ExamId" asp-items="ViewBag.ExamId"
+                                class="form-control" id="examSelect">
+                            <option value="">-- Select Exam --</option>
+                        </select>
+                        <span asp-validation-for="ExamId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Number (Now in Master Section) -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label asp-for="RoomNumber" class="control-label"></label>
+                        <input asp-for="RoomNumber" type="number" min="1" max="999" class="form-control" />
+                        <span asp-validation-for="RoomNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Subjects <small class="text-muted">(Add subjects for this exam)</small></h5>
+                    <button type="button" class="btn btn-primary btn-sm" id="addSubjectBtn">
+                        <i class="fas fa-plus"></i> Add Subject
+                    </button>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered" id="subjectsTable">
+                        <thead>
+                            <tr>
+                                <th>Subject Name</th>
+                                <th>Subject Code</th>
+                                <th>Exam Date</th>
+                                <th>Day</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subjectRows">
+                            <!-- Rows will be added dynamically -->
+                        </tbody>
+                    </table>
+                    <div id="noSubjectsMessage" class="alert alert-info">
+                        No subjects added yet. Click "Add Subject" to add subjects.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save Routine
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
     </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="ExamId">Exam</label>
-        <select asp-for="ExamId" asp-items="ViewBag.ExamId" class="form-select">
-            <option value="">-- Select Exam --</option>
-        </select>
-        <span asp-validation-for="ExamId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="SubjectId">Subject</label>
-        <select asp-for="SubjectId" asp-items="ViewBag.SubjectId" class="form-select">
-            <option value="">-- Select Subject --</option>
-        </select>
-        <span asp-validation-for="SubjectId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="RoomNumber"></label>
-        <input asp-for="RoomNumber" class="form-control" />
-        <span asp-validation-for="RoomNumber" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="ExamDate"></label>
-        <input asp-for="ExamDate" type="date" class="form-control" />
-        <span asp-validation-for="ExamDate" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="ExamStartTime"></label>
-        <input asp-for="ExamStartTime" type="time" class="form-control" />
-        <span asp-validation-for="ExamStartTime" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="ExamEndTime"></label>
-        <input asp-for="ExamEndTime" type="time" class="form-control" />
-        <span asp-validation-for="ExamEndTime" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-success">Create</button>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</form>
+</div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+        $(document).ready(function () {
+            let rowCount = 0;
+            const errorAlert = $('#errorAlert');
+            const errorMessage = $('#errorMessage');
+
+            // Show error message
+            function showError(message) {
+                errorMessage.text(message);
+                errorAlert.removeClass('d-none');
+            }
+
+            // Hide error message
+            function hideError() {
+                errorAlert.addClass('d-none');
+            }
+
+            // Update no subjects message visibility
+            function updateNoSubjectsMessage() {
+                const hasRows = $('#subjectRows tr').length > 0;
+                $('#noSubjectsMessage').toggle(!hasRows);
+            }
+
+            // Load classes when department changes
+            $('#departmentSelect').change(function () {
+                var departmentId = $(this).val();
+                if (departmentId) {
+                    $.get('/ExamRoutine/GetClassesByDepartment', { departmentId: departmentId }, function (data) {
+                        $('#classSelect').empty();
+                        $('#classSelect').append('<option value="">-- Select Class --</option>');
+                        $.each(data, function (index, item) {
+                            $('#classSelect').append(`<option value="${item.value}">${item.text}</option>`);
+                        });
+                        hideError();
+                    }).fail(function () {
+                        showError('Failed to load classes. Please try again.');
+                    });
+                } else {
+                    $('#classSelect').empty();
+                    $('#classSelect').append('<option value="">-- Select Class --</option>');
+                }
+            });
+
+            // Add subject row
+            $('#addSubjectBtn').click(function () {
+                var classId = $('#classSelect').val();
+                var educationYear = $('#EducationYear').val();
+                var examId = $('#examSelect').val();
+
+                if (!classId) {
+                    showError('Please select a class first.');
+                    return;
+                }
+                if (!educationYear) {
+                    showError('Please enter education year.');
+                    return;
+                }
+                if (!examId) {
+                    showError('Please select an exam.');
+                    return;
+                }
+
+                hideError();
+
+                $.get('/ExamRoutine/AddSubjectRow', { rowIndex: rowCount }, function (data) {
+                    $('#subjectRows').append(data);
+                    loadAvailableSubjects(rowCount, classId, educationYear, examId);
+                    rowCount++;
+                    updateNoSubjectsMessage();
+                }).fail(function () {
+                    showError('Failed to add subject row. Please try again.');
+                });
+            });
+
+            // Load available subjects for a row
+            function loadAvailableSubjects(index, classId, educationYear, examId) {
+                $.get('/ExamRoutine/GetAvailableSubjects', {
+                    classId: classId,
+                    educationYear: educationYear,
+                    examId: examId
+                }, function (data) {
+                    var $select = $(`select.subject-select[data-index="${index}"]`);
+                    var $codeCell = $(`select.subject-select[data-index="${index}"]`).closest('tr').find('.subject-code-display');
+
+                    $select.empty();
+                    $select.append('<option value="">-- Select Subject --</option>');
+
+                    if (data.length === 0) {
+                        $select.append('<option value="" disabled>No subjects available</option>');
+                    }
+
+                    $.each(data, function (i, item) {
+                        $select.append(`<option value="${item.value}" data-code="${item.code}">${item.text}</option>`);
+                    });
+
+                    // When subject is selected
+                    $select.change(function () {
+                        var selectedOption = $(this).find('option:selected');
+                        var subjectName = selectedOption.text();
+                        var subjectCode = selectedOption.data('code') || '';
+
+                        // Update hidden fields
+                        $(this).siblings('.subject-name').val(subjectName);
+                        $(this).siblings('.subject-code').val(subjectCode);
+
+                        // Display subject code in the next column
+                        $codeCell.text(subjectCode);
+                    });
+                }).fail(function () {
+                    showError('Failed to load subjects. Please try again.');
+                });
+            }
+
+            // Remove row
+            $(document).on('click', '.remove-row', function () {
+                $(this).closest('tr').remove();
+                updateNoSubjectsMessage();
+                hideError();
+            });
+
+            // Calculate day from date
+            $(document).on('change', '.exam-date', function () {
+                var index = $(this).data('index');
+                var date = $(this).val();
+                if (date) {
+                    var dateObj = new Date(date);
+                    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    var day = days[dateObj.getDay()];
+                    $(`input.exam-day[data-index="${index}"]`).val(day);
+                }
+            });
+
+            // Refresh available subjects when master fields change
+            $('#classSelect, #EducationYear, #examSelect').change(function () {
+                var classId = $('#classSelect').val();
+                var educationYear = $('#EducationYear').val();
+                var examId = $('#examSelect').val();
+
+                if (classId && educationYear && examId) {
+                    $('.subject-select').each(function () {
+                        var index = $(this).data('index');
+                        loadAvailableSubjects(index, classId, educationYear, examId);
+                    });
+                    hideError();
+                }
+            });
+
+            // Form submission validation
+            $('#examRoutineForm').submit(function (e) {
+                var hasSubjects = false;
+                var isValid = true;
+                var errorMessages = [];
+
+                // Check master fields
+                if (!$('#EducationYear').val()) {
+                    errorMessages.push('Education Year is required.');
+                    isValid = false;
+                }
+                if (!$('#departmentSelect').val()) {
+                    errorMessages.push('Department is required.');
+                    isValid = false;
+                }
+                if (!$('#classSelect').val()) {
+                    errorMessages.push('Class is required.');
+                    isValid = false;
+                }
+                if (!$('#examSelect').val()) {
+                    errorMessages.push('Exam is required.');
+                    isValid = false;
+                }
+                if (!$('#RoomNumber').val()) {
+                    errorMessages.push('Room Number is required.');
+                    isValid = false;
+                }
+
+                // Check subjects
+                $('.subject-select').each(function () {
+                    if ($(this).val()) {
+                        hasSubjects = true;
+                    }
+                });
+
+                if (!hasSubjects) {
+                    errorMessages.push('Please add at least one subject.');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    showError(errorMessages.join(' '));
+                    return false;
+                }
+
+                hideError();
+                return true;
+            });
+
+            // Initialize
+            updateNoSubjectsMessage();
+        });
+    </script>
 }

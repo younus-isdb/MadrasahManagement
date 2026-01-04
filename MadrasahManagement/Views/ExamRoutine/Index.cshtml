@@ -1,48 +1,298 @@
-﻿@model IEnumerable<MadrasahManagement.Models.ExamRoutine>
+﻿@* Views/ExamRoutine/Index.cshtml *@
+@model List<MadrasahManagement.ViewModels.ExamRoutineGroupViewModel>
+
 @{
-    ViewData["Title"] = "Exam Routine List";
+    ViewData["Title"] = "Exam Routines";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New Routine</a>
-</p>
-
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Education Year</th>
-            <th>Class</th>
-            <th>Exam</th>
-            <th>Subject</th>
-            <th>Room</th>
-            <th>Exam Date</th>
-            <th>Day</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+<div class="card">
+    <div class="card-header">
+        <h4>Exam Routines</h4>
+        <a asp-action="Create" class="btn btn-primary float-right">
+            <i class="fas fa-plus"></i> Create New
+        </a>
+    </div>
+    <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
         {
-            <tr>
-                <td>@item.EducationYear</td>
-                <td>@item.Class?.ClassName</td>
-                <td>@item.Examination?.ExamName</td>
-                <td>@item.Subject?.SubjectName</td>
-                <td>@item.RoomNumber</td>
-                <td>@item.ExamDate.ToString("yyyy-MM-dd")</td>
-                <td>@item.ExamDate.DayOfWeek</td>
-                <td>@item.ExamStartTime</td>
-                <td>@item.ExamEndTime</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ExamRoutineId" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.ExamRoutineId" class="btn btn-sm btn-info">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.ExamRoutineId" class="btn btn-sm btn-danger">Delete</a>
-                </td>
-            </tr>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         }
-    </tbody>
-</table>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>SL</th>
+                        <th>Education Year</th>
+                        <th>Department</th>
+                        <th>Class</th>
+                        <th>Exam</th>
+                        <th>Room No</th>
+                        <th>Total Subjects</th>
+                        <th>Exam Duration</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        int sl = 1;
+                        @foreach (var group in Model)
+                        {
+                            // Calculate exam duration (from first to last exam date)
+                            var firstDate = group.Subjects.Min(s => s.ExamDate);
+                            var lastDate = group.Subjects.Max(s => s.ExamDate);
+                            var durationDays = (lastDate - firstDate).Days + 1;
+
+                            <tr>
+                                <td>@sl</td>
+                                <td>@group.EducationYear</td>
+                                <td>@group.DepartmentName</td>
+                                <td>@group.ClassName</td>
+                                <td>@group.ExamName</td>
+                                <td>@group.RoomNumber</td>
+                                <td class="text-center">
+                                    <span class="badge badge-primary">@group.Subjects.Count</span>
+                                </td>
+                                <td>
+                                    @if (durationDays == 1)
+                                    {
+                                        <span class="badge badge-info">1 Day</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-info">@durationDays Days</span>
+                                    }
+                                    <br />
+                                    <small class="text-muted">
+                                        @firstDate.ToString("dd-MMM") to @lastDate.ToString("dd-MMM")
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-educationYear="@group.EducationYear"
+                                           asp-route-classId="@group.ClassId" asp-route-examId="@group.ExamId"
+                                           class="btn btn-warning btn-sm" title="Edit">
+                                            Edit
+                                        </a>
+                                        <a asp-action="Details" asp-route-educationYear="@group.EducationYear"
+                                           asp-route-classId="@group.ClassId" asp-route-examId="@group.ExamId"
+                                           class="btn btn-info btn-sm" title="View Details">
+                                            Details
+                                        </a>
+                                        <a asp-action="Delete" asp-route-educationYear="@group.EducationYear"
+                                           asp-route-classId="@group.ClassId" asp-route-examId="@group.ExamId"
+                                           class="btn btn-danger btn-sm" title="Delete">
+                                            Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            sl++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center">
+                                <div class="alert alert-info m-0">
+                                    <i class="fas fa-info-circle"></i> No exam routines found.
+                                    <a asp-action="Create" class="alert-link">Create the first one!</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Summary Statistics -->
+        @if (Model.Any())
+        {
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-1">Total Classes</h6>
+                                    <h3 class="mb-0">@Model.Select(g => g.ClassId).Distinct().Count()</h3>
+                                </div>
+                                <i class="fas fa-school fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-1">Total Subjects</h6>
+                                    <h3 class="mb-0">@Model.Sum(g => g.Subjects.Count)</h3>
+                                </div>
+                                <i class="fas fa-book fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-1">Total Exams</h6>
+                                    <h3 class="mb-0">@Model.Select(g => g.ExamId).Distinct().Count()</h3>
+                                </div>
+                                <i class="fas fa-clipboard-list fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-1">Departments</h6>
+                                    <h3 class="mb-0">@Model.Select(g => g.DepartmentId).Distinct().Count()</h3>
+                                </div>
+                                <i class="fas fa-university fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter/Search Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter"></i> Filter Options
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>By Department:</label>
+                                <select class="form-control filter-department">
+                                    <option value="">All Departments</option>
+                                    @foreach (var dept in Model.Select(g => new { g.DepartmentId, g.DepartmentName }).Distinct().OrderBy(d => d.DepartmentName))
+                                    {
+                                        <option value="@dept.DepartmentId">@dept.DepartmentName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>By Class:</label>
+                                <select class="form-control filter-class">
+                                    <option value="">All Classes</option>
+                                    @foreach (var cls in Model.Select(g => new { g.ClassId, g.ClassName }).Distinct().OrderBy(c => c.ClassName))
+                                    {
+                                        <option value="@cls.ClassId">@cls.ClassName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>By Exam:</label>
+                                <select class="form-control filter-exam">
+                                    <option value="">All Exams</option>
+                                    @foreach (var exam in Model.Select(g => new { g.ExamId, g.ExamName }).Distinct().OrderBy(e => e.ExamName))
+                                    {
+                                        <option value="@exam.ExamId">@exam.ExamName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>By Year:</label>
+                                <select class="form-control filter-year">
+                                    <option value="">All Years</option>
+                                    @foreach (var year in Model.Select(g => g.EducationYear).Distinct().OrderByDescending(y => y))
+                                    {
+                                        <option value="@year">@year</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Filter functionality
+            $('.filter-department, .filter-class, .filter-exam, .filter-year').change(function () {
+                var department = $('.filter-department').val();
+                var classId = $('.filter-class').val();
+                var examId = $('.filter-exam').val();
+                var year = $('.filter-year').val();
+
+                $('tbody tr').each(function () {
+                    var showRow = true;
+
+                    if (department && $(this).find('td:nth-child(3)').text() !== department) {
+                        // Check department (3rd column contains department name)
+                        var rowDeptName = $(this).find('td:nth-child(3)').text();
+                        var selectedDept = $('.filter-department option:selected').text();
+                        if (rowDeptName !== selectedDept) {
+                            showRow = false;
+                        }
+                    }
+
+                    if (classId && $(this).find('td:nth-child(4)').text() !== classId) {
+                        // Check class (4th column contains class name)
+                        var rowClassName = $(this).find('td:nth-child(4)').text();
+                        var selectedClass = $('.filter-class option:selected').text();
+                        if (rowClassName !== selectedClass) {
+                            showRow = false;
+                        }
+                    }
+
+                    if (examId && $(this).find('td:nth-child(5)').text() !== examId) {
+                        // Check exam (5th column contains exam name)
+                        var rowExamName = $(this).find('td:nth-child(5)').text();
+                        var selectedExam = $('.filter-exam option:selected').text();
+                        if (rowExamName !== selectedExam) {
+                            showRow = false;
+                        }
+                    }
+
+                    if (year && $(this).find('td:nth-child(2)').text() !== year) {
+                        // Check year (2nd column contains education year)
+                        if ($(this).find('td:nth-child(2)').text() !== year) {
+                            showRow = false;
+                        }
+                    }
+
+                    if (showRow) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Reset filters
+            $('#resetFilters').click(function () {
+                $('.filter-department, .filter-class, .filter-exam, .filter-year').val('');
+                $('tbody tr').show();
+            });
+        });
+    </script>
+}

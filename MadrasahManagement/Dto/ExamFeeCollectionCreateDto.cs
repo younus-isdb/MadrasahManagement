@@ -23,6 +23,8 @@ namespace MadrasahManagement.Dto
 
         [Required]
         public int ClassId { get; set; }
+        [Required]
+        public int DepartmentId { get; set; }
 
         [Required]
         public int ExamId { get; set; }
@@ -50,11 +52,16 @@ namespace MadrasahManagement.Dto
 
     public class ExamFeesUpdateDto
     {
+        public int ExamFeeId { get; set; } // ADD THIS LINE
+
         [Required, MaxLength(10)]
         public string EducationYear { get; set; } = string.Empty;
 
         [Required]
         public int ClassId { get; set; }
+
+        [Required]
+        public int DepartmentId { get; set; }
 
         [Required]
         public int ExamId { get; set; }
@@ -80,6 +87,8 @@ namespace MadrasahManagement.Dto
     {
         public int ExamFeeId { get; set; }
         public string EducationYear { get; set; } = string.Empty;
+
+        public int DepartmentId { get; set; }
 
         public int ClassId { get; set; }
         public string ClassName { get; set; } = string.Empty;

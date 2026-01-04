@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MadrasahManagement.Models
 {
+    using Microsoft.EntityFrameworkCore;
     using System.Collections.Specialized;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
@@ -36,6 +37,10 @@ namespace MadrasahManagement.Models
         public int ClassId { get; set; }
         [ForeignKey(nameof(ClassId))]
         public Class Class { get; set; } = null!;
+
+        public int DepartmentId { get; set; }
+        [ForeignKey(nameof(DepartmentId))]
+        public Department Department { get; set; } = null!;
 
         public int ExamId { get; set; }
         [ForeignKey(nameof(ExamId))]
@@ -82,6 +87,10 @@ namespace MadrasahManagement.Models
         public int ClassId { get; set; }
         [ForeignKey(nameof(ClassId))]
         public Class? Class { get; set; }
+
+        public int DepartmentId { get; set; }
+        [ForeignKey(nameof(DepartmentId))]
+        public Department Department { get; set; } = null!;
 
         [Required]
         public int ExamId { get; set; }
@@ -157,6 +166,11 @@ public class MeritCondition
         public int ClassId { get; set; }
         [ForeignKey("ClassId")]
         public virtual Class? Class { get; set; }
+
+
+        public int DepartmentId { get; set; }
+        [ForeignKey(nameof(DepartmentId))]
+        public Department Department { get; set; } = null!;
 
         [Required]
         public int ExamId { get; set; }

@@ -80,7 +80,7 @@ namespace MadrasahManagement.Models
             modelBuilder.ApplyConfiguration(new SectionConfiguration());
             modelBuilder.ApplyConfiguration(new SubjectConfiguration());
             modelBuilder.ApplyConfiguration(new ClassSubjectConfiguration());
-            modelBuilder.ApplyConfiguration(new ExamConfiguration());
+            modelBuilder.ApplyConfiguration(new ExamFeeConfiguration());
             modelBuilder.ApplyConfiguration(new ExamResultConfiguration());
             modelBuilder.ApplyConfiguration(new AttendanceConfiguration());
             modelBuilder.ApplyConfiguration(new TeacherAttendanceConfiguration());
@@ -274,14 +274,33 @@ namespace MadrasahManagement.Models
         }
     }
 
-    public class ExamConfiguration : IEntityTypeConfiguration<Exam>
+    public class ExamFeeConfiguration : IEntityTypeConfiguration<ExamFee>
     {
-        public void Configure(EntityTypeBuilder<Exam> builder)
+        public void Configure(EntityTypeBuilder<ExamFee> builder)
         {
-            builder.ToTable("Exams");
-            builder.HasKey(e => e.ExamId);
-            builder.Property(e => e.Name).IsRequired().HasMaxLength(150);
-            builder.HasOne(e => e.Class).WithMany(c => c.Exams).HasForeignKey(e => e.ClassId).OnDelete(DeleteBehavior.Restrict);
+            builder.ToTable("ExamFees"); 
+            builder.Property(e => e.ExamAmount)
+                .HasPrecision(18, 2);
+
+            builder.HasOne(e => e.Department)
+                .WithMany()
+                .HasForeignKey(e => e.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(e => e.Class)
+                .WithMany()
+                .HasForeignKey(e => e.ClassId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(e => e.Examination)
+                .WithMany()
+                .HasForeignKey(e => e.ExamId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(e => e.FeeCollections)
+                .WithOne(fc => fc.ExamFee)
+                .HasForeignKey(fc => fc.ExamFeeId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 
@@ -291,9 +310,21 @@ namespace MadrasahManagement.Models
         {
             builder.ToTable("ExamResults");
             builder.HasKey(er => er.ResultId);
-            builder.HasOne(er => er.Exam).WithMany(e => e.ExamResults).HasForeignKey(er => er.ExamId).OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(er => er.Student).WithMany(s => s.ExamResults).HasForeignKey(er => er.StudentId).OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(er => er.Subject).WithMany().HasForeignKey(er => er.SubjectId).OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(er => er.Exam)
+                .WithMany(e => e.ExamResults)
+                .HasForeignKey(er => er.ExamId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(er => er.Student)
+                .WithMany(s => s.ExamResults)
+                .HasForeignKey(er => er.StudentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(er => er.Subject)
+                .WithMany()
+                .HasForeignKey(er => er.SubjectId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 

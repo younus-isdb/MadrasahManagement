@@ -16,6 +16,7 @@
             <th>#</th>
             <th>Education Year</th>
             <th>Exam</th>
+            <th>Department</th>
             <th>Class</th>
            @*  <th>Subject</th> *@
             <th>Pass Mark</th>
@@ -34,6 +35,7 @@
                 <td>@sl</td>
                 <td>@item.EducationYear</td>
                 <td>@item.Examination?.ExamName</td>
+                <td>@item.Department?.DepartmentName</td>
                 <td>@item.Class?.ClassName</td>
                @*  <td>@item.Subject?.SubjectName</td> *@
                 <td class="text-center">@item.PassMarks</td>

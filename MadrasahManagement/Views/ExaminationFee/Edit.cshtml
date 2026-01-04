@@ -2,7 +2,7 @@
 
 <h2>Edit Exam Fee</h2>
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" id="examFeeForm">
     <input type="hidden" asp-for="ExamFeeId" />
 
     <div class="form-group">
@@ -11,8 +11,19 @@
     </div>
 
     <div class="form-group">
+        <label>Department</label>
+        <select asp-for="DepartmentId" asp-items="ViewBag.DepartmentId"
+                class="form-control" id="departmentSelect">
+            <option value="">-- Select Department --</option>
+        </select>
+    </div>
+
+    <div class="form-group">
         <label>Class</label>
-        <select asp-for="ClassId" asp-items="ViewBag.ClassId" class="form-control"></select>
+        <select asp-for="ClassId" asp-items="ViewBag.ClassId"
+                class="form-control" id="classSelect">
+            <option value="">-- Select Class --</option>
+        </select>
     </div>
 
     <div class="form-group">
@@ -27,3 +38,45 @@
 
     <button type="submit" class="btn btn-primary">Update</button>
 </form>
+
+@section Scripts {
+    <script>
+        // Minimal JavaScript for department-class cascade (same as create)
+        document.getElementById('departmentSelect').addEventListener('change', function() {
+            var departmentId = this.value;
+            var classSelect = document.getElementById('classSelect');
+
+            if (departmentId) {
+                classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+
+                fetch('/ExaminationFee/GetClassesByDepartment?departmentId=' + departmentId)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(function(classItem) {
+                            var option = document.createElement('option');
+                            option.value = classItem.classId;
+                            option.text = classItem.className;
+                            classSelect.appendChild(option);
+                        });
+
+                        // Restore previously selected class if it exists in new list
+                        var currentClassId = '@Model.ClassId';
+                        if (currentClassId) {
+                            classSelect.value = currentClassId;
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+            }
+        });
+
+        // Trigger change event on page load to load classes for current department
+        document.addEventListener('DOMContentLoaded', function() {
+            var departmentSelect = document.getElementById('departmentSelect');
+            if (departmentSelect.value) {
+                departmentSelect.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+}

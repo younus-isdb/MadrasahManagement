@@ -10,6 +10,8 @@ namespace MadrasahManagement.Dto
 
         [Required]
         public int ClassId { get; set; }
+        [Required]
+        public int DepartmentId { get; set; }
 
         [Required]
         public int ExamId { get; set; }
