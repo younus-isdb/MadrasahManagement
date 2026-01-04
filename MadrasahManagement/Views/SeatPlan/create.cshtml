@@ -1,0 +1,94 @@
+﻿@model MadrasahManagement.Dto.SeatPlanCreateDto
+@using Newtonsoft.Json
+
+<h3 class="text-center">Halishahar Mohila Madrasa</h3>
+
+<form asp-action="Create" method="post">
+
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label>Exam Date</label>
+            <input asp-for="ExamDate" type="date" class="form-control"
+                   value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="col-md-3">
+            <label>Room Number</label>
+            <input asp-for="RoomNumber" class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+            <label>Number of Rows</label>
+            <input asp-for="NumberOfRows" id="rows" class="form-control" value="1" />
+        </div>
+
+        <div class="col-md-3">
+            <label>Students Per Bench</label>
+            <input asp-for="StudentsPerBench" id="perBench" class="form-control" value="2" />
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-info mb-3" id="generate">Generate Seats</button>
+
+    <div id="seatArea"></div>
+
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
+</form>
+
+@section Scripts {
+    <script>
+        const students = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Students));
+        const classes = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Classes));
+        const departments = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Departments));
+        const subjects = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Subjects));
+
+        function studentSelect(name){
+            let h = `<select name="${name}" class="form-select mb-1" required>
+                     <option value="">-- Student --</option>`;
+            students.forEach(s=>{
+                h += `<option value="${s.studentId}">
+                        ${s.regNo} - ${s.studentName}
+                      </option>`;
+            });
+            return h + `</select>`;
+        }
+
+        function simpleSelect(name, list, idKey, textKey, title){
+            let h = `<select name="${name}" class="form-select mb-1" required>
+                     <option value="">-- ${title} --</option>`;
+            list.forEach(x=>{
+                h += `<option value="${x[idKey]}">${x[textKey]}</option>`;
+            });
+            return h + `</select>`;
+        }
+
+        $("#generate").click(function(){
+            let rows = parseInt($("#rows").val());
+            let html = "";
+
+            for(let r=1; r<=rows; r++){
+                html += `<hr/><h5>Row ${r}</h5><div class="row">`;
+
+                html += `
+                <div class="col-md-6 border p-2">
+                    <b>Left Student</b>
+                    ${studentSelect("StudentIds")}
+                    ${simpleSelect("ClassIds", classes, "classId", "className", "Class")}
+                    ${simpleSelect("DepartmentIds", departments, "departmentId", "departmentName", "Department")}
+                    ${simpleSelect("SubjectIds", subjects, "subjectId", "subjectName", "Subject")}
+                </div>
+
+                <div class="col-md-6 border p-2">
+                    <b>Right Student</b>
+                    ${studentSelect("StudentIds")}
+                    ${simpleSelect("ClassIds", classes, "classId", "className", "Class")}
+                    ${simpleSelect("DepartmentIds", departments, "departmentId", "departmentName", "Department")}
+                    ${simpleSelect("SubjectIds", subjects, "subjectId", "subjectName", "Subject")}
+                </div>
+                </div>`;
+            }
+
+            $("#seatArea").html(html);
+        });
+    </script>
+}

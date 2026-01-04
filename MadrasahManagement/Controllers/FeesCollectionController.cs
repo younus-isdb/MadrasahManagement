@@ -17,7 +17,19 @@ public class FeesCollectionController : Controller
         _feeService = feeService;
     }
 
-    
+    public IActionResult CollectedFees()
+    {
+        var collections = _context.FeeCollections
+            .Include(fc => fc.Student)
+                .ThenInclude(s => s.Class) 
+            .Include(fc => fc.FeeType)
+            .OrderByDescending(fc => fc.DatePaid)
+            .ToList();
+
+        return View(collections);
+    }
+
+
     public IActionResult CollectFee()
     {
         var vm = new FeeCollectionVM
@@ -43,6 +55,7 @@ public class FeesCollectionController : Controller
                 PaymentMethod = model.PaymentMethod,
                 DatePaid = DateTime.Now,
                 Status = PaymentStatus.Paid,
+               
                 ReceiptNumber = $"REC-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}"
             };
 
@@ -77,16 +90,31 @@ public class FeesCollectionController : Controller
         return View(collection);
     }
 
-    //REPORTS 
-    public async Task<IActionResult> CollectionReport(DateTime? startDate, DateTime? endDate)
+    public async Task<IActionResult> MonthlyReport(DateTime? monthDate = null)
     {
-        var fromDate = startDate ?? DateTime.Today.AddDays(-30);
-        var toDate = endDate ?? DateTime.Today;
+        // If no month specified, use current month
+        DateTime reportDate = monthDate ?? DateTime.Today;
+        DateTime startDate = new DateTime(reportDate.Year, reportDate.Month, 1);
+        DateTime endDate = startDate.AddMonths(1).AddDays(-1);
 
-        ViewBag.StartDate = fromDate.ToString("yyyy-MM-dd");
-        ViewBag.EndDate = toDate.ToString("yyyy-MM-dd");
+        ViewBag.Month = startDate.ToString("MMMM yyyy");
+        ViewBag.StartDate = startDate.ToString("yyyy-MM-dd");
+        ViewBag.EndDate = endDate.ToString("yyyy-MM-dd");
+        ViewBag.PrevMonth = startDate.AddMonths(-1).ToString("yyyy-MM-dd");
+        ViewBag.NextMonth = startDate.AddMonths(1).ToString("yyyy-MM-dd");
 
-        var collections = await _feeService.GetFeeCollectionsByDateRangeAsync(fromDate, toDate);
+        var collections = await _context.FeeCollections
+            .Include(fc => fc.Student)
+                .ThenInclude(s => s.Class)
+            .Include(fc => fc.FeeType)
+            .Where(fc => fc.DatePaid.Date >= startDate && fc.DatePaid.Date <= endDate)
+            .OrderByDescending(fc => fc.DatePaid)
+            .ToListAsync();
+
+        // Simple calculations
+        ViewBag.TotalAmount = collections.Sum(c => c.AmountPaid);
+        ViewBag.TotalTransactions = collections.Count;
+
         return View(collections);
     }
 

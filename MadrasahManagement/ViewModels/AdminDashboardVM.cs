@@ -41,6 +41,18 @@ namespace MadrasahManagement.ViewModels
         public IEnumerable<string>? PendingFeeAlerts { get; set; }
         public IEnumerable<string>? LowAttendanceAlerts { get; set; }
         public IEnumerable<string>? UpcomingEvents { get; set; }
+
+        // New Financial Properties
+        public decimal CurrentMonthIncome { get; set; }
+        public decimal CurrentMonthSalaryExpense { get; set; }
+        public decimal CurrentMonthOtherExpense { get; set; }
+        public decimal CurrentMonthNetIncome { get; set; }
+
+        // For progress bars
+        public decimal SalaryExpensePercentage { get; set; }
+        public decimal OtherExpensePercentage { get; set; }
+        public decimal NetIncomePercentage { get; set; }
+
     }
    
 }

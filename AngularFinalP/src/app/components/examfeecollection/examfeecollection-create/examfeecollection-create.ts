@@ -5,6 +5,7 @@ import { ExamfeecollectionService } from '../../../service/examfeecollection-ser
 import { ClassService } from '../../../service/class-service';
 import { ExaminationService } from '../../../service/examinationService';
 import { StudentService } from '../../../service/student-service';
+import { DepartmentService } from '../../../service/department-service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -16,13 +17,17 @@ import { Router } from '@angular/router';
 export class ExamFeeCollectionCreate implements OnInit {
   examFeeForm!: FormGroup;
   loading = signal(false);
+
+  departments = signal<any[]>([]);
   classes = signal<any[]>([]);
   exams = signal<any[]>([]);
   students = signal<any[]>([]);
+  filteredStudents = signal<any[]>([]); // students filtered by department/class
 
   constructor(
     private fb: FormBuilder,
     private service: ExamfeecollectionService,
+    private departmentService: DepartmentService,
     private classService: ClassService,
     private examService: ExaminationService,
     private studentService: StudentService,
@@ -32,6 +37,7 @@ export class ExamFeeCollectionCreate implements OnInit {
   ngOnInit(): void {
     this.examFeeForm = this.fb.group({
       educationYear: ['', [Validators.required, Validators.maxLength(10)]],
+      departmentId: [null, [Validators.required]],
       classId: [null, [Validators.required]],
       examId: [null, [Validators.required]],
       examAmount: [0, [Validators.required, Validators.min(0)]],
@@ -39,31 +45,57 @@ export class ExamFeeCollectionCreate implements OnInit {
     });
 
     this.loadDropdowns();
-    this.addStudentFee();
+
+    // When department/class changes, filter students
+    this.examFeeForm.get('departmentId')?.valueChanges.subscribe(() => this.filterStudents());
+    this.examFeeForm.get('classId')?.valueChanges.subscribe(() => this.filterStudents());
   }
 
   get feeCollections(): FormArray {
     return this.examFeeForm.get('feeCollections') as FormArray;
   }
 
-  addStudentFee(studentId: any = null, examFeeAmount = 0, totalSubject = 0) {
+  loadDropdowns() {
+    this.departmentService.getAll().subscribe(res => this.departments.set(res));
+    this.classService.getAll().subscribe(res => this.classes.set(res));
+    this.examService.getAll().subscribe(res => this.exams.set(res));
+    this.studentService.getAll().subscribe(res => this.students.set(res));
+  }
+
+  filterStudents() {
+    const deptId = this.examFeeForm.value.departmentId;
+    const classId = this.examFeeForm.value.classId;
+
+    if (!deptId || !classId) {
+      this.filteredStudents.set([]);
+      this.feeCollections.clear();
+      return;
+    }
+
+    const filtered = this.students().filter(s =>
+      s.departmentId === deptId && s.classId === classId
+    );
+
+    this.filteredStudents.set(filtered);
+
+    // Update FormArray
+    this.feeCollections.clear();
+    filtered.forEach(s => this.addStudentFee(s.studentId, 0, s.totalSubjects ?? 1));
+  }
+
+  addStudentFee(studentId?: any, examFeeAmount?: number, totalSubject?: number) {
     this.feeCollections.push(this.fb.group({
-      studentId: [studentId, [Validators.required]],
-      examFeeAmount: [examFeeAmount, [Validators.required, Validators.min(0)]],
-      totalSubject: [totalSubject, [Validators.required, Validators.min(1)]]
+      studentId: [studentId ?? null, [Validators.required]],
+      examFeeAmount: [examFeeAmount ?? 0, [Validators.required, Validators.min(0)]],
+      totalSubject: [totalSubject ?? 1, [Validators.required, Validators.min(1)]]
     }));
   }
+
 
   removeStudentFee(index: number) {
     if (this.feeCollections.length > 1) {
       this.feeCollections.removeAt(index);
     }
-  }
-
-  loadDropdowns() {
-    this.classService.getAll().subscribe(res => this.classes.set(res));
-    this.examService.getAll().subscribe(res => this.exams.set(res));
-    this.studentService.getAll().subscribe(res => this.students.set(res));
   }
 
   onSubmit() {
@@ -74,9 +106,9 @@ export class ExamFeeCollectionCreate implements OnInit {
 
     const formValue = this.examFeeForm.value;
 
-    // FORCED TYPE CASTING: Ensures int/decimal for .NET
     const dto: ExamFeesCreateDto = {
       educationYear: formValue.educationYear,
+      departmentId: Number(formValue.departmentId),
       classId: Number(formValue.classId),
       examId: Number(formValue.examId),
       examAmount: Number(formValue.examAmount),
@@ -96,9 +128,7 @@ export class ExamFeeCollectionCreate implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        console.error('Server Response:', err);
-        // This alerts the exact C# validation error (e.g., "The ExamId field is required")
-        const validationErrors = err.error?.errors ? JSON.stringify(err.error.errors) : err.message;
+        const validationErrors = err.error?.errors ? Object.values(err.error.errors).flat().join('\n') : err.message;
         alert('Submission Failed:\n' + validationErrors);
       }
     });

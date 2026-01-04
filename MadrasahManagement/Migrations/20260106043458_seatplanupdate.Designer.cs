@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    [Migration("20260101054514_examfeemcrud")]
-    partial class examfeemcrud
+    [Migration("20260106043458_seatplanupdate")]
+    partial class seatplanupdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -261,6 +261,9 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
@@ -282,6 +285,8 @@ namespace MadrasahManagement.Migrations
                     b.HasKey("AssignmentId");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("SubjectId");
 
@@ -315,8 +320,6 @@ namespace MadrasahManagement.Migrations
                     b.HasIndex("StudentId");
 
                     b.HasIndex("TeacherId");
-
-                    b.HasIndex("Date", "StudentId");
 
                     b.ToTable("Attendances", (string)null);
                 });
@@ -357,14 +360,8 @@ namespace MadrasahManagement.Migrations
 
                     b.HasKey("BookId");
 
-                    b.HasIndex("Title")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Books_Title_NoCategory")
-                        .HasFilter("[Category] is null");
-
                     b.HasIndex("Title", "Category")
                         .IsUnique()
-                        .HasDatabaseName("IX_Books_Title_Category")
                         .HasFilter("[Category] is not null");
 
                     b.ToTable("Books", (string)null);
@@ -454,10 +451,10 @@ namespace MadrasahManagement.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
 
-                    b.Property<DateTimeOffset>("EndDateTime")
+                    b.Property<DateTimeOffset?>("EndDateTime")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("IsAllDay")
@@ -467,8 +464,7 @@ namespace MadrasahManagement.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Location")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -502,6 +498,9 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
                     b.Property<DateTimeOffset>("EndDate")
                         .HasColumnType("datetimeoffset");
 
@@ -525,7 +524,9 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("Exams", (string)null);
+                    b.HasIndex("DepartmentId");
+
+                    b.ToTable("Exams");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.ExamFee", b =>
@@ -539,26 +540,39 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ClassId1")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("EducationYear")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("ExamAmount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ExaminationExamId")
+                    b.Property<int?>("ExaminationExamId")
                         .HasColumnType("int");
 
                     b.HasKey("ExamFeeId");
 
                     b.HasIndex("ClassId");
 
+                    b.HasIndex("ClassId1");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("ExamId");
+
                     b.HasIndex("ExaminationExamId");
 
-                    b.ToTable("ExamFees");
+                    b.ToTable("ExamFees", (string)null);
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.ExamFeeCollection", b =>
@@ -614,11 +628,13 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("TypesOfExpense")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IncomeExpenseId");
+
+                    b.HasIndex("ExamId");
 
                     b.ToTable("ExamIncomeExpenses");
                 });
@@ -631,33 +647,47 @@ namespace MadrasahManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ResultId"));
 
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EducationYear")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Grade")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                    b.Property<bool>("IsPassed")
+                        .HasColumnType("bit");
 
-                    b.Property<double>("MarksObtained")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<int>("MeritPosition")
+                        .HasColumnType("int");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SubjectId")
-                        .HasColumnType("int");
+                    b.Property<decimal>("TotalCGPA")
+                        .HasColumnType("decimal(4,2)");
+
+                    b.Property<decimal>("TotalMarks")
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("ResultId");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("ExamId");
 
                     b.HasIndex("StudentId");
-
-                    b.HasIndex("SubjectId");
 
                     b.ToTable("ExamResults", (string)null);
                 });
@@ -671,6 +701,9 @@ namespace MadrasahManagement.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExamRoutineId"));
 
                     b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("EducationYear")
@@ -704,6 +737,8 @@ namespace MadrasahManagement.Migrations
                     b.HasKey("ExamRoutineId");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("ExamId");
 
@@ -821,6 +856,9 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Frequency")
                         .HasColumnType("int");
 
@@ -832,6 +870,8 @@ namespace MadrasahManagement.Migrations
                     b.HasKey("FeeTypeId");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("DepartmentId");
 
                     b.ToTable("FeeTypes", (string)null);
                 });
@@ -934,11 +974,9 @@ namespace MadrasahManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IssuedTo");
+                    b.HasIndex("BookId");
 
-                    b.HasIndex("BookId", "IssuedTo")
-                        .IsUnique()
-                        .HasFilter("[ReturnDate] IS NULL");
+                    b.HasIndex("IssuedTo");
 
                     b.ToTable("IssuedBooks", (string)null);
                 });
@@ -1067,9 +1105,13 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("EducationYear")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
@@ -1086,6 +1128,8 @@ namespace MadrasahManagement.Migrations
                     b.HasKey("PointConditionId");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("ExamId");
 
@@ -1123,6 +1167,43 @@ namespace MadrasahManagement.Migrations
                     b.HasIndex("PointConditionId");
 
                     b.ToTable("PointConditionDetails");
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.ResultDetail", b =>
+                {
+                    b.Property<int>("ResultDetailId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ResultDetailId"));
+
+                    b.Property<string>("Division")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("GPA")
+                        .HasColumnType("decimal(3,2)");
+
+                    b.Property<bool>("IsSilverColor")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Marks")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ResultId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ResultDetailId");
+
+                    b.HasIndex("ResultId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("ResultDetails");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Salary", b =>
@@ -1168,17 +1249,56 @@ namespace MadrasahManagement.Migrations
 
                     b.HasKey("SalaryId");
 
-                    b.HasIndex("StaffId", "MonthName", "Year")
-                        .IsUnique()
-                        .HasDatabaseName("IX_SalaryRecord_Staff_Month_Year_Unique")
-                        .HasFilter("[StaffId] IS NOT NULL");
+                    b.HasIndex("StaffId");
 
-                    b.HasIndex("TeacherId", "MonthName", "Year")
-                        .IsUnique()
-                        .HasDatabaseName("IX_SalaryRecord_Teacher_Month_Year_Unique")
-                        .HasFilter("[TeacherId] IS NOT NULL");
+                    b.HasIndex("TeacherId");
 
                     b.ToTable("Salaries", (string)null);
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.SeatPlan", b =>
+                {
+                    b.Property<int>("SeatPlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SeatPlanId"));
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ExamDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("NumberOfRows")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoomNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentsPerBench")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SeatPlanId");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("SeatPlans");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Section", b =>
@@ -1192,6 +1312,9 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SectionName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1200,6 +1323,8 @@ namespace MadrasahManagement.Migrations
                     b.HasKey("SectionId");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Sections", (string)null);
                 });
@@ -1395,9 +1520,6 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("SectionId1");
 
-                    b.HasIndex("StudentName")
-                        .HasDatabaseName("IX_StudentName");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("Students");
@@ -1470,6 +1592,9 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("AssignmentId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("AssignmentId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Feedback")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
@@ -1485,6 +1610,9 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("StudentId1")
+                        .HasColumnType("int");
+
                     b.Property<DateTimeOffset>("SubmittedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -1492,7 +1620,11 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("AssignmentId");
 
+                    b.HasIndex("AssignmentId1");
+
                     b.HasIndex("StudentId");
+
+                    b.HasIndex("StudentId1");
 
                     b.ToTable("Submissions", (string)null);
                 });
@@ -1586,19 +1718,25 @@ namespace MadrasahManagement.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ClassSubjectClassId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClassSubjectSubjectId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Day")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Period")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Room")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SectionId")
                         .HasColumnType("int");
@@ -1613,11 +1751,15 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("ClassId");
 
+                    b.HasIndex("DepartmentId");
+
                     b.HasIndex("SectionId");
 
                     b.HasIndex("SubjectId");
 
                     b.HasIndex("TeacherId");
+
+                    b.HasIndex("ClassSubjectClassId", "ClassSubjectSubjectId");
 
                     b.ToTable("Timetables");
                 });
@@ -1804,19 +1946,27 @@ namespace MadrasahManagement.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MadrasahManagement.Models.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Teacher", "Teacher")
                         .WithMany("Assignments")
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Class");
+
+                    b.Navigation("Department");
 
                     b.Navigation("Subject");
 
@@ -1884,27 +2034,51 @@ namespace MadrasahManagement.Migrations
                     b.HasOne("MadrasahManagement.Models.Class", "Class")
                         .WithMany("Exams")
                         .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany("Exams")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Class");
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.ExamFee", b =>
                 {
                     b.HasOne("MadrasahManagement.Models.Class", "Class")
-                        .WithMany("ExamFees")
+                        .WithMany()
                         .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Class", null)
+                        .WithMany("ExamFees")
+                        .HasForeignKey("ClassId1");
+
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Examination", "Examination")
-                        .WithMany("ExamFees")
-                        .HasForeignKey("ExaminationExamId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany()
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.Examination", null)
+                        .WithMany("ExamFees")
+                        .HasForeignKey("ExaminationExamId");
+
                     b.Navigation("Class");
+
+                    b.Navigation("Department");
 
                     b.Navigation("Examination");
                 });
@@ -1936,31 +2110,50 @@ namespace MadrasahManagement.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("MadrasahManagement.Models.ExamResult", b =>
+            modelBuilder.Entity("MadrasahManagement.Models.ExamIncomeExpense", b =>
                 {
-                    b.HasOne("MadrasahManagement.Models.Exam", "Exam")
-                        .WithMany("ExamResults")
+                    b.HasOne("MadrasahManagement.Models.Examination", "Examination")
+                        .WithMany()
                         .HasForeignKey("ExamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MadrasahManagement.Models.Student", "Student")
-                        .WithMany("ExamResults")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Examination");
+                });
 
-                    b.HasOne("MadrasahManagement.Models.Subject", "Subject")
+            modelBuilder.Entity("MadrasahManagement.Models.ExamResult", b =>
+                {
+                    b.HasOne("MadrasahManagement.Models.Class", "Class")
                         .WithMany()
-                        .HasForeignKey("SubjectId")
+                        .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Exam");
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Examination", "Examination")
+                        .WithMany()
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Examination");
 
                     b.Navigation("Student");
-
-                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.ExamRoutine", b =>
@@ -1968,6 +2161,12 @@ namespace MadrasahManagement.Migrations
                     b.HasOne("MadrasahManagement.Models.Class", "Class")
                         .WithMany("ExamRoutine")
                         .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1984,6 +2183,8 @@ namespace MadrasahManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("Class");
+
+                    b.Navigation("Department");
 
                     b.Navigation("Examination");
 
@@ -2026,7 +2227,15 @@ namespace MadrasahManagement.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany("FeeTypes")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Class");
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.HostelResident", b =>
@@ -2034,7 +2243,7 @@ namespace MadrasahManagement.Migrations
                     b.HasOne("MadrasahManagement.Models.Hostel", "Hostel")
                         .WithMany("Residents")
                         .HasForeignKey("HostelId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Student", "Student")
@@ -2059,7 +2268,7 @@ namespace MadrasahManagement.Migrations
                     b.HasOne("MadrasahManagement.Models.AppUser", "AppUser")
                         .WithMany()
                         .HasForeignKey("IssuedTo")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AppUser");
@@ -2115,6 +2324,12 @@ namespace MadrasahManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MadrasahManagement.Models.Examination", "Examination")
                         .WithMany("PointConditions")
                         .HasForeignKey("ExamId")
@@ -2128,6 +2343,8 @@ namespace MadrasahManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("Class");
+
+                    b.Navigation("Department");
 
                     b.Navigation("Examination");
 
@@ -2143,6 +2360,25 @@ namespace MadrasahManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("PointCondition");
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.ResultDetail", b =>
+                {
+                    b.HasOne("MadrasahManagement.Models.ExamResult", "Result")
+                        .WithMany("ResultDetails")
+                        .HasForeignKey("ResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Result");
+
+                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Salary", b =>
@@ -2161,6 +2397,40 @@ namespace MadrasahManagement.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("MadrasahManagement.Models.SeatPlan", b =>
+                {
+                    b.HasOne("MadrasahManagement.Models.Class", "Class")
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Subject");
+                });
+
             modelBuilder.Entity("MadrasahManagement.Models.Section", b =>
                 {
                     b.HasOne("MadrasahManagement.Models.Class", "Class")
@@ -2169,7 +2439,15 @@ namespace MadrasahManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany("Sections")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Class");
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Student", b =>
@@ -2237,16 +2515,24 @@ namespace MadrasahManagement.Migrations
             modelBuilder.Entity("MadrasahManagement.Models.Submission", b =>
                 {
                     b.HasOne("MadrasahManagement.Models.Assignment", "Assignment")
-                        .WithMany("Submissions")
+                        .WithMany()
                         .HasForeignKey("AssignmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MadrasahManagement.Models.Student", "Student")
+                    b.HasOne("MadrasahManagement.Models.Assignment", null)
                         .WithMany("Submissions")
+                        .HasForeignKey("AssignmentId1");
+
+                    b.HasOne("MadrasahManagement.Models.Student", "Student")
+                        .WithMany()
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Student", null)
+                        .WithMany("Submissions")
+                        .HasForeignKey("StudentId1");
 
                     b.Navigation("Assignment");
 
@@ -2291,6 +2577,12 @@ namespace MadrasahManagement.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MadrasahManagement.Models.Section", "Section")
                         .WithMany("Timetables")
                         .HasForeignKey("SectionId")
@@ -2298,9 +2590,9 @@ namespace MadrasahManagement.Migrations
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Subject", "Subject")
-                        .WithMany("Timetables")
+                        .WithMany()
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Teacher", "Teacher")
@@ -2309,7 +2601,13 @@ namespace MadrasahManagement.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.ClassSubject", null)
+                        .WithMany("Timetables")
+                        .HasForeignKey("ClassSubjectClassId", "ClassSubjectSubjectId");
+
                     b.Navigation("Class");
+
+                    b.Navigation("Department");
 
                     b.Navigation("Section");
 
@@ -2323,7 +2621,7 @@ namespace MadrasahManagement.Migrations
                     b.HasOne("MadrasahManagement.Models.TransportRoute", "TransportRoute")
                         .WithMany("Assignments")
                         .HasForeignKey("RouteId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Student", "Student")
@@ -2432,23 +2730,34 @@ namespace MadrasahManagement.Migrations
                     b.Navigation("Timetables");
                 });
 
+            modelBuilder.Entity("MadrasahManagement.Models.ClassSubject", b =>
+                {
+                    b.Navigation("Timetables");
+                });
+
             modelBuilder.Entity("MadrasahManagement.Models.Department", b =>
                 {
                     b.Navigation("Classes");
+
+                    b.Navigation("Exams");
+
+                    b.Navigation("FeeTypes");
+
+                    b.Navigation("Sections");
 
                     b.Navigation("Students");
 
                     b.Navigation("Teachers");
                 });
 
-            modelBuilder.Entity("MadrasahManagement.Models.Exam", b =>
-                {
-                    b.Navigation("ExamResults");
-                });
-
             modelBuilder.Entity("MadrasahManagement.Models.ExamFee", b =>
                 {
                     b.Navigation("FeeCollections");
+                });
+
+            modelBuilder.Entity("MadrasahManagement.Models.ExamResult", b =>
+                {
+                    b.Navigation("ResultDetails");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Examination", b =>
@@ -2483,8 +2792,6 @@ namespace MadrasahManagement.Migrations
 
                     b.Navigation("ExamFeeCollections");
 
-                    b.Navigation("ExamResults");
-
                     b.Navigation("FeeCollections");
 
                     b.Navigation("HostelResidents");
@@ -2503,8 +2810,6 @@ namespace MadrasahManagement.Migrations
                     b.Navigation("ExamRoutine");
 
                     b.Navigation("PointConditions");
-
-                    b.Navigation("Timetables");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.Teacher", b =>

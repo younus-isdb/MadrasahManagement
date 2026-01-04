@@ -9,7 +9,7 @@ namespace MadrasahManagement.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ExaminatiionController : ControllerBase
     {
         private readonly MadrasahDbContext _context;
@@ -28,9 +28,9 @@ namespace MadrasahManagement.ApiControllers
                 {
                     ExamId = e.ExamId,
                     ExamName = e.ExamName,
-                    ExamFeeCount = e.ExamFees.Count,
-                    PointConditionCount = e.PointConditions.Count,
-                    ExamRoutineCount = e.ExamRoutine.Count
+                    //ExamFeeCount = e.ExamFees.Count,
+                    //PointConditionCount = e.PointConditions.Count,
+                    //ExamRoutineCount = e.ExamRoutine.Count
                 }).ToListAsync();
 
             return Ok(exams);
@@ -42,8 +42,8 @@ namespace MadrasahManagement.ApiControllers
         {
             var e = await _context.Examinations
                 .Include(x => x.ExamFees)
-                .Include(x => x.PointConditions)
-                .Include(x => x.ExamRoutine)
+                //.Include(x => x.PointConditions)
+                //.Include(x => x.ExamRoutine)
                 .FirstOrDefaultAsync(x => x.ExamId == id);
 
             if (e == null) return NotFound();
@@ -52,9 +52,9 @@ namespace MadrasahManagement.ApiControllers
             {
                 ExamId = e.ExamId,
                 ExamName = e.ExamName,
-                ExamFeeCount = e.ExamFees.Count,
-                PointConditionCount = e.PointConditions.Count,
-                ExamRoutineCount = e.ExamRoutine.Count
+                //ExamFeeCount = e.ExamFees.Count,
+                //PointConditionCount = e.PointConditions.Count,
+                //ExamRoutineCount = e.ExamRoutine.Count
             };
 
             return Ok(dto);
@@ -78,9 +78,9 @@ namespace MadrasahManagement.ApiControllers
             {
                 ExamId = exam.ExamId,
                 ExamName = exam.ExamName,
-                ExamFeeCount = 0,
-                PointConditionCount = 0,
-                ExamRoutineCount = 0
+                //ExamFeeCount = 0,
+                //PointConditionCount = 0,
+                //ExamRoutineCount = 0
             };
 
             return CreatedAtAction(nameof(Get), new { id = exam.ExamId }, readDto);

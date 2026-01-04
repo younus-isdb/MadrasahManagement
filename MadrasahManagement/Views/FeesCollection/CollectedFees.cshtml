@@ -1,0 +1,112 @@
+﻿@model List<FeeCollection>
+
+@{
+    ViewData["Title"] = "Collected Fees";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="fas fa-money-check-alt me-2"></i>Collected Fees</h3>
+        <div>
+            <a asp-action="CollectFee" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-1"></i>New Collection
+            </a>
+            <a asp-action="MonthlyReport" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-1"></i>Monthly Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <h5 class="text-muted mb-1">Total Collections</h5>
+                    <h3 class="text-primary">@Model.Count</h3>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h5 class="text-muted mb-1">Total Amount</h5>
+                    <h3 class="text-success">৳@Model.Sum(fc => fc.AmountPaid).ToString("N2")</h3>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h5 class="text-muted mb-1">Today's Collections</h5>
+                    <h3 class="text-info">@Model.Count(fc => fc.DatePaid.Date == DateTime.Today)</h3>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h5 class="text-muted mb-1">Today's Amount</h5>
+                    <h3 class="text-warning">৳@Model.Where(fc => fc.DatePaid.Date == DateTime.Today).Sum(fc => fc.AmountPaid).ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Receipt No</th>
+                            <th>Date</th>
+                            <th>Student</th>
+                            <th>Class</th>
+                            <th>Fee Type</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Payment Method</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var collection in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong class="text-primary">@collection.ReceiptNumber</strong>
+                                </td>
+                                <td>@collection.DatePaid.ToString("dd-MMM-yyyy")</td>
+                                <td>@collection.Student?.StudentName</td>
+                                <td>@collection.Student?.Class?.ClassName</td>
+                                <td>@collection.FeeType?.Name</td>
+                                <td class="fw-bold">৳@collection.AmountPaid.ToString("N2")</td>
+                                <td>
+                                    <span >
+                                        @collection.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@collection.PaymentMethod</span>
+                                </td>
+                                <td>
+                                    <a asp-action="Receipt" asp-route-id="@collection.Id"
+                                       class="btn btn-sm btn-outline-primary" title="View Receipt">
+                                        View
+                                        <i class="fas fa-receipt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center mt-5">
+            <div class="card">
+                <div class="card-body py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No fee collections yet</h4>
+                    <p class="text-muted mb-4">Start collecting fees by clicking the button below</p>
+                    <a asp-action="CollectFee" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>Collect First Fee
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

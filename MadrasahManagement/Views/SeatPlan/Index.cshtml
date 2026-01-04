@@ -1,0 +1,71 @@
+﻿@model IEnumerable<MadrasahManagement.Dto.SeatPlanReadDto>
+
+@{
+    ViewData["Title"] = "Seat Plans";
+}
+
+<h1 class="text-center">Seat Plans</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Create New Seat Plan</a>
+</p>
+
+@* Group SeatPlans by Room and Row *@
+@{
+    var grouped = Model
+        .GroupBy(s => new { s.RoomNumber, s.ExamDate })
+        .OrderBy(g => g.Key.RoomNumber)
+        .ThenBy(g => g.Key.ExamDate);
+}
+
+@foreach (var roomGroup in grouped)
+{
+    <h4>Room @roomGroup.Key.RoomNumber - Exam Date: @roomGroup.Key.ExamDate.ToString("yyyy-MM-dd")</h4>
+
+    <div class="mb-4">
+        @* Arrange seats by rows *@
+        @{
+            int benchCounter = 1;
+            var seatList = roomGroup.ToList();
+            int studentsPerBench = seatList.FirstOrDefault()?.StudentsPerBench ?? 2;
+            int totalRows = seatList.FirstOrDefault()?.NumberOfRows ?? 1;
+            int studentIndex = 0;
+        }
+
+        @for (int r = 1; r <= totalRows; r++)
+        {
+            <h5>Row @r</h5>
+            <div class="row mb-3">
+                @for (int b = 0; b < Math.Ceiling((double)seatList.Count / studentsPerBench / totalRows); b++)
+                {
+                    <div class="col-md-6 mb-2 bench border p-2">
+                        <h6>Bench @benchCounter</h6>
+
+                        @for (int s = 0; s < studentsPerBench; s++)
+                        {
+                            if (studentIndex >= seatList.Count)
+                            {
+                                break;
+                            }
+
+                            var student = seatList[studentIndex];
+                            var side = s == 0 ? "Left" : "Right";
+
+                            <div class="mb-2">
+                                <strong>@side Student</strong>
+                                <p>@student.RegNo - @student.StudentName</p>
+                                <p><em>Class:</em> @student.ClassName</p>
+                                <p><em>Department:</em> @student.DepartmentName</p>
+                                <p><em>Subject:</em> @student.SubjectName</p>
+                            </div>
+
+                            studentIndex++;
+                        }
+
+                    </div>
+                    benchCounter++;
+                }
+            </div>
+        }
+    </div>
+}

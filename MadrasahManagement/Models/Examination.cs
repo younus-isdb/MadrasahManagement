@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MadrasahManagement.Models
 {
+    using Microsoft.EntityFrameworkCore;
     using System.Collections.Specialized;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
@@ -19,8 +20,9 @@ namespace MadrasahManagement.Models
         // Initialize to prevent null reference errors
         [JsonIgnore]
         public virtual ICollection<ExamFee> ExamFees { get; set; } = new List<ExamFee>();
+        //[JsonIgnore]
+        //public ICollection<ExamResult> ExamResults { get; set; } = new HashSet<ExamResult>();
         [JsonIgnore]
-
         public virtual ICollection<PointCondition> PointConditions { get; set; } = new List<PointCondition>();
         [JsonIgnore]
         public virtual ICollection<ExamRoutine> ExamRoutine { get; set; } = new List<ExamRoutine>();
@@ -36,6 +38,10 @@ namespace MadrasahManagement.Models
         public int ClassId { get; set; }
         [ForeignKey(nameof(ClassId))]
         public Class Class { get; set; } = null!;
+
+        public int DepartmentId { get; set; }
+        [ForeignKey(nameof(DepartmentId))]
+        public Department Department { get; set; } = null!;
 
         public int ExamId { get; set; }
         [ForeignKey(nameof(ExamId))]
@@ -75,54 +81,49 @@ namespace MadrasahManagement.Models
         [Key]
         public int PointConditionId { get; set; }
 
-        [Required]
+        [Required, StringLength(10)] // Added length constraint
         public string EducationYear { get; set; } = string.Empty;
 
-        [Required]
         public int ClassId { get; set; }
         [ForeignKey(nameof(ClassId))]
-        public Class? Class { get; set; }
+        public virtual Class Class { get; set; } = null!; // Use virtual for lazy loading support if needed
 
-        [Required]
+        public int DepartmentId { get; set; }
+        [ForeignKey(nameof(DepartmentId))]
+        public virtual Department Department { get; set; } = null!;
+
         public int ExamId { get; set; }
         [ForeignKey(nameof(ExamId))]
-        public Examination? Examination { get; set; }
+        public virtual Examination Examination { get; set; } = null!;
 
-        
         public int SubjectId { get; set; }
         [ForeignKey(nameof(SubjectId))]
-        public Subject? Subject { get; set; }
+        public virtual Subject Subject { get; set; } = null!;
 
-        [Required]
         public int PassMarks { get; set; }
-
-        [Required]
         public int HighestMark { get; set; }
 
         // Navigation
-        public ICollection<PointConditionDetail> Details { get; set; } = new List<PointConditionDetail>();
+        public virtual ICollection<PointConditionDetail> Details { get; set; } = new List<PointConditionDetail>();
     }
+
     public class PointConditionDetail
     {
         [Key]
         public int PointConditionDetailId { get; set; }
 
-        [Required]
         public int PointConditionId { get; set; }
         [ForeignKey(nameof(PointConditionId))]
-        public PointCondition? PointCondition { get; set; }
+        public virtual PointCondition PointCondition { get; set; } = null!;
 
-        [Required]
-        public int FromMark { get; set; }   // >=
-        [Required]
-        public int ToMark { get; set; }     // <=
+        public int FromMark { get; set; }
+        public int ToMark { get; set; }
 
         [Required]
         public string Division { get; set; } = string.Empty;
 
         public bool IsSilverColor { get; set; }
     }
-
 
 
     //public string? Grade { get; set; }
@@ -136,9 +137,8 @@ namespace MadrasahManagement.Models
     //    return "F";
     //}
 
-
-
-public class MeritCondition
+  
+    public class MeritCondition
     {
         [Key]
         public int MeritConditionId { get; set; }
@@ -157,6 +157,11 @@ public class MeritCondition
         public int ClassId { get; set; }
         [ForeignKey("ClassId")]
         public virtual Class? Class { get; set; }
+
+
+        public int DepartmentId { get; set; }
+        [ForeignKey(nameof(DepartmentId))]
+        public Department Department { get; set; } = null!;
 
         [Required]
         public int ExamId { get; set; }
@@ -188,6 +193,36 @@ public class MeritCondition
         public decimal Amount { get; set; }
 
          
+    }
+    public class SeatPlan
+    {
+        [Key]
+        public int SeatPlanId { get; set; }
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime ExamDate { get; set; }
+        public int RoomNumber { get; set; }
+        public int NumberOfRows {  get; set; }
+        public int StudentsPerBench {  get; set; }
+
+        // Student reference
+        public int StudentId { get; set; }
+        [ForeignKey(nameof(StudentId))]
+        public virtual Student Student { get; set; } = null!;
+
+        public int ClassId { get; set; }
+        [ForeignKey(nameof(ClassId))]
+        public virtual Class Class { get; set; } = null!;
+
+        public int DepartmentId { get; set; }
+        [ForeignKey(nameof(DepartmentId))]
+        public virtual Department Department { get; set; } = null!;
+
+        public int? SubjectId { get; set; }
+        [ForeignKey(nameof(SubjectId))]
+        public virtual Subject? Subject { get; set; }
+
+        [NotMapped]
+        public string StudentRoll { get; set; } = ""; // Seat number / Roll display (view only)
     }
 }
 

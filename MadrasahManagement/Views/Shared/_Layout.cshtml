@@ -122,13 +122,13 @@
                 <li class="nav-item"><a class="nav-link" href="/swagger">Api Doc</a></li>
                 @if (User.IsInRole("Admin"))
                 {
-                    <li class="nav-item"><a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="AdminDashboard" asp-action="Index">Dashboard</a></li>
                    
                     <li class="nav-item"><a class="nav-link" asp-controller="Student" asp-action="Index">Students</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Teacher" asp-action="Index">Teachers</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Class" asp-action="Index">Classes</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Subject" asp-action="Index">Subjects</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Exam" asp-action="Index">Exams</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Examination" asp-action="Index">Exams</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Department" asp-action="Index">Department</a></li>
                    
                     <li class="nav-item"><a class="nav-link" asp-controller="IssuedBook" asp-action="Index">Issued Book</a></li>
@@ -149,15 +149,12 @@
 
                     <li><a class="dropdown-item" asp-controller="Examination" asp-action="Index">Enter Exam Name</a></li>
                     <li><a class="dropdown-item" asp-controller="ExaminationFee" asp-action="Index">Set Exam Fee</a></li>
-                    <li><a class="dropdown-item" asp-controller="Points" asp-action="Index">Point Based Condition</a></li>
-                  
+                            <li><a class="dropdown-item" asp-controller="ExamFeeCollections" asp-action="Index">Collect Exam Fee</a></li>
+                            <li><a class="dropdown-item" asp-controller="ExamRoutine" asp-action="Index">Exam Routine</a></li>
+                            <li><a class="dropdown-item" asp-controller="ExamExpenses" asp-action="Index">Exam Income/Expense</a></li>
+                   
                     <li><hr class="dropdown-divider"></li>
-
-                    <li><a class="dropdown-item" asp-controller="ExamFeeCollections" asp-action="Index">Collect Exam Fee</a></li>
-                    <li><a class="dropdown-item" asp-controller="ExamRoutine" asp-action="Index">Exam Routine</a></li>
-                    <li><a class="dropdown-item" asp-controller="ExamExpenses" asp-action="Index">Exam Income/Expense</a></li>
-                    <li><a class="dropdown-item" asp-controller="Examination" asp-action="AdmitCard">Separate Admit Card</a></li>
-                    <li><a class="dropdown-item" asp-controller="Examination" asp-action="PointReport">Point Based Exam Report</a></li>
+                    <li><a class="dropdown-item" asp-controller="SeatPlan" asp-action="Index">Point Based Exam Report</a></li>
                     <li><a class="dropdown-item" asp-controller="Examination" asp-action="IncomeExpenseReport">Exam Income/Expense Report</a></li>
 
                 </ul>
@@ -175,8 +172,7 @@
 
                 <ul class="dropdown-menu shadow" aria-labelledby="examDropdown">
 
-                    <li><a class="dropdown-item" asp-controller="" asp-action="Create">Point Based Results Entry</a></li>
-                    <li><a class="dropdown-item" asp-controller="ExaminationFee" asp-action="Index">Present/Absent</a></li>
+                    <li><a class="dropdown-item" asp-controller="ResultProcess" asp-action="Index">Result</a></li>
                     <li><a class="dropdown-item" asp-controller="Examination" asp-action="SubClassGroup">Point Based MarkSheet </a></li>
                     <li><a class="dropdown-item" asp-controller="Examination" asp-action="PointCondition">Point Based Report</a></li>
                     <li><a class="dropdown-item" asp-controller="Examination" asp-action="MeritCondition">Online Result Published</a></li>

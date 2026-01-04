@@ -1,11 +1,11 @@
 ﻿@model IEnumerable<MadrasahManagement.Dto.ExamFeesReadDto>
 
 <h2>Exam Fee Collection List</h2>
+
 <p>
     <a asp-action="Create" class="btn btn-success">Create New Exam Fee</a>
 </p>
 
-@* --- Declare totals upfront so they are in scope everywhere --- *@
 @{
     decimal totalExamFee = Model?.Sum(f => f.ExamAmount) ?? 0;
     decimal totalCollected = Model?.Sum(f => f.FeeCollections.Sum(fc => fc.ExamFeeAmount)) ?? 0;
@@ -19,9 +19,9 @@
             <th>Education Year</th>
             <th>Class</th>
             <th>Exam</th>
-            <th>Exam Fee Amount</th>
+            <th>Exam Fee</th>
             <th>Total Collected</th>
-            <th>Students Count</th>
+            <th>Students</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -47,29 +47,51 @@
                     </td>
                 </tr>
 
-                <!-- Nested student table with per-student due -->
+                <!-- STUDENT LIST -->
                 <tr>
                     <td colspan="8" class="p-0">
-                        @if (fee.FeeCollections != null && fee.FeeCollections.Any())
+                        @if (fee.FeeCollections.Any())
                         {
-                            <table class="table mb-0">
+                            <table class="table mb-0 table-sm">
                                 <thead>
                                     <tr class="table-secondary">
+                                        <th>Student Id</th>
                                         <th>Student Name</th>
                                         <th>Paid Amount</th>
                                         <th>Total Subjects</th>
-                                        <th>Due</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var student in fee.FeeCollections)
                                     {
-                                        var due = fee.ExamAmount - student.ExamFeeAmount;
-                                        <tr style="@(due > 0 ? "background-color:#f8d7da;" : "")">
+                                        bool paymentComplete = student.ExamFeeAmount == fee.ExamAmount;
+
+                                        <tr class="@(paymentComplete ? "" : "table-danger")">
+                                            <td>@student.StudentId</td>
                                             <td>@student.StudentName</td>
                                             <td>@student.ExamFeeAmount.ToString("0.00")</td>
                                             <td>@student.TotalSubject</td>
-                                            <td>@due.ToString("0.00")</td>
+                                            <td>
+                                                @if (paymentComplete)
+                                                {
+                                                    <button class="btn btn-success btn-sm"
+                                                            onclick="printAdmit(
+                                                                                    '@student.StudentId',
+                                                                                    '@student.StudentName',
+                                                                                    '@fee.ClassName',
+                                                                                    '@fee.ExamName',
+                                                                                    '@fee.EducationYear',
+                                                                                    '@student.TotalSubject'
+                                                                                )">
+                                                        Admit
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger" title="Payment Due">Due</span>
+                                                }
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
@@ -77,7 +99,9 @@
                         }
                         else
                         {
-                            <div class="text-center small text-muted">No student payments yet.</div>
+                            <div class="text-center text-muted p-2">
+                                No student payments yet.
+                            </div>
                         }
                     </td>
                 </tr>
@@ -94,18 +118,187 @@
     </tbody>
 </table>
 
-<!-- --- Totals summary boxes --- -->
-<div style="margin-top:20px; display:flex; gap:20px;">
-    <div style="padding:10px; border:1px solid #007bff; background-color:#cce5ff; flex:1; text-align:center;">
+<!-- TOTAL SUMMARY -->
+<div class="d-flex gap-3 mt-3">
+    <div class="border p-2 text-center flex-fill bg-light">
         <strong>Total Exam Fee</strong>
         <div>@totalExamFee.ToString("0.00")</div>
     </div>
-    <div style="padding:10px; border:1px solid #28a745; background-color:#d4edda; flex:1; text-align:center;">
+    <div class="border p-2 text-center flex-fill bg-success-subtle">
         <strong>Total Collected</strong>
         <div>@totalCollected.ToString("0.00")</div>
     </div>
-    <div style="padding:10px; border:1px solid #dc3545; background-color:#f8d7da; flex:1; text-align:center;">
+    <div class="border p-2 text-center flex-fill bg-danger-subtle">
         <strong>Total Due</strong>
         <div>@totalDue.ToString("0.00")</div>
     </div>
 </div>
+
+<!-- ================= ADMIT PRINT AREA ================= -->
+<div id="admitPrintArea" class="admit-card">
+    <div class="admit-header">
+        <h1>Halishahar Mohila Madrasah </h1>
+        <h3>ADMIT CARD</h3>
+        <p>Academic Session: <span id="pYear"></span></p>
+    </div>
+
+    <div class="admit-body">
+        <div class="row">
+            <div class="label">Student Id</div>
+            <div class="value" id="pId"></div>
+        </div>
+
+        <div class="row">
+            <div class="label">Student Name</div>
+            <div class="value" id="pName"></div>
+        </div>
+
+        <div class="row">
+            <div class="label">Class</div>
+            <div class="value" id="pClass"></div>
+        </div>
+
+        <div class="row">
+            <div class="label">Examination</div>
+            <div class="value" id="pExam"></div>
+        </div>
+
+        <div class="row">
+            <div class="label">Total Subjects</div>
+            <div class="value" id="pSub"></div>
+        </div>
+    </div>
+
+    <div class="admit-footer">
+        <div class="sign left">
+            <p>________________________</p>
+            <strong>Class Teacher</strong>
+        </div>
+
+        <div class="sign right">
+            <p>________________________</p>
+            <strong>Principal</strong>
+        </div>
+    </div>
+
+    <div class="admit-note">
+        This admit card is valid only for current Examination.
+    </div>
+</div>
+
+<!-- ================= CSS ================= -->
+<style>
+    .admit-card {
+        display: none;
+        width: 800px;
+        margin: auto;
+        padding: 30px;
+        border: 4px solid blue;
+        font-family: 'Segoe UI', sans-serif;
+        background: azure;
+    }
+
+    .admit-header {
+        text-align: center;
+        border-bottom: 2px solid green;
+        margin-bottom: 25px;
+        padding-bottom: 10px;
+    }
+
+        .admit-header h1 {
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+
+        .admit-header p {
+            margin-top: 5px;
+            font-size: 16px;
+        }
+
+    .admit-body {
+        font-size: 18px;
+    }
+
+        .admit-body .row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .admit-body .label {
+            width: 200px;
+            font-weight: bold;
+        }
+
+        .admit-body .value {
+            flex: 1;
+            border-bottom: 1px dotted #000;
+            padding-left: 10px;
+        }
+
+    .admit-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 60px;
+    }
+
+    .sign {
+        width: 40%;
+        font-size: 16px;
+    }
+
+        .sign.left {
+            text-align: left;
+        }
+
+        .sign.right {
+            text-align: right;
+        }
+
+    .admit-note {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 14px;
+        font-style: italic;
+    }
+
+    @@media print {
+        body *
+
+    {
+        visibility: hidden;
+    }
+
+    .admit-card, .admit-card * {
+        visibility: visible;
+    }
+
+    .admit-card {
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    }
+</style>
+
+<!-- ================= JS ================= -->
+<script>
+    function printAdmit(id, name, cls, exam, year, subject) {
+        document.getElementById('pId').innerText = id;
+        document.getElementById('pName').innerText = name;
+        document.getElementById('pClass').innerText = cls;
+        document.getElementById('pExam').innerText = exam;
+        document.getElementById('pYear').innerText = year;
+        document.getElementById('pSub').innerText = subject;
+
+        const admit = document.getElementById('admitPrintArea');
+        admit.style.display = 'block';
+
+        setTimeout(() => {
+            window.print();
+            admit.style.display = 'none';
+        }, 200);
+    }
+</script>

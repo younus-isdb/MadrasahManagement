@@ -1,6 +1,4 @@
-﻿using FastReport;
-using FastReport.Export.PdfSimple;
-using MadrasahManagement.Dto;
+﻿using MadrasahManagement.Dto;
 using MadrasahManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +25,7 @@ namespace MadrasahManagement.Controllers
             var examFee = new ExamFee
             {
                 EducationYear = dto.EducationYear,
+                DepartmentId = dto.DepartmentId,
                 ClassId = dto.ClassId,
                 ExamId = dto.ExamId,
                 ExamAmount = dto.ExamAmount,
@@ -51,12 +50,15 @@ namespace MadrasahManagement.Controllers
             var examFees = await _context.ExamFees
                 .Include(e => e.Class)
                 .Include(e => e.Examination)
+                .Include(e => e.Department)
                 .Include(e => e.FeeCollections)
                     .ThenInclude(fc => fc.Student)
                 .Select(e => new ExamFeesReadDto
                 {
                     ExamFeeId = e.ExamFeeId,
                     EducationYear = e.EducationYear,
+                    DepartmentId = e.DepartmentId,
+                    DepartmentName = e.Department.DepartmentName,
                     ClassId = e.ClassId,
                     ClassName = e.Class.ClassName,
                     ExamId = e.ExamId,
@@ -81,6 +83,7 @@ namespace MadrasahManagement.Controllers
         public async Task<ActionResult<ExamFeesReadDto>> GetById(int id)
         {
             var examFee = await _context.ExamFees
+                .Include(e => e.Department)
                 .Include(e => e.Class)
                 .Include(e => e.Examination)
                 .Include(e => e.FeeCollections)
@@ -90,6 +93,8 @@ namespace MadrasahManagement.Controllers
                 {
                     ExamFeeId = e.ExamFeeId,
                     EducationYear = e.EducationYear,
+                    DepartmentId = e.DepartmentId,
+                    DepartmentName = e.Department.DepartmentName,
                     ClassId = e.ClassId,
                     ClassName = e.Class.ClassName,
                     ExamId = e.ExamId,
@@ -123,6 +128,7 @@ namespace MadrasahManagement.Controllers
             if (existing == null) return NotFound();
 
             existing.EducationYear = dto.EducationYear;
+            existing.DepartmentId = dto.DepartmentId;
             existing.ClassId = dto.ClassId;
             existing.ExamId = dto.ExamId;
             existing.ExamAmount = dto.ExamAmount;
@@ -177,65 +183,8 @@ namespace MadrasahManagement.Controllers
 
             return NoContent();
         }
-        
-        [HttpGet("report/{id}")]
-        public async Task<IActionResult> GenerateReport(int id)
-        {
-            var examFee = await _context.ExamFees
-                .Include(e => e.Class)
-                .Include(e => e.Examination)
-                .Include(e => e.FeeCollections)
-                    .ThenInclude(fc => fc.Student)
-                .FirstOrDefaultAsync(e => e.ExamFeeId == id);
 
-            if (examFee == null) return NotFound();
-
-            // Prepare Master Data (Class, Exam, Year, TotalCollected)
-            var masterTable = new System.Data.DataTable("ExamInfo");
-            masterTable.Columns.Add("ClassName", typeof(string));
-            masterTable.Columns.Add("ExamName", typeof(string));
-            masterTable.Columns.Add("EducationYear", typeof(string));
-            masterTable.Columns.Add("TotalCollected", typeof(decimal));
-
-            var totalCollected = examFee.FeeCollections.Sum(fc => fc.ExamFeeAmount);
-            masterTable.Rows.Add(examFee.Class.ClassName, examFee.Examination.ExamName, examFee.EducationYear, totalCollected);
-
-            // Prepare Detail Data (Student info)
-            var detailTable = new System.Data.DataTable("FeeCollection");
-            detailTable.Columns.Add("StudentName", typeof(string));
-            detailTable.Columns.Add("ExamFeeAmount", typeof(decimal));
-            detailTable.Columns.Add("TotalSubject", typeof(int));
-
-            foreach (var fc in examFee.FeeCollections)
-                detailTable.Rows.Add(fc.Student.StudentName, fc.ExamFeeAmount, fc.TotalSubject);
-
-            try
-            {
-                using var report = new Report();
-
-                // Load your existing .frx template
-                report.Load("wwwroot/reports/ExamFee.frx");
-
-                // Register data
-                report.RegisterData(masterTable, "ExamInfo");
-                report.RegisterData(detailTable, "FeeCollection");
-
-                report.GetDataSource("ExamInfo").Enabled = true;
-                report.GetDataSource("FeeCollection").Enabled = true;
-
-                using var pdfExport = new PDFSimpleExport();
-                using var ms = new MemoryStream();
-                report.Prepare();
-                report.Export(pdfExport, ms);
-                ms.Position = 0;
-
-                return File(ms.ToArray(), "application/pdf", $"ExamFee_{examFee.ExamFeeId}.pdf");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Report generation failed: {ex.Message}");
-            }
-        }
+        // ------------------- ELIGIBLE STUDENTS FOR ADMIT CARD -------------------
 
     }
 }

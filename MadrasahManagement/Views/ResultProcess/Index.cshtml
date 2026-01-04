@@ -1,0 +1,84 @@
+﻿@model IEnumerable<MadrasahManagement.Models.ExamResult>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Processed Results</h4>
+        <a asp-action="Create" class="btn btn-primary">Process New Result</a>
+    </div>
+
+    <div class="card-body">
+        <table class="table table-bordered table-striped table-sm">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Roll/Reg No</th>
+                    <th>Student Name</th>
+                    <th>Class</th>
+                    <th>Exam</th>
+                    <th>Subjects (Marks | GPA)</th>
+                    <th>Total Marks</th>
+                    <th>CGPA</th>
+                    <th>Merit</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Student?.RegNo</td>  <!-- Roll/Reg number -->
+                        <td>@item.Student?.StudentName</td>
+                        <td>@item.Class?.ClassName</td>
+                        <td>@item.Examination?.ExamName</td>
+
+                        <!-- SUBJECT LIST -->
+                        <td>
+                            @foreach (var d in item.ResultDetails)
+                            {
+                                <div>
+                                    <strong>@d.Subject.SubjectName</strong> :
+                                    @d.Marks
+                                    (<span class="@(d.GPA > 0 ? "text-success" : "text-danger")">
+                                        @d.GPA
+                                    </span>)
+                                </div>
+                            }
+                        </td>
+
+                        <td class="text-center">@item.TotalMarks</td>
+                        <td class="text-center fw-bold">@item.TotalCGPA</td>
+
+                        <td class="text-center">
+                            <span class="badge bg-info">@item.MeritPosition</span>
+                        </td>
+
+                        <td class="text-center">
+                            @if (item.IsPassed)
+                            {
+                                <span class="badge bg-success">Passed</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Failed</span>
+                            }
+                        </td>
+
+                        <td class="text-center">
+                            <a asp-action="Edit"
+                               asp-route-id="@item.ResultId"
+                               class="btn btn-sm btn-warning">
+                                Edit
+                            </a>
+                            <a asp-action="Delete"
+                               asp-route-id="@item.ResultId"
+                               class="btn btn-sm btn-danger">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

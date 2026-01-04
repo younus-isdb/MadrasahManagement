@@ -15,11 +15,12 @@ namespace MadrasahManagement.Controllers
             _context = context;
         }
 
-        // ------------------- INDEX -------------------
+        // GET: Index
         public async Task<IActionResult> Index()
         {
             var examFees = await _context.ExamFees
                 .Include(e => e.Class)
+                .Include(e => e.Department)
                 .Include(e => e.Examination)
                 .Include(e => e.FeeCollections)
                     .ThenInclude(fc => fc.Student)
@@ -27,6 +28,7 @@ namespace MadrasahManagement.Controllers
                 {
                     ExamFeeId = e.ExamFeeId,
                     EducationYear = e.EducationYear,
+                    DepartmentId = e.DepartmentId,
                     ClassId = e.ClassId,
                     ClassName = e.Class != null ? e.Class.ClassName : "Unknown",
                     ExamId = e.ExamId,
@@ -41,220 +43,216 @@ namespace MadrasahManagement.Controllers
                         TotalSubject = fc.TotalSubject
                     }).ToList()
                 })
+                .OrderByDescending(e => e.ExamFeeId)
                 .ToListAsync();
 
             return View(examFees);
         }
 
-        // ------------------- DETAILS -------------------
-        public async Task<IActionResult> Details(int id)
-        {
-            var examFee = await _context.ExamFees
-                .Include(e => e.Class)
-                .Include(e => e.Examination)
-                .Include(e => e.FeeCollections)
-                    .ThenInclude(fc => fc.Student)
-                .Where(e => e.ExamFeeId == id)
-                .Select(e => new ExamFeesReadDto
-                {
-                    ExamFeeId = e.ExamFeeId,
-                    EducationYear = e.EducationYear,
-                    ClassId = e.ClassId,
-                    ClassName = e.Class != null ? e.Class.ClassName : "Unknown",
-                    ExamId = e.ExamId,
-                    ExamName = e.Examination != null ? e.Examination.ExamName : "Unknown",
-                    ExamAmount = e.ExamAmount,
-                    FeeCollections = e.FeeCollections.Select(fc => new ExamFeeCollectionReadDto
-                    {
-                        FeeCollectionId = fc.FeeCollectionId,
-                        StudentId = fc.StudentId,
-                        StudentName = fc.Student != null ? fc.Student.StudentName : "Unknown",
-                        ExamFeeAmount = fc.ExamFeeAmount,
-                        TotalSubject = fc.TotalSubject
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
-
-            if (examFee == null) return NotFound();
-            return View(examFee);
-        }
-
-        // ------------------- CREATE -------------------
-        [HttpGet]
+        // GET: Create
         public IActionResult Create()
         {
             PopulateDropdowns();
             return View(new ExamFeesCreateDto());
         }
 
+        // POST: Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ExamFeesCreateDto dto)
         {
-            // Make sure FeeCollections list is not null
-            if (dto.FeeCollections == null) dto.FeeCollections = new List<ExamFeeCollectionCreateDto>();
+            // Always repopulate dropdowns with submitted values
+            PopulateDropdownsWithValues(dto);
 
-            if (!ModelState.IsValid || !dto.FeeCollections.Any())
+            if (dto.FeeCollections == null)
+                dto.FeeCollections = new List<ExamFeeCollectionCreateDto>();
+
+            // Validate at least one student
+            if (!dto.FeeCollections.Any())
             {
-                if (!dto.FeeCollections.Any())
-                    ModelState.AddModelError("", "At least one Fee Collection is required.");
-
-                PopulateDropdowns();
+                ModelState.AddModelError("", "At least one student fee collection is required.");
                 return View(dto);
             }
 
-            // Filter valid students
-            var validStudentIds = await _context.Students.Select(s => s.StudentId).ToHashSetAsync();
-            var feeCollections = dto.FeeCollections
-                .Where(fc => validStudentIds.Contains(fc.StudentId))
-                .Select(fc => new ExamFeeCollection
+            // Check for invalid student selections
+            bool hasInvalidStudent = false;
+            foreach (var fc in dto.FeeCollections)
+            {
+                if (fc.StudentId <= 0)
                 {
-                    StudentId = fc.StudentId,
-                    ExamFeeAmount = fc.ExamFeeAmount,
-                    TotalSubject = fc.TotalSubject
-                }).ToList();
+                    hasInvalidStudent = true;
+                    break;
+                }
+            }
 
-            var examFee = new ExamFee
+            if (hasInvalidStudent)
             {
-                EducationYear = dto.EducationYear,
-                ClassId = dto.ClassId,
-                ExamId = dto.ExamId,
-                ExamAmount = dto.ExamAmount,
-                FeeCollections = feeCollections
-            };
-
-            _context.ExamFees.Add(examFee);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        // ------------------- EDIT -------------------
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var existing = await _context.ExamFees
-                .Include(e => e.FeeCollections)
-                .FirstOrDefaultAsync(e => e.ExamFeeId == id);
-
-            if (existing == null) return NotFound();
-
-            var dto = new ExamFeesUpdateDto
-            {
-                EducationYear = existing.EducationYear,
-                ClassId = existing.ClassId,
-                ExamId = existing.ExamId,
-                ExamAmount = existing.ExamAmount,
-                FeeCollections = existing.FeeCollections.Select(fc => new ExamFeeCollectionUpdateDto
-                {
-                    FeeCollectionId = fc.FeeCollectionId,
-                    StudentId = fc.StudentId,
-                    ExamFeeAmount = fc.ExamFeeAmount,
-                    TotalSubject = fc.TotalSubject
-                }).ToList()
-            };
-
-            PopulateDropdowns();
-            return View(dto);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, ExamFeesUpdateDto dto)
-        {
-            if (dto.FeeCollections == null) dto.FeeCollections = new List<ExamFeeCollectionUpdateDto>();
-
-            if (!ModelState.IsValid)
-            {
-                PopulateDropdowns();
+                ModelState.AddModelError("", "Please select a valid student for all rows.");
                 return View(dto);
             }
 
-            var existing = await _context.ExamFees
-                .Include(e => e.FeeCollections)
-                .FirstOrDefaultAsync(e => e.ExamFeeId == id);
-
-            if (existing == null) return NotFound();
-
-            existing.EducationYear = dto.EducationYear;
-            existing.ClassId = dto.ClassId;
-            existing.ExamId = dto.ExamId;
-            existing.ExamAmount = dto.ExamAmount;
-
-            // Remove FeeCollections that are no longer present
-            var dtoIds = dto.FeeCollections.Where(f => f.FeeCollectionId.HasValue).Select(f => f.FeeCollectionId.Value).ToHashSet();
-            var toRemove = existing.FeeCollections.Where(f => !dtoIds.Contains(f.FeeCollectionId)).ToList();
-            _context.Set<ExamFeeCollection>().RemoveRange(toRemove);
-
-            // Add or update FeeCollections
-            foreach (var fcDto in dto.FeeCollections)
+            if (ModelState.IsValid)
             {
-                if (fcDto.FeeCollectionId.HasValue)
+                // Check for duplicate students in this submission
+                var studentIds = dto.FeeCollections.Select(fc => fc.StudentId).ToList();
+                if (studentIds.Distinct().Count() != studentIds.Count)
                 {
-                    // Update existing
-                    var existingFc = existing.FeeCollections.First(f => f.FeeCollectionId == fcDto.FeeCollectionId.Value);
-                    existingFc.StudentId = fcDto.StudentId;
-                    existingFc.ExamFeeAmount = fcDto.ExamFeeAmount;
-                    existingFc.TotalSubject = fcDto.TotalSubject;
+                    ModelState.AddModelError("", "Duplicate students are not allowed in the same collection.");
+                    return View(dto);
+                }
+
+                // Check if students already have fee collections for this exam
+                var existingCollections = await _context.ExamFeeCollections
+                    .Include(ec => ec.ExamFee)
+                    .Where(ec => ec.ExamFee.ClassId == dto.ClassId
+                        && ec.ExamFee.ExamId == dto.ExamId
+                        && ec.ExamFee.EducationYear == dto.EducationYear
+                        && studentIds.Contains(ec.StudentId))
+                    .Select(ec => ec.StudentId)
+                    .ToListAsync();
+
+                if (existingCollections.Any())
+                {
+                    ModelState.AddModelError("", $"Some students already have fee collections for this exam: {string.Join(", ", existingCollections)}");
+                    return View(dto);
+                }
+
+                // Find or create ExamFee master record
+                var examFee = await _context.ExamFees
+                    .FirstOrDefaultAsync(e => e.EducationYear == dto.EducationYear
+                        && e.ClassId == dto.ClassId
+                        && e.ExamId == dto.ExamId);
+
+                if (examFee == null)
+                {
+                    // Create new ExamFee master record
+                    examFee = new ExamFee
+                    {
+                        EducationYear = dto.EducationYear,
+                        DepartmentId = dto.DepartmentId,
+                        ClassId = dto.ClassId,
+                        ExamId = dto.ExamId,
+                        ExamAmount = dto.ExamAmount
+                    };
+                    _context.ExamFees.Add(examFee);
+                    await _context.SaveChangesAsync(); // Save to get ExamFeeId
                 }
                 else
                 {
-                    // Add new
-                    existing.FeeCollections.Add(new ExamFeeCollection
+                    // Update existing ExamFee amount if different
+                    if (examFee.ExamAmount != dto.ExamAmount)
                     {
+                        examFee.ExamAmount = dto.ExamAmount;
+                        _context.Update(examFee);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                // Add fee collections
+                foreach (var fcDto in dto.FeeCollections)
+                {
+                    var collection = new ExamFeeCollection
+                    {
+                        ExamFeeId = examFee.ExamFeeId, // Link to the ExamFee
                         StudentId = fcDto.StudentId,
                         ExamFeeAmount = fcDto.ExamFeeAmount,
                         TotalSubject = fcDto.TotalSubject
-                    });
+                    };
+                    _context.ExamFeeCollections.Add(collection);
                 }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Exam fee collections added successfully!";
+                return RedirectToAction(nameof(Index));
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            // Return with validation errors
+            return View(dto);
         }
 
-        // ------------------- DELETE -------------------
+        // AJAX: Get classes by department
         [HttpGet]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> GetClassesByDepartment(int departmentId)
         {
-            var existing = await _context.ExamFees
-                .Include(e => e.Class)
-                .Include(e => e.Examination)
-                .FirstOrDefaultAsync(e => e.ExamFeeId == id);
+            var classes = await _context.Classes
+                .Where(c => c.DepartmentId == departmentId)
+                .Select(c => new
+                {
+                    c.ClassId,
+                    c.ClassName
+                })
+                .OrderBy(c => c.ClassName)
+                .ToListAsync();
 
-            if (existing == null) return NotFound();
-            return View(existing);
+            return Json(classes);
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        // AJAX: Get students by class
+        [HttpGet]
+        public async Task<IActionResult> GetStudentsByClass(int classId)
         {
-            var existing = await _context.ExamFees
-                .Include(e => e.FeeCollections)
-                .FirstOrDefaultAsync(e => e.ExamFeeId == id);
+            var students = await _context.Students
+                .Where(s => s.ClassId == classId)
+                .Select(s => new
+                {
+                    s.StudentId,
+                    s.StudentName
+                })
+                .OrderBy(s => s.StudentName)
+                .ToListAsync();
 
-            if (existing == null) return NotFound();
-
-            _context.ExamFeeCollections.RemoveRange(existing.FeeCollections);
-            _context.ExamFees.Remove(existing);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            return Json(students);
         }
 
-        // ------------------- HELPER -------------------
+        // AJAX: Get exam fee by class and exam
+        [HttpGet]
+        public async Task<IActionResult> GetExamFeeByClassAndExam(int classId, int examId, string educationYear)
+        {
+            var examFee = await _context.ExamFees
+                .FirstOrDefaultAsync(e => e.ClassId == classId
+                    && e.ExamId == examId
+                    && e.EducationYear == educationYear);
+
+            if (examFee != null)
+            {
+                return Json(new
+                {
+                    success = true,
+                    amount = examFee.ExamAmount,
+                    examFeeId = examFee.ExamFeeId
+                });
+            }
+
+            return Json(new
+            {
+                success = false,
+                message = "No exam fee setup found. You can create one now."
+            });
+        }
+
+        // Helper method to populate dropdowns
         private void PopulateDropdowns()
         {
-            ViewBag.Classes = _context.Classes
-                .Select(c => new { c.ClassId, c.ClassName })
-                .ToList();
+            ViewBag.Departments = new SelectList(_context.Departments, "DepartmentId", "DepartmentName");
+            ViewBag.Classes = new SelectList(_context.Classes, "ClassId", "ClassName");
+            ViewBag.Exams = new SelectList(_context.Examinations, "ExamId", "ExamName");
 
-            ViewBag.Exams = _context.Examinations
-                .Select(e => new { e.ExamId, e.ExamName })
+            // Get all students for initial load
+            ViewBag.AllStudents = _context.Students
+                .Select(s => new { s.StudentId, s.StudentName })
                 .ToList();
+        }
 
-            ViewBag.Students = _context.Students
+        // Helper method to populate dropdowns with submitted values
+        private void PopulateDropdownsWithValues(ExamFeesCreateDto dto)
+        {
+            ViewBag.Departments = new SelectList(_context.Departments, "DepartmentId", "DepartmentName", dto.DepartmentId);
+            ViewBag.Classes = new SelectList(_context.Classes, "ClassId", "ClassName", dto.ClassId);
+            ViewBag.Exams = new SelectList(_context.Examinations, "ExamId", "ExamName", dto.ExamId);
+
+            // Get all students for initial load
+            ViewBag.AllStudents = _context.Students
                 .Select(s => new { s.StudentId, s.StudentName })
                 .ToList();
         }

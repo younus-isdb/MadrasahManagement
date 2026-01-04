@@ -28,6 +28,7 @@ export interface ExamFeeCollectionReadDto {
 // For creating a new exam fee with students
 export interface ExamFeesCreateDto {
   educationYear: string;
+  departmentId: number;
   classId: number;
   examId: number;
   examAmount: number;
@@ -37,6 +38,7 @@ export interface ExamFeesCreateDto {
 // For updating an existing exam fee with students
 export interface ExamFeesUpdateDto {
   educationYear: string;
+  departmentId: number;
   classId: number;
   examId: number;
   examAmount: number;
@@ -47,6 +49,8 @@ export interface ExamFeesUpdateDto {
 export interface ExamFeesReadDto {
   examFeeId: number;
   educationYear: string;
+  departmentId: number;
+  departmentName: string;
   classId: number;
   className: string;
   examId: number;
