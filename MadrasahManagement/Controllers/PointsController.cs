@@ -133,6 +133,7 @@ namespace MadrasahManagement.Controllers
             ViewBag.ClassId = new SelectList(_context.Classes, "ClassId", "ClassName");
             ViewBag.ExamId = new SelectList(_context.Examinations, "ExamId", "ExamName");
             ViewBag.SubjectId = new SelectList(_context.Subjects, "SubjectId", "SubjectName");
+            ViewBag.DepartmentId = new SelectList(_context.Departments, "DepartmentId", "DepartmentName");
         }
     }
 }

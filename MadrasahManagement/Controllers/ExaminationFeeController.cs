@@ -1,4 +1,5 @@
-﻿using MadrasahManagement.Models;
+﻿using MadrasahManagement.Dto;
+using MadrasahManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +20,10 @@ namespace MadrasahManagement.Controllers
         {
             var data = await _context.ExamFees
                             .Include(f => f.Class)
+                            .Include(f => f.Department)
                             .Include(f => f.Examination)
                             .ToListAsync();
             return View(data);
-
-
         }
 
         // CREATE (GET)
@@ -32,21 +32,30 @@ namespace MadrasahManagement.Controllers
             LoadDropdowns();
             return View();
         }
-
-        // CREATE (POST)
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ExamFee examFee)
+        public async Task<IActionResult> Create(ExamFeeCreateDto examFeeDto)
         {
             if (ModelState.IsValid)
             {
+                // Convert DTO to Entity
+                var examFee = new ExamFee
+                {
+                    EducationYear = examFeeDto.EducationYear,
+                    ClassId = examFeeDto.ClassId,
+                    DepartmentId = examFeeDto.DepartmentId,
+                    ExamId = examFeeDto.ExamId,
+                    ExamAmount = examFeeDto.ExamAmount
+                };
+
                 _context.Add(examFee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
             LoadDropdowns();
-            return View(examFee);
+            return View(examFeeDto); 
         }
 
         // EDIT (GET)
@@ -57,7 +66,7 @@ namespace MadrasahManagement.Controllers
             var examFee = await _context.ExamFees.FindAsync(id);
             if (examFee == null) return NotFound();
 
-            LoadDropdowns();
+            LoadDropdowns(examFee.DepartmentId);
             return View(examFee);
         }
 
@@ -75,7 +84,7 @@ namespace MadrasahManagement.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            LoadDropdowns();
+            LoadDropdowns(examFee.DepartmentId);
             return View(examFee);
         }
 
@@ -86,6 +95,7 @@ namespace MadrasahManagement.Controllers
 
             var examFee = await _context.ExamFees
                 .Include(e => e.Class)
+                .Include(e => e.Department)
                 .Include(e => e.Examination)
                 .FirstOrDefaultAsync(m => m.ExamFeeId == id);
 
@@ -107,11 +117,35 @@ namespace MadrasahManagement.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // 🔹 Dropdown Helper
-        private void LoadDropdowns()
+        // GET: API endpoint to get classes by department
+        public async Task<IActionResult> GetClassesByDepartment(int departmentId)
         {
-            ViewBag.ClassId = new SelectList(_context.Classes, "ClassId", "ClassName");
+            var classes = await _context.Classes
+                .Where(c => c.DepartmentId == departmentId)
+                .Select(c => new { c.ClassId, c.ClassName })
+                .ToListAsync();
+
+            return Json(classes);
+        }
+
+        // 🔹 Updated Dropdown Helper
+        private void LoadDropdowns(int? selectedDepartmentId = null)
+        {
+            ViewBag.DepartmentId = new SelectList(_context.Departments, "DepartmentId", "DepartmentName");
             ViewBag.ExamId = new SelectList(_context.Examinations, "ExamId", "ExamName");
+
+            // Load classes based on selected department (for edit view)
+            if (selectedDepartmentId.HasValue)
+            {
+                var classes = _context.Classes
+                    .Where(c => c.DepartmentId == selectedDepartmentId.Value)
+                    .ToList();
+                ViewBag.ClassId = new SelectList(classes, "ClassId", "ClassName");
+            }
+            else
+            {
+                ViewBag.ClassId = new SelectList(new List<Class>(), "ClassId", "ClassName");
+            }
         }
     }
 }

@@ -30,9 +30,9 @@
                 <div class="col-md-3">
                     <select id="departmentFilter" class="form-select">
                         <option value="">All Departments</option>
-                        @foreach (var d in Model.Select(x => x.Department).Distinct())
+                        @foreach (var d in ViewBag.Departments)
                         {
-                            <option value="@d?.DepartmentName">@d?.DepartmentName</option>
+                            <option value="@d.DepartmentName">@d.DepartmentName</option>
                         }
                     </select>
                 </div>
@@ -40,10 +40,7 @@
                 <div class="col-md-3">
                     <select id="classFilter" class="form-select">
                         <option value="">All Classes</option>
-                        @foreach (var c in Model.Select(x => x.Class).Distinct())
-                        {
-                            <option value="@c?.ClassName">@c?.ClassName</option>
-                        }
+                        <!-- Classes will be loaded dynamically via JavaScript -->
                     </select>
                 </div>
             </div>
@@ -53,15 +50,14 @@
     <!-- ================= TABLE ================= -->
     <div class="card shadow-sm">
         <div class="card-body p-0">
-
             <table class="table table-hover align-middle mb-0" id="studentTable">
                 <thead class="table-dark">
                     <tr>
                         <th>#</th>
                         <th>Student</th>
                         <th>Reg No</th>
-                        <th>Department</th>
-                        <th>Class</th>
+                        <th data-column="department">Department</th>
+                        <th data-column="class">Class</th>
                         <th>Section</th>
                         <th>Guardian</th>
                         <th>Status</th>
@@ -74,15 +70,15 @@
                     }
                     @foreach (var s in Model)
                     {
-                        <tr>
+                        <tr data-department="@s.Department?.DepartmentName"
+                            data-class="@s.Class?.ClassName"
+                            data-section="@s.Section?.SectionName">
                             <td>@sl</td>
 
                             <!-- Student -->
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <img src="@(string.IsNullOrEmpty(s.ProfileImageUrl)
-                                                                                 ? "/images/avatar.png"
-                                                                                 : s.ProfileImageUrl)"
+                                    <img src="@(string.IsNullOrEmpty(s.ProfileImageUrl) ? "/images/avatar.png" : s.ProfileImageUrl)"
                                          class="rounded-circle me-2"
                                          width="40" height="40" />
 
@@ -101,15 +97,12 @@
                             <!-- Academic -->
                             <td>
                                 <div class="fw-semibold">@s.Department?.DepartmentName</div>
-                               
                             </td>
                             <td>
                                 <div class="fw-semibold">@s.Class?.ClassName</div>
-                               
                             </td>
                             <td>
                                 <div class="fw-semibold">@s.Section?.SectionName</div>
-                                
                             </td>
 
                             <!-- Guardian -->
@@ -160,13 +153,36 @@
                     No student found.
                 </div>
             }
-
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        // Get unique classes by department
+        let classesByDepartment = {};
+        @foreach (var dept in ViewBag.Departments)
+        {
+                <text>
+                    classesByDepartment['@dept.DepartmentName'] = [];
+                </text>
+        }
+
+        // Populate classes from table rows
+        $('#studentTable tbody tr').each(function() {
+            var dept = $(this).data('department');
+            var cls = $(this).data('class');
+
+            if (dept && cls) {
+                if (!classesByDepartment[dept]) {
+                    classesByDepartment[dept] = [];
+                }
+                if (!classesByDepartment[dept].includes(cls)) {
+                    classesByDepartment[dept].push(cls);
+                }
+            }
+        });
+
         // 🔍 Search
         $("#searchBox").on("keyup", function () {
             var value = $(this).val().toLowerCase();
@@ -177,18 +193,93 @@
 
         // 🎓 Department Filter
         $("#departmentFilter").on("change", function () {
-            var value = $(this).val().toLowerCase();
-            $("#studentTable tbody tr").filter(function () {
-                $(this).toggle($(this).find("td:eq(3)").text().toLowerCase().indexOf(value) > -1);
-            });
+            var selectedDept = $(this).val();
+
+            // Update class filter options
+            updateClassFilter(selectedDept);
+
+            // Filter table rows
+            filterTableByDepartment(selectedDept);
         });
 
         // 🏫 Class Filter
         $("#classFilter").on("change", function () {
-            var value = $(this).val().toLowerCase();
-            $("#studentTable tbody tr").filter(function () {
-                $(this).toggle($(this).find("td:eq(3)").text().toLowerCase().indexOf(value) > -1);
+            var selectedClass = $(this).val();
+            var selectedDept = $("#departmentFilter").val();
+
+            // Filter table rows
+            filterTableByClass(selectedDept, selectedClass);
+        });
+
+        // Update class filter options based on selected department
+        function updateClassFilter(department) {
+            var classFilter = $("#classFilter");
+            classFilter.html('<option value="">All Classes</option>');
+
+            if (department && classesByDepartment[department]) {
+                // Sort classes alphabetically
+                classesByDepartment[department].sort().forEach(function(cls) {
+                    classFilter.append('<option value="' + cls + '">' + cls + '</option>');
+                });
+            } else if (!department) {
+                // Show all unique classes if no department selected
+                var allClasses = [];
+                Object.values(classesByDepartment).forEach(function(classes) {
+                    classes.forEach(function(cls) {
+                        if (!allClasses.includes(cls)) {
+                            allClasses.push(cls);
+                        }
+                    });
+                });
+
+                allClasses.sort().forEach(function(cls) {
+                    classFilter.append('<option value="' + cls + '">' + cls + '</option>');
+                });
+            }
+
+            // Reset class selection
+            classFilter.val("");
+        }
+
+        // Filter table by department
+        function filterTableByDepartment(department) {
+            if (!department) {
+                // Show all rows
+                $("#studentTable tbody tr").show();
+                return;
+            }
+
+            $("#studentTable tbody tr").each(function() {
+                var rowDept = $(this).data('department');
+                $(this).toggle(rowDept === department);
             });
+        }
+
+        // Filter table by class (and optionally department)
+        function filterTableByClass(department, className) {
+            if (!className) {
+                // If no class selected, filter only by department
+                filterTableByDepartment(department);
+                return;
+            }
+
+            $("#studentTable tbody tr").each(function() {
+                var rowDept = $(this).data('department');
+                var rowClass = $(this).data('class');
+
+                if (department) {
+                    // Filter by both department and class
+                    $(this).toggle(rowDept === department && rowClass === className);
+                } else {
+                    // Filter only by class
+                    $(this).toggle(rowClass === className);
+                }
+            });
+        }
+
+        // Initialize: Load all classes initially
+        $(document).ready(function() {
+            updateClassFilter("");
         });
     </script>
 }

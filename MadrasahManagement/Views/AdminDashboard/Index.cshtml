@@ -47,9 +47,61 @@
 
 <!-- ==================== Users Management ==================== -->
 <h4>Users Management</h4>
-<div id="usersTableDiv">
+@* <div id="usersTableDiv">
     <partial name="_UsersTablePartial" model="Model.Users" />
 </div>
+ *@
+<br />
+ <hr />
+
+<!-- ==================== net income ==================== -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Financial Summary - @DateTime.Now.ToString("MMMM yyyy")
+                    <a asp-action="FinancialSummary" class="btn btn-sm btn-outline-primary float-end">
+                        <i class="fas fa-external-link-alt me-1"></i>Full Report
+                    </a>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 border-end">
+                        <div class="text-success">
+                            <div class="h4 fw-bold">৳@Model.CurrentMonthIncome.ToString("N0")</div>
+                            <div class="text-muted small">Income</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 border-end">
+                        <div class="text-warning">
+                            <div class="h4 fw-bold">৳@Model.CurrentMonthSalaryExpense.ToString("N0")</div>
+                            <div class="text-muted small">Salaries</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 border-end">
+                        <div class="text-danger">
+                            <div class="h4 fw-bold">৳@Model.CurrentMonthOtherExpense.ToString("N0")</div>
+                            <div class="text-muted small">Expenses</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="@(Model.CurrentMonthNetIncome >= 0 ? "text-success" : "text-danger")">
+                            <div class="h4 fw-bold">
+                                @(Model.CurrentMonthNetIncome >= 0 ? "+" : "-")৳@Math.Abs(Model.CurrentMonthNetIncome).ToString("N0")
+                            </div>
+                            <div class="text-muted small">Net Income</div>
+                            <span class="badge @(Model.CurrentMonthNetIncome >= 0 ? "bg-success" : "bg-danger") mt-1">
+                                @(Model.CurrentMonthNetIncome >= 0 ? "Profit" : "Loss")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div
 
 <!-- ==================== Attendance Overview ==================== -->
 <h4 class="mt-5">Today's Attendance</h4>

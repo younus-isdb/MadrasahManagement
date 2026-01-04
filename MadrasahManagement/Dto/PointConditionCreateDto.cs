@@ -10,6 +10,8 @@ namespace MadrasahManagement.Dto
 
         [Required]
         public int ClassId { get; set; }
+        [Required]
+        public int DepartmentId { get; set; }
 
         [Required]
         public int ExamId { get; set; }
@@ -50,6 +52,7 @@ namespace MadrasahManagement.Dto
         public int PointConditionId { get; set; }
         public string EducationYear { get; set; } = string.Empty;
         public int ClassId { get; set; }
+        public int DepartmentId { get; set; }
         public string ClassName { get; set; } = string.Empty;
         public int ExamId { get; set; }
         public string ExamName { get; set; } = string.Empty;

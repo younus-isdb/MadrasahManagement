@@ -19,9 +19,9 @@
         align-items: center;
     }
 
-    .condition-row input {
-        height: 30px;
-    }
+        .condition-row input {
+            height: 30px;
+        }
 
     .btn-sm {
         padding: 2px 8px;
@@ -47,25 +47,33 @@
                 </select>
             </div>
 
+            <!-- Department First -->
             <div class="col-md-3">
-                <label>শ্রেণী</label>
-                <select asp-for="ClassId" class="form-control" asp-items="ViewBag.ClassId">
+                <label>বিভাগ</label>
+                <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"
+                        id="departmentDropdown">
                     <option value="">-- Select --</option>
                 </select>
             </div>
 
-            
+            <!-- Class (will be populated based on department) -->
+            <div class="col-md-3">
+                <label>শ্রেণী</label>
+                <select asp-for="ClassId" class="form-control" id="classDropdown">
+                    <option value="">-- Select Department First --</option>
+                </select>
+            </div>
+        </div>
 
+        <div class="row mb-2">
             <div class="col-md-3">
                 <label>বিষয়</label>
                 <select asp-for="SubjectId" class="form-control" asp-items="ViewBag.SubjectId">
                     <option value="">-- Select --</option>
                 </select>
             </div>
-        </div>
 
-        <!-- Pass & Highest -->
-        <div class="row mb-3">
+            <!-- Pass & Highest -->
             <div class="col-md-3">
                 <label>পাশ নাম্বার</label>
                 <input asp-for="PassMarks" class="form-control" />
@@ -113,6 +121,7 @@
 
 @section Scripts {
     <script>
+        // For dynamic condition rows
         let index = @Model.Details.Count;
 
         function addRow() {
@@ -121,8 +130,8 @@
                 <input type="number" name="Details[${index}].FromMark" class="form-control" />
                 <input type="number" name="Details[${index}].ToMark" class="form-control" />
                 <input type="text" name="Details[${index}].Division" class="form-control" />
-               <input type="hidden" name="Details[${index}].IsSilverColor" value="false" />
-        <input type="checkbox" name="Details[${index}].IsSilverColor" value="true" />
+                <input type="hidden" name="Details[${index}].IsSilverColor" value="false" />
+                <input type="checkbox" name="Details[${index}].IsSilverColor" value="true" />
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button>
             </div>`;
             document.getElementById("conditionContainer").insertAdjacentHTML("beforeend", html);
@@ -132,5 +141,28 @@
         function removeRow(btn) {
             btn.parentElement.remove();
         }
+
+        // SIMPLE Department-Class Dependent Dropdown
+        $(document).ready(function() {
+            $('#departmentDropdown').change(function() {
+                var departmentId = $(this).val();
+                var classDropdown = $('#classDropdown');
+
+                if (departmentId) {
+                    // Simple AJAX call to get classes by department
+                    $.getJSON('/Points/GetClassesByDepartment', { departmentId: departmentId }, function(data) {
+                        classDropdown.empty();
+                        classDropdown.append('<option value="">-- Select Class --</option>');
+
+                        $.each(data, function(index, item) {
+                            classDropdown.append('<option value="' + item.classId + '">' + item.className + '</option>');
+                        });
+                    });
+                } else {
+                    classDropdown.empty();
+                    classDropdown.append('<option value="">-- Select Department First --</option>');
+                }
+            });
+        });
     </script>
 }

@@ -538,6 +538,11 @@ namespace MadrasahManagement.Models
         [ForeignKey(nameof(Class))]
         public int ClassId { get; set; }
 
+        [ForeignKey(nameof(Department))]
+        public int DepartmentId { get; set; }
+
+        public Department Department { get; set; } = default;
+
         [MaxLength(50)]
         public string? Term { get; set; }
 
@@ -584,7 +589,7 @@ namespace MadrasahManagement.Models
     // -------------------------
     // 11. Attendance (student)
     // -------------------------
-    public class Attendance
+    public class Attendance  
     {
         [Key]
         public int AttendanceId { get; set; }
@@ -969,6 +974,11 @@ namespace MadrasahManagement.Models
     {
         public int Id { get; set; }
 
+        [ForeignKey(nameof(Department))]
+        public int DepartmentId { get; set; }
+
+        public Department Department { get; set; } = default;
+
         public int ClassId { get; set; }
         public Class Class { get; set; } = default!;
 
@@ -1099,6 +1109,11 @@ namespace MadrasahManagement.Models
         [Key]
         public int AssignmentId { get; set; }
 
+        [ForeignKey(nameof(Department))]
+        public int DepartmentId { get; set; }
+
+       
+
         [ForeignKey(nameof(Class))]
         public int ClassId { get; set; }
 
@@ -1115,6 +1130,8 @@ namespace MadrasahManagement.Models
         public string? Description { get; set; }
 
         public DateTimeOffset DueDate { get; set; }
+
+        public Department Department { get; set; } = default;
 
         public Class Class { get; set; } = default!;
         public Subject Subject { get; set; } = default!;
@@ -1166,6 +1183,7 @@ namespace MadrasahManagement.Models
 
         public ICollection<Class> Classes { get; set; } = new HashSet<Class>();
         public ICollection<Section> Sections { get; set; } = new HashSet<Section>();
+        public ICollection<Exam> Exams { get; set; } = new List<Exam>();
         public ICollection<Teacher> Teachers { get; set; } = new List<Teacher>();
         public List<Student>? Students { get; set; }
         public ICollection<FeeType> FeeTypes { get; set; } = new HashSet<FeeType>();

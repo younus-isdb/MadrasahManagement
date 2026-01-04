@@ -9,6 +9,7 @@
     <thead class="table-light">
         <tr>
             <th>Education Year</th>
+            <th>Department</th>
             <th>Class</th>
             <th>Exam Name</th>
             <th>Exam Fees</th>
@@ -22,10 +23,11 @@
             {
                 <tr>
                     <td>@fee.EducationYear</td>
-                    @* Safe navigation operator ensures no crash if Class is null *@
+                    
+                    <td>@(fee.Department?.DepartmentName ?? "N/A")</td>
                     <td>@(fee.Class?.ClassName ?? "N/A")</td>
                     <td>
-                        @* Display Exam Name or 'No Exam' placeholder *@
+                       
                         @(fee.Examination != null ? fee.Examination.ExamName : "No Exam")
                     </td>
                     <td>@fee.ExamAmount.ToString("0.00")</td>

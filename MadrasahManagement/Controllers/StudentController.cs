@@ -275,6 +275,18 @@ namespace MadrasahManagement.Controllers
         // ---------------------------------------------------
         // GET: Student/Index
         // ---------------------------------------------------
+        //public IActionResult Index()
+        //{
+        //    var students = _context.Students
+        //        .Include(s => s.Department)
+        //        .Include(s => s.Class)
+        //        .Include(s => s.Section)
+        //        .AsNoTracking()
+        //        .ToList();
+
+        //    return View(students);
+        //}
+
         public IActionResult Index()
         {
             var students = _context.Students
@@ -284,10 +296,14 @@ namespace MadrasahManagement.Controllers
                 .AsNoTracking()
                 .ToList();
 
+            // Pass departments to ViewBag for filter dropdown
+            ViewBag.Departments = _context.Departments
+                .Select(d => new { d.DepartmentId, d.DepartmentName })
+                .Distinct()
+                .ToList();
+
             return View(students);
         }
-
-
 
 
         [HttpGet]

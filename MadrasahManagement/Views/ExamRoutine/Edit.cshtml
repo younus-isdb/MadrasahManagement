@@ -1,0 +1,249 @@
+﻿@model MadrasahManagement.ViewModels.ExamRoutineBatchViewModel
+
+@{
+    ViewData["Title"] = "Edit Exam Routine";
+}
+
+<div class="card">
+    <div class="card-header bg-warning">
+        <h4 class="mb-0">
+            <i class="fas fa-edit"></i> Edit Exam Routine
+        </h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" id="examRoutineForm" method="post">
+            @Html.AntiForgeryToken()
+
+            <!-- Hidden fields for primary keys -->
+            <input type="hidden" asp-for="EducationYear" />
+            <input type="hidden" asp-for="DepartmentId" />
+            <input type="hidden" asp-for="ClassId" />
+            <input type="hidden" asp-for="ExamId" />
+
+            <!-- Display readonly information -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Education Year</label>
+                        <input class="form-control" value="@Model.EducationYear" readonly />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Department</label>
+                        <input class="form-control" value="@ViewBag.DepartmentName" readonly />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Class</label>
+                        <input class="form-control" value="@ViewBag.ClassName" readonly />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Exam</label>
+                        <input class="form-control" value="@ViewBag.ExamName" readonly />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Number -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label asp-for="RoomNumber" class="control-label"></label>
+                        <input asp-for="RoomNumber" type="number" min="1" max="999" class="form-control" />
+                        <span asp-validation-for="RoomNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subjects Table -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Subjects</h5>
+                    <button type="button" class="btn btn-primary btn-sm" id="addSubjectBtn">
+                        <i class="fas fa-plus"></i> Add More
+                    </button>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered" id="subjectsTable">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Subject Code</th>
+                                <th>Exam Date</th>
+                                <th>Day</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subjectRows">
+                            <!-- Existing subjects will be rendered here -->
+                            @for (int i = 0; i < Model.Subjects.Count; i++)
+                            {
+                                <tr class="subject-row">
+                                    <td>
+                                        <select name="Subjects[@i].SubjectId"
+                                                class="form-control subject-select"
+                                                data-index="@i">
+                                            <option value="">-- Select Subject --</option>
+                                            @foreach (var subject in ViewBag.Subjects)
+                                            {
+                                                if (Model.Subjects[i].SubjectId == subject.SubjectId)
+                                                {
+                                                    <option value="@subject.SubjectId"
+                                                            data-code="@subject.SubjectCode"
+                                                            data-name="@subject.SubjectName"
+                                                            selected>
+                                                        @subject.SubjectName
+                                                    </option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@subject.SubjectId"
+                                                            data-code="@subject.SubjectCode"
+                                                            data-name="@subject.SubjectName">
+                                                        @subject.SubjectName
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                        <input type="hidden" name="Subjects[@i].ExamRoutineId" value="@Model.Subjects[i].ExamRoutineId" />
+                                        <input type="hidden" name="Subjects[@i].SubjectName" class="subject-name" value="@Model.Subjects[i].SubjectName" />
+                                        <input type="hidden" name="Subjects[@i].SubjectCode" class="subject-code" value="@Model.Subjects[i].SubjectCode" />
+                                        <span class="text-danger" id="Subjects[@i].SubjectId-error"></span>
+                                    </td>
+                                    <td class="subject-code-display">
+                                        @Model.Subjects[i].SubjectCode
+                                    </td>
+                                    <td>
+                                        <input name="Subjects[@i].ExamDate"
+                                               type="date"
+                                               class="form-control exam-date"
+                                               data-index="@i"
+                                               value="@Model.Subjects[i].ExamDate.ToString("yyyy-MM-dd")" />
+                                        <span class="text-danger" id="Subjects[@i].ExamDate-error"></span>
+                                    </td>
+                                    <td>
+                                        <input name="Subjects[@i].ExamDay"
+                                               class="form-control exam-day"
+                                               data-index="@i"
+                                               value="@Model.Subjects[i].ExamDay"
+                                               readonly />
+                                        <span class="text-danger" id="Subjects[@i].ExamDay-error"></span>
+                                    </td>
+                                    <td>
+                                        <input name="Subjects[@i].ExamStartTime"
+                                               type="time"
+                                               class="form-control"
+                                               value="@Model.Subjects[i].ExamStartTime" />
+                                        <span class="text-danger" id="Subjects[@i].ExamStartTime-error"></span>
+                                    </td>
+                                    <td>
+                                        <input name="Subjects[@i].ExamEndTime"
+                                               type="time"
+                                               class="form-control"
+                                               value="@Model.Subjects[i].ExamEndTime" />
+                                        <span class="text-danger" id="Subjects[@i].ExamEndTime-error"></span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm remove-row">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-save"></i> Update Routine
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let rowIndex = @Model.Subjects.Count;
+            let classId = @Model.ClassId;
+
+            // Get subjects for this class
+            let subjects = [];
+            $.get('/ExamRoutine/GetSubjectsByClass', { classId: classId }, function (data) {
+                subjects = data;
+
+                // Initialize subject dropdowns for existing rows
+                $('.subject-select').each(function() {
+                    initializeSubjectDropdown($(this));
+                });
+            });
+
+            // Subject selection change
+            $(document).on('change', '.subject-select', function () {
+                var selectedOption = $(this).find('option:selected');
+                var subjectId = selectedOption.val();
+                var subjectCode = selectedOption.data('code') || '';
+                var subjectName = selectedOption.data('name') || '';
+                var rowIndex = $(this).data('index');
+
+                // Update hidden fields
+                $(this).closest('tr').find('.subject-name').val(subjectName);
+                $(this).closest('tr').find('.subject-code').val(subjectCode);
+
+                // Update displayed subject code
+                $(this).closest('tr').find('.subject-code-display').text(subjectCode);
+            });
+
+            // Calculate day from date
+            $(document).on('change', '.exam-date', function () {
+                var date = $(this).val();
+                if (date) {
+                    var dateObj = new Date(date);
+                    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    var day = days[dateObj.getDay()];
+                    $(this).closest('tr').find('.exam-day').val(day);
+                }
+            });
+
+            // Add new subject row
+            $('#addSubjectBtn').click(function () {
+                $.get('/ExamRoutine/_SubjectRowPartial', { rowIndex: rowIndex }, function (data) {
+                    var $newRow = $(data);
+                    $('#subjectRows').append($newRow);
+
+                    // Initialize the subject dropdown for the new row
+                    initializeSubjectDropdown($newRow.find('.subject-select'));
+
+                    rowIndex++;
+                });
+            });
+
+            // Remove row
+            $(document).on('click', '.remove-row', function () {
+                if ($('#subjectRows tr').length > 1) {
+                    $(this).closest('tr').remove();
+                }
+            });
+
+            // Function to initialize subject dropdown
+            function initializeSubjectDropdown($select) {
+                $select.empty();
+                $select.append('<option value="">-- Select Subject --</option>');
+
+                $.each(subjects, function (i, item) {
+                    $select.append(`<option value="${item.value}" data-code="${item.code}" data-name="${item.text}">${item.text}</option>`);
+                });
+            }
+        });
+    </script>
+}
