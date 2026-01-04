@@ -1,15 +1,11 @@
 import { Component, signal, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs'; // Important for multiple requests
 import { ExamroutineService } from '../../../service/examroutine-service';
 import { ClassService } from '../../../service/class-service';
 import { ExaminationService } from '../../../service/examinationService';
 import { SubjectService } from '../../../service/subject-service';
-
-interface DropdownItem {
-  id: number;
-  name: string;
-}
 
 @Component({
   selector: 'app-examroutinecreate',
@@ -19,12 +15,9 @@ interface DropdownItem {
 })
 export class Examroutinecreate implements OnInit {
   form!: FormGroup;
-
-  // Signals for dropdowns
   classes = signal<any[]>([]);
   exams = signal<any[]>([]);
   subjects = signal<any[]>([]);
-
   loading = signal(false);
 
   constructor(
@@ -37,34 +30,35 @@ export class Examroutinecreate implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Form setup
     this.form = this.fb.group({
-      educationYear: ['', [Validators.required, Validators.maxLength(10)]],
+      educationYear: ['', [Validators.required]],
       classId: [null, Validators.required],
       examId: [null, Validators.required],
+      subjects: this.fb.array([])
+    });
+    this.loadDropdowns();
+    this.addSubject();
+  }
+
+  get subjectsArray() { return this.form.get('subjects') as FormArray; }
+
+  addSubject(): void {
+    this.subjectsArray.push(this.fb.group({
       subjectId: [null, Validators.required],
-      roomNumber: [0, [Validators.required, Validators.min(1)]],
+      roomNumber: [null, Validators.required],
       examDate: ['', Validators.required],
       examDay: ['', Validators.required],
       examStartTime: ['', Validators.required],
       examEndTime: ['', Validators.required]
-    });
-
-    this.loadDropdowns();
+    }));
   }
 
+  removeSubject(index: number) { this.subjectsArray.removeAt(index); }
+
   loadDropdowns(): void {
-    this.classService.getAll().subscribe(res =>
-      this.classes.set(res.map(c => ({ id: c.classId, name: c.className })))
-    );
-
-    this.examService.getAll().subscribe(res =>
-      this.exams.set(res.map(e => ({ id: e.examId, name: e.examName })))
-    );
-
-    this.subjectService.getAll().subscribe(res =>
-      this.subjects.set(res.map(s => ({ id: s.subjectId, name: s.subjectName })))
-    );
+    this.classService.getAll().subscribe(res => this.classes.set(res));
+    this.examService.getAll().subscribe(res => this.exams.set(res));
+    this.subjectService.getAll().subscribe(res => this.subjects.set(res));
   }
 
   submit(): void {
@@ -73,26 +67,32 @@ export class Examroutinecreate implements OnInit {
       return;
     }
 
+    this.loading.set(true);
     const formValue = this.form.value;
 
-    // Directly pass formValue but ensure numbers are converted
-    this.loading.set(true);
-    this.service.create({
-      ...formValue,
+    // Create a list of API requests
+    const requests = formValue.subjects.map((s: any) => this.service.create({
+      educationYear: formValue.educationYear,
       classId: Number(formValue.classId),
       examId: Number(formValue.examId),
-      subjectId: Number(formValue.subjectId),
-      roomNumber: Number(formValue.roomNumber)
-    }).subscribe({
+      subjectId: Number(s.subjectId),
+      roomNumber: Number(s.roomNumber),
+      examDate: s.examDate,
+      examDay: s.examDay,
+      examStartTime: s.examStartTime,
+      examEndTime: s.examEndTime
+    }));
+
+    // Execute all requests together
+    forkJoin(requests).subscribe({
       next: () => {
         this.loading.set(false);
-        alert('Exam routine created successfully!');
+        alert('Routine Created Successfully!');
         this.router.navigate(['/examroutine']);
       },
       error: (err) => {
         this.loading.set(false);
-        console.error(err);
-        alert('Failed to create exam routine: ' + (err.error?.message ?? err.message));
+        alert('Failed to save some subjects.');
       }
     });
   }

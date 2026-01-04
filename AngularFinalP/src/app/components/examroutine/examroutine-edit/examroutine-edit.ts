@@ -1,31 +1,25 @@
 import { Component, signal, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { ExamroutineService } from '../../../service/examroutine-service';
 import { ClassService } from '../../../service/class-service';
 import { ExaminationService } from '../../../service/examinationService';
 import { SubjectService } from '../../../service/subject-service';
 
-interface DropdownItem {
-  id: number;
-  name: string;
-}
-
 @Component({
   selector: 'app-examroutine-edit',
   standalone: false,
-  templateUrl: './examroutine-edit.html',
-  styleUrls: ['./examroutine-edit.css']
+  templateUrl: './examroutine-edit.html'
 })
 export class ExamroutineEdit implements OnInit {
-  form!: FormGroup;
-  loading = signal(false);
+  public form!: FormGroup;
+  public loading = signal(false);
+  public examRoutineId!: number;
 
-  classes = signal<any[]>([]);
-  exams = signal<any[]>([]);
-  subjects = signal<any[]>([]);
-
-  private examRoutineId!: number;
+  public classes = signal<any[]>([]);
+  public exams = signal<any[]>([]);
+  public subjects = signal<any[]>([]);
 
   constructor(
     private fb: FormBuilder,
@@ -46,48 +40,60 @@ export class ExamroutineEdit implements OnInit {
 
   private initForm(): void {
     this.form = this.fb.group({
-      educationYear: ['', [Validators.required, Validators.maxLength(10)]],
+      educationYear: ['', [Validators.required]],
       classId: [null, Validators.required],
       examId: [null, Validators.required],
-      subjectId: [null, Validators.required],
-      roomNumber: [0, [Validators.required, Validators.min(1)]],
-      examDate: ['', Validators.required],
-      examDay: ['', Validators.required],
-      examStartTime: ['', Validators.required],
-      examEndTime: ['', Validators.required]
+      subjects: this.fb.array([])
     });
   }
 
+  get subjectsArray() {
+    return this.form.get('subjects') as FormArray;
+  }
+
+  addSubject(data?: any): void {
+    const fg = this.fb.group({
+      // এটি ডাটাবেসের সঠিক রো আইডেন্টিফাই করবে
+      examRoutineId: [data?.examRoutineId || 0],
+      subjectId: [data?.subjectId || null, Validators.required],
+      roomNumber: [data?.roomNumber || 0, [Validators.required, Validators.min(1)]],
+      examDate: [data?.examDate ? data.examDate.split('T')[0] : '', Validators.required],
+      examDay: [data?.examDay || '', Validators.required],
+      examStartTime: [data?.examStartTime || '', Validators.required],
+      examEndTime: [data?.examEndTime || '', Validators.required]
+    });
+    this.subjectsArray.push(fg);
+  }
+
+  removeSubject(index: number): void {
+    this.subjectsArray.removeAt(index);
+  }
+
   private loadDropdowns(): void {
-    this.classService.getAll().subscribe(res =>
-      this.classes.set(res.map(c => ({ id: c.classId, name: c.className })))
-    );
-    this.examService.getAll().subscribe(res =>
-      this.exams.set(res.map(e => ({ id: e.examId, name: e.examName })))
-    );
-    this.subjectService.getAll().subscribe(res =>
-      this.subjects.set(res.map(s => ({ id: s.subjectId, name: s.subjectName })))
-    );
+    this.classService.getAll().subscribe(res => this.classes.set(res));
+    this.examService.getAll().subscribe(res => this.exams.set(res));
+    this.subjectService.getAll().subscribe(res => this.subjects.set(res));
   }
 
   private loadExistingData(): void {
+    this.loading.set(true);
     this.service.getById(this.examRoutineId).subscribe({
       next: (data) => {
         this.form.patchValue({
           educationYear: data.educationYear,
           classId: data.classId,
-          examId: data.examId,
-          subjectId: data.subjectId,
-          roomNumber: data.roomNumber,
-          examDate: data.examDate,
-          examDay: data.examDay,
-          examStartTime: data.examStartTime,
-          examEndTime: data.examEndTime
+          examId: data.examId
         });
+
+        this.subjectsArray.clear();
+        if (data.subjects && data.subjects.length > 0) {
+          data.subjects.forEach((s: any) => this.addSubject(s));
+        }
+        this.loading.set(false);
       },
-      error: (err) => {
-        console.error(err);
-        alert('Failed to load exam routine data.');
+      error: () => {
+        this.loading.set(false);
+        alert('Data load failed!');
       }
     });
   }
@@ -98,25 +104,31 @@ export class ExamroutineEdit implements OnInit {
       return;
     }
 
-    const f = this.form.value;
     this.loading.set(true);
+    const f = this.form.value;
 
-    this.service.update(this.examRoutineId, {
-      ...f,
+    const requests = f.subjects.map((s: any) => this.service.update({
+      examRoutineId: Number(s.examRoutineId),
+      educationYear: f.educationYear,
       classId: Number(f.classId),
       examId: Number(f.examId),
-      subjectId: Number(f.subjectId),
-      roomNumber: Number(f.roomNumber)
-    }).subscribe({
+      subjectId: Number(s.subjectId),
+      roomNumber: Number(s.roomNumber),
+      examDate: s.examDate,
+      examDay: s.examDay,
+      examStartTime: s.examStartTime,
+      examEndTime: s.examEndTime
+    }));
+
+    forkJoin(requests).subscribe({
       next: () => {
         this.loading.set(false);
-        alert('Exam routine updated successfully!');
+        alert('Routine updated successfully!');
         this.router.navigate(['/examroutine']);
       },
-      error: (err) => {
+      error: () => {
         this.loading.set(false);
-        console.error(err);
-        alert('Failed to update exam routine: ' + (err.error?.message ?? err.message));
+        alert('Update failed!');
       }
     });
   }

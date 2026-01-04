@@ -16,71 +16,106 @@ namespace MadrasahManagement.ApiControllers
             _context = context;
         }
 
-        // GET ALL
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        // =========================
+        // MASTER – DETAILS (READ)
+        // =========================
+        [HttpGet("master-details")]
+        public async Task<IActionResult> GetMasterDetails()
         {
             var data = await _context.ExamRoutines
-                .Include(e => e.Class)
-                .Include(e => e.Examination)
-                .Include(e => e.Subject)
-                .Select(x => new ExamRoutineReadDto
+                .Include(x => x.Class)
+                .Include(x => x.Examination)
+                .Include(x => x.Subject)
+                .GroupBy(x => new
                 {
-                    ExamRoutineId = x.ExamRoutineId,
-                    EducationYear = x.EducationYear,
-                    ClassId = x.ClassId,
+                    x.ExamRoutineId,
+                    x.EducationYear,
+                    x.ClassId,
                     ClassName = x.Class!.ClassName,
-                    ExamId = x.ExamId,
-                    ExamName = x.Examination!.ExamName,
-                    SubjectId = x.SubjectId,
-                    SubjectName = x.Subject!.SubjectName,
-                    RoomNumber = x.RoomNumber,
-                    ExamDate = x.ExamDate,
-                    ExamDay = x.ExamDay,
-                    ExamStartTime = x.ExamStartTime,
-                    ExamEndTime = x.ExamEndTime
-                }).ToListAsync();
+                    x.ExamId,
+                    ExamName = x.Examination!.ExamName
+                })
+                .Select(g => new ExamRoutineMasterReadDto
+                {
+                    ExamRoutineId = g.Key.ExamRoutineId,
+                    EducationYear = g.Key.EducationYear,
+                    ClassId = g.Key.ClassId,
+                    ClassName = g.Key.ClassName,
+                    ExamId = g.Key.ExamId,
+                    ExamName = g.Key.ExamName,
+
+                    Subjects = g.Select(x => new ExamRoutineSubjectDetailReadDto
+                    {
+                        SubjectId = x.SubjectId,
+                        SubjectName = x.Subject!.SubjectName,
+                        RoomNumber = x.RoomNumber,
+                        ExamDate = x.ExamDate,
+                        ExamDay = x.ExamDay,
+                        ExamStartTime = x.ExamStartTime,
+                        ExamEndTime = x.ExamEndTime
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            return Ok(data);
+        }
+        [HttpGet("master-details/{id}")]
+        public async Task<IActionResult> GetMasterDetailsById(int id)
+        {
+            // ১. প্রথমে ওই নির্দিষ্ট ID দিয়ে মেইন রেকর্ডটি খুঁজে বের করুন
+            var target = await _context.ExamRoutines.FindAsync(id);
+            if (target == null) return NotFound();
+
+            // ২. এবার ওই একই Class এবং একই Exam এর আন্ডারে যত সাবজেক্ট আছে সব নিয়ে আসুন
+            var data = await _context.ExamRoutines
+                .Include(x => x.Class)
+                .Include(x => x.Examination)
+                .Include(x => x.Subject)
+                .Where(x => x.ClassId == target.ClassId && x.ExamId == target.ExamId && x.EducationYear == target.EducationYear)
+                .GroupBy(x => new
+                {
+                    // গ্রুপ করার জন্য একটি কমন আইডি ব্যবহার করুন (এক্ষেত্রে ক্লাস বা এক্সাম আইডি)
+                    x.EducationYear,
+                    x.ClassId,
+                    ClassName = x.Class!.ClassName,
+                    x.ExamId,
+                    ExamName = x.Examination!.ExamName
+                })
+                .Select(g => new ExamRoutineMasterReadDto
+                {
+                    // এখানে মেইন আইডিটি পাস করুন যাতে এডিট পেজ কাজ করে
+                    ExamRoutineId = id,
+                    EducationYear = g.Key.EducationYear,
+                    ClassId = g.Key.ClassId,
+                    ClassName = g.Key.ClassName,
+                    ExamId = g.Key.ExamId,
+                    ExamName = g.Key.ExamName,
+                    Subjects = g.Select(x => new ExamRoutineSubjectDetailReadDto
+                    {
+                        // এখানে প্রতিটি সাবজেক্টের নিজস্ব আইডি দিন যাতে আপডেট করার সময় কাজে লাগে
+                        ExamRoutineId = x.ExamRoutineId,
+                        SubjectId = x.SubjectId,
+                        SubjectName = x.Subject!.SubjectName,
+                        RoomNumber = x.RoomNumber,
+                        ExamDate = x.ExamDate,
+                        ExamDay = x.ExamDay,
+                        ExamStartTime = x.ExamStartTime,
+                        ExamEndTime = x.ExamEndTime
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
             return Ok(data);
         }
 
-        // GET BY ID
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var x = await _context.ExamRoutines
-                .Include(e => e.Class)
-                .Include(e => e.Examination)
-                .Include(e => e.Subject)
-                .FirstOrDefaultAsync(e => e.ExamRoutineId == id);
-
-            if (x == null) return NotFound();
-
-            var dto = new ExamRoutineReadDto
-            {
-                ExamRoutineId = x.ExamRoutineId,
-                EducationYear = x.EducationYear,
-                ClassId = x.ClassId,
-                ClassName = x.Class!.ClassName,
-                ExamId = x.ExamId,
-                ExamName = x.Examination!.ExamName,
-                SubjectId = x.SubjectId,
-                SubjectName = x.Subject!.SubjectName,
-                RoomNumber = x.RoomNumber,
-                ExamDate = x.ExamDate,
-                ExamDay = x.ExamDay,
-                ExamStartTime = x.ExamStartTime,
-                ExamEndTime = x.ExamEndTime
-            };
-
-            return Ok(dto);
-        }
-
+        // =========================
         // CREATE
+        // =========================
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ExamRoutineCreateDto dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var entity = new ExamRoutine
             {
@@ -98,17 +133,24 @@ namespace MadrasahManagement.ApiControllers
             _context.ExamRoutines.Add(entity);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = entity.ExamRoutineId }, entity);
+            return Ok(entity);
         }
 
+        // =========================
         // UPDATE
+        // =========================
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] ExamRoutineUpdateDto dto)
         {
-            if (id != dto.ExamRoutineId) return BadRequest("Id mismatch");
+            if (id != dto.ExamRoutineId)
+                return BadRequest("Id mismatch");
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var existing = await _context.ExamRoutines.FindAsync(id);
-            if (existing == null) return NotFound();
+            if (existing == null)
+                return NotFound();
 
             existing.EducationYear = dto.EducationYear;
             existing.ClassId = dto.ClassId;
@@ -125,14 +167,17 @@ namespace MadrasahManagement.ApiControllers
             return NoContent();
         }
 
+        // =========================
         // DELETE
+        // =========================
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _context.ExamRoutines.FindAsync(id);
-            if (existing == null) return NotFound();
+            var entity = await _context.ExamRoutines.FindAsync(id);
+            if (entity == null)
+                return NotFound();
 
-            _context.ExamRoutines.Remove(existing);
+            _context.ExamRoutines.Remove(entity);
             await _context.SaveChangesAsync();
 
             return NoContent();

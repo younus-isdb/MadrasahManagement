@@ -33,20 +33,31 @@ namespace MadrasahManagement.Dto
     }
 
     // Read DTO
-    public class ExamRoutineReadDto
+    public class ExamRoutineMasterReadDto
     {
         public int ExamRoutineId { get; set; }
         public string EducationYear { get; set; } = string.Empty;
+
         public int ClassId { get; set; }
         public string ClassName { get; set; } = string.Empty;
+
         public int ExamId { get; set; }
         public string ExamName { get; set; } = string.Empty;
+
+        public List<ExamRoutineSubjectDetailReadDto> Subjects { get; set; } = new();
+    }
+    public class ExamRoutineSubjectDetailReadDto
+    {
+        public int ExamRoutineId { get; set; }
         public int SubjectId { get; set; }
         public string SubjectName { get; set; } = string.Empty;
+
         public int RoomNumber { get; set; }
+
         public DateTime ExamDate { get; set; }
         public string ExamDay { get; set; } = string.Empty;
         public string ExamStartTime { get; set; } = string.Empty;
         public string ExamEndTime { get; set; } = string.Empty;
     }
+
 }

@@ -15,7 +15,7 @@ export interface ExamRoutineUpdateDto extends ExamRoutineCreateDto {
   examRoutineId: number;
 }
 
-export interface ExamRoutineReadDto {
+export interface ExamRoutineMasterReadDto {
   examRoutineId: number;
   educationYear: string;
 
@@ -25,10 +25,15 @@ export interface ExamRoutineReadDto {
   examId: number;
   examName: string;
 
+  subjects: ExamRoutineSubjectDetailReadDto[];
+}
+export interface ExamRoutineSubjectDetailReadDto {
+  examRoutineId: number;
   subjectId: number;
   subjectName: string;
 
   roomNumber: number;
+
   examDate: string;
   examDay: string;
   examStartTime: string;

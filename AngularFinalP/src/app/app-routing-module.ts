@@ -20,6 +20,8 @@ import { AdminDashboardComponent } from './components/admindashboard-component/a
 import { ExamIncomeCreate } from './components/examincome/exam-income-create/exam-income-create';
 import { ExamIncomeIndex } from './components/examincome/exam-income-index/exam-income-index';
 import { ExamIncomeEdit } from './components/examincome/exam-income-edit/exam-income-edit';
+import { Examroutinecreate } from './components/examroutine/examroutinecreate/examroutinecreate';
+import { ExamroutineEdit } from './components/examroutine/examroutine-edit/examroutine-edit';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -44,6 +46,8 @@ const routes: Routes = [
   { path: 'examfeecollectioncreate', component: ExamFeeCollectionCreate },
   { path: 'examfeecollectionedit/:id', component: ExamfeecollectionEdit },
   { path: 'examroutine', component: ExamroutineList },
+  { path: 'routinecreate', component: Examroutinecreate },
+  { path: 'routineedit/:id', component: ExamroutineEdit }, 
   { path: 'exam-income', component: ExamIncomeIndex },
   { path: 'examincomecreate', component: ExamIncomeCreate },
   { path: 'examincomeedit/:id', component: ExamIncomeEdit } 
