@@ -3,7 +3,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './app/service/authservice';
 
 export const AppGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService) as AuthService; // type assertion
+  const authService = inject(AuthService) as AuthService;
   const router = inject(Router);
 
   if (!authService.isLoggedIn()) {

@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
-export const LoggedIn = signal<boolean>(!!localStorage.getItem('token'));
+export const tokenKey = 'token'; // ✅ Export token key for interceptor
+export const LoggedIn = signal<boolean>(!!localStorage.getItem(tokenKey));
 export const UserName = signal<string | null>(
   localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!).userName : null
 );
@@ -24,7 +25,6 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  // ---------------- Auth API ----------------
   register(user: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, user);
   }
@@ -32,8 +32,8 @@ export class AuthService {
   login(user: any): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, user)
       .pipe(
-        tap(res => {
-          localStorage.setItem('token', res.token);
+        tap((res :LoginResponse) => {
+          localStorage.setItem(tokenKey, res.token);  // ✅ Use tokenKey
           localStorage.setItem('user', JSON.stringify(res));
 
           LoggedIn.set(true);
@@ -44,7 +44,7 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem('token');
+    localStorage.removeItem(tokenKey); // ✅ Use tokenKey
     localStorage.removeItem('user');
 
     LoggedIn.set(false);
@@ -53,14 +53,12 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return localStorage.getItem(tokenKey); // ✅ Use tokenKey
   }
 
   isLoggedIn(): boolean {
     return LoggedIn();
   }
-
-  // ---------------- New Methods for Layout ----------------
 
   getUserName(): string {
     return UserName() || '';

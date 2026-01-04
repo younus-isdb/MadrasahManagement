@@ -1,5 +1,6 @@
 ﻿using MadrasahManagement.Dto;
 using MadrasahManagement.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ namespace MadrasahManagement.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ExaminatiionController : ControllerBase
     {
         private readonly MadrasahDbContext _context;
