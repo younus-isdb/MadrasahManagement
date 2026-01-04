@@ -66,6 +66,7 @@
                       Admit Card
                     </button>
                   </td>
+                  <td><button (click)="viewReport(fee.examFeeId)">Report</button></td>
                 </tr>
               </tbody>
             </table>
@@ -77,6 +78,7 @@
 
       </tbody>
     </table>
+    <iframe *ngIf="pdfUrl()" [src]="pdfUrl()! | safeUrl" width="100%" height="600px"></iframe>
 
     <div *ngIf="!loading() && !examFees().length" class="text-muted">
       No exam fees found.

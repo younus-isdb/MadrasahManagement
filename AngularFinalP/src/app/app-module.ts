@@ -29,6 +29,7 @@ import { ExamIncomeIndex } from './components/examincome/exam-income-index/exam-
 import { ExamIncomeCreate } from './components/examincome/exam-income-create/exam-income-create';
 import { ExamIncomeEdit } from './components/examincome/exam-income-edit/exam-income-edit';
 import { TokenInterceptor, TokenInterceptorFn } from './service/token-interceptor';
+import { SafeUrlPipe } from './pipes/safe-url.pipes';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { TokenInterceptor, TokenInterceptorFn } from './service/token-intercepto
     AdminDashboardComponent,
     ExamIncomeIndex,
     ExamIncomeCreate,
-    ExamIncomeEdit
+    ExamIncomeEdit,
+    SafeUrlPipe
   ],
   imports: [
     BrowserModule,

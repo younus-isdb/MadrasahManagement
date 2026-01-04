@@ -91,4 +91,23 @@ namespace MadrasahManagement.Dto
 
         public List<ExamFeeCollectionReadDto> FeeCollections { get; set; } = new();
     }
+    public class ExamFeesFastReportDto
+    {
+        public int ExamFeeId { get; set; }
+        public string EducationYear { get; set; }
+        public string ClassName { get; set; }
+        public string ExamName { get; set; }
+        public decimal ExamAmount { get; set; }
+        public int TotalStudents { get; set; }
+        public decimal TotalCollected { get; set; }
+        public List<FeeDetailDto> FeeDetails { get; set; }
+    }
+
+    public class FeeDetailDto
+    {
+        public string StudentName { get; set; }
+        public decimal ExamFeeAmount { get; set; }
+        public int TotalSubject { get; set; }
+    }
+
 }

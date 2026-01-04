@@ -16,6 +16,7 @@ export class ExamFeesList implements OnInit {
     ([]);
   loading = signal(false);
   error = signal('');
+  pdfUrl = signal<string | null>(null);
 
   constructor(private examFeeService: ExamfeecollectionService) { }
 
@@ -112,6 +113,15 @@ export class ExamFeesList implements OnInit {
 
     // ---------------- Open in new tab for printing ----------------
     doc.output('dataurlnewwindow'); // <-- opens PDF in a new browser tab
+  }
+  viewReport(feeId: number) {
+    this.examFeeService.getReport(feeId).subscribe(blob => {
+      const fileURL = URL.createObjectURL(blob);
+      this.pdfUrl.set(fileURL); // signal holds the blob URL
+      window.open(fileURL); // open in a new tab
+    }, error => {
+      console.error('Failed to load report', error);
+    });
   }
 
 
