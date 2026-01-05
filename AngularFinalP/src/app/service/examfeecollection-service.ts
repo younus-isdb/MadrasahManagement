@@ -39,5 +39,7 @@ export class ExamfeecollectionService {
   getEligibleStudents(examFeeId: number): Observable<ExamFeeCollectionReadDto[]> {
     return this.http.get<ExamFeeCollectionReadDto[]>(`${this.apiUrl}/eligible-students/${examFeeId}`);
   }
-
+  getReport(id: number) {
+    return this.http.get(`${this.apiUrl}/report/${id}`, { responseType: 'blob' });
+  }
 }
