@@ -30,6 +30,7 @@ namespace MadrasahManagement.ViewModels
 
     public class ExamRoutineBatchViewModel
     {
+        public int ExamRoutineId { get; set; }
         [Required(ErrorMessage = "Education Year is required")]
         public string EducationYear { get; set; } = string.Empty;
 
