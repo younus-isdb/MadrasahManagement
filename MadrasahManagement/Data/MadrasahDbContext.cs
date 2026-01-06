@@ -3,12 +3,10 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
-using System.Reflection.Emit;
 
 namespace MadrasahManagement.Models
 {
     public class MadrasahDbContext : IdentityDbContext<AppUser, AppRole, string>
-
     {
         public MadrasahDbContext(DbContextOptions<MadrasahDbContext> options) : base(options)
         {
@@ -17,8 +15,6 @@ namespace MadrasahManagement.Models
         // =============================
         // 📘 DbSet: 30+ Tables
         // =============================
-        //public DbSet<Role> Roles { get; set; } = default!;
-        //      public DbSet<User> Users { get; set; } = default!;
         public DbSet<Student> Students { get; set; } = default!;
         public DbSet<Teacher> Teachers { get; set; } = default!;
         public DbSet<Class> Classes { get; set; } = default!;
@@ -27,21 +23,24 @@ namespace MadrasahManagement.Models
         public DbSet<ClassSubject> ClassSubjects { get; set; } = default!;
         public DbSet<Exam> Exams { get; set; } = default!;
         public DbSet<ExamResult> ExamResults { get; set; } = default!;
+        public DbSet<ResultDetail> ResultDetails { get; set; } = default!;
+
         public DbSet<Attendance> Attendances { get; set; } = default!;
         // ===== Examination =====
-        public DbSet<Examination> Examinations { get; set; }
-        public DbSet<ExamFee> ExamFees { get; set; }
-        public DbSet<ExamRoutine> ExamRoutines { get; set; }
+        public DbSet<Examination> Examinations { get; set; } = default!;
+        public DbSet<ExamFee> ExamFees { get; set; } = default!;
+        public DbSet<ExamRoutine> ExamRoutines { get; set; } = default!;
+        public DbSet<SeatPlan> SeatPlans { get; set; } = default!;
 
         // ===== Result / Academic =====
-        public DbSet<PointCondition> PointConditions { get; set; }
-		public DbSet<PointConditionDetail> PointConditionDetails { get; set; }
-        public DbSet<MeritCondition> MeritConditions { get; set; }
-        public DbSet<SubClassGroup> SubClassGroups { get; set; }
+        public DbSet<PointCondition> PointConditions { get; set; } = default!;
+        public DbSet<PointConditionDetail> PointConditionDetails { get; set; } = default!;
+        public DbSet<MeritCondition> MeritConditions { get; set; } = default!;
+        public DbSet<SubClassGroup> SubClassGroups { get; set; } = default!;
 
         // ===== Finance =====
-        public DbSet<ExamFeeCollection> ExamFeeCollections { get; set; }
-        public DbSet<ExamIncomeExpense> ExamIncomeExpenses { get; set; }
+        public DbSet<ExamFeeCollection> ExamFeeCollections { get; set; } = default!;
+        public DbSet<ExamIncomeExpense> ExamIncomeExpenses { get; set; } = default!;
         public DbSet<TeacherAttendance> TeacherAttendances { get; set; } = default!;
         public DbSet<FeeType> FeeTypes { get; set; } = default!;
         public DbSet<FeeCollection> FeeCollections { get; set; } = default!;
@@ -70,10 +69,6 @@ namespace MadrasahManagement.Models
         // =============================
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-            // Apply all configurations
-            //modelBuilder.ApplyConfiguration(new RoleConfiguration());
-            //modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new StudentConfiguration());
             modelBuilder.ApplyConfiguration(new TeacherConfiguration());
             modelBuilder.ApplyConfiguration(new ClassConfiguration());
@@ -88,7 +83,6 @@ namespace MadrasahManagement.Models
             modelBuilder.ApplyConfiguration(new FeeCollectionConfiguration());
             modelBuilder.ApplyConfiguration(new SalaryConfiguration());
             modelBuilder.ApplyConfiguration(new ExpenseConfiguration());
-            //	modelBuilder.ApplyConfiguration(new StaffConfiguration());
             modelBuilder.ApplyConfiguration(new BookConfiguration());
             modelBuilder.ApplyConfiguration(new IssuedBookConfiguration());
             modelBuilder.ApplyConfiguration(new NoticeConfiguration());
@@ -98,570 +92,371 @@ namespace MadrasahManagement.Models
             modelBuilder.ApplyConfiguration(new TransportAssignmentConfiguration());
             modelBuilder.ApplyConfiguration(new TimetableConfiguration());
             modelBuilder.ApplyConfiguration(new MessageConfiguration());
-            //modelBuilder.ApplyConfiguration(new LoginLogConfiguration());
-            //modelBuilder.ApplyConfiguration(new ActivityLogConfiguration());
             modelBuilder.ApplyConfiguration(new EventConfiguration());
             modelBuilder.ApplyConfiguration(new AssignmentConfiguration());
             modelBuilder.ApplyConfiguration(new SubmissionConfiguration());
             modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
-            //modelBuilder.Entity<AppRole>().ToTable("AspNetRoles");
+
             base.OnModelCreating(modelBuilder);
+
+            // ExamResult -> Department
+            modelBuilder.Entity<ExamResult>()
+                .HasOne(e => e.Department)
+                .WithMany()
+                .HasForeignKey(e => e.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict); // No cascade
+
+            // ExamResult -> Class
+            modelBuilder.Entity<ExamResult>()
+                .HasOne(e => e.Class)
+                .WithMany()
+                .HasForeignKey(e => e.ClassId)
+                .OnDelete(DeleteBehavior.Restrict); // No cascade
+
+            // ExamResult -> Examination
+            modelBuilder.Entity<ExamResult>()
+                .HasOne(e => e.Examination)
+                .WithMany()
+                .HasForeignKey(e => e.ExamId)
+                .OnDelete(DeleteBehavior.Restrict); // No cascade
+
+            // ExamResult -> Student
+            modelBuilder.Entity<ExamResult>()
+                .HasOne(e => e.Student)
+                .WithMany()
+                .HasForeignKey(e => e.StudentId)
+                .OnDelete(DeleteBehavior.Restrict); // No cascade
+
+            // ExamResult -> ResultDetails
+            modelBuilder.Entity<ResultDetail>()
+                .HasOne(rd => rd.Result)
+                .WithMany(r => r.ResultDetails)
+                .HasForeignKey(rd => rd.ResultId)
+                .OnDelete(DeleteBehavior.Cascade); // Safe cascade
+            modelBuilder.Entity<Submission>()
+        .HasOne(s => s.Assignment)
+        .WithMany()
+        .HasForeignKey(s => s.AssignmentId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+            // Submissions -> Student (no cascade)
+            modelBuilder.Entity<Submission>()
+                .HasOne(s => s.Student)
+                .WithMany()
+                .HasForeignKey(s => s.StudentId)
+                .OnDelete(DeleteBehavior.Restrict); // pr
+            modelBuilder.Entity<SeatPlan>()
+        .HasOne(s => s.Student)
+        .WithMany()
+        .HasForeignKey(s => s.StudentId)
+        .OnDelete(DeleteBehavior.Restrict); // or NoAction
+
+            modelBuilder.Entity<SeatPlan>()
+                .HasOne(s => s.Class)
+                .WithMany()
+                .HasForeignKey(s => s.ClassId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SeatPlan>()
+                .HasOne(s => s.Department)
+                .WithMany()
+                .HasForeignKey(s => s.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SeatPlan>()
+                .HasOne(s => s.Subject)
+                .WithMany()
+                .HasForeignKey(s => s.SubjectId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
-
         // ==========================
-        // Configurations
+        // Configurations Classes
         // ==========================
-
-        //public class RoleConfiguration : IEntityTypeConfiguration<AppRole>
-        //{
-        //    public void Configure(EntityTypeBuilder<AppRole> builder)
-        //    {
-        //        builder.ToTable("Roles");
-        //        builder.HasKey(r => r.RoleId);
-        //        builder.Property(r => r.RoleName).IsRequired().HasMaxLength(50);
-        //        builder.HasIndex(r => r.RoleName).IsUnique();
-        //    }
-        //}
-
-        //public class UserConfiguration : IEntityTypeConfiguration<AppUser>
-        //{
-        //    public void Configure(EntityTypeBuilder<AppUser> builder)
-        //    {
-        //        builder.ToTable("Users");
-        //        builder.HasKey(u => u.UserId);
-        //        builder.Property(u => u.Name).IsRequired().HasMaxLength(100);
-        //        builder.Property(u => u.Email).IsRequired().HasMaxLength(150);
-        //        builder.HasIndex(u => u.Email).IsUnique();
-        //        builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(400);
-        //        builder.HasOne(u => u.Role).WithMany(r => r.Users).HasForeignKey(u => u.RoleId).OnDelete(DeleteBehavior.Restrict);
-        //    }
-        //}
 
         public class StudentConfiguration : IEntityTypeConfiguration<Student>
         {
             public void Configure(EntityTypeBuilder<Student> builder)
             {
-                // Student Configuration
-
-                // Primary Key
                 builder.HasKey(s => s.StudentId);
-
-                // Unique Constraints
-                builder.HasIndex(s => s.RegNo).IsUnique();  // Roll No should be unique
-
-                // Relationships
-                builder.HasOne(s => s.AppUser)
-                          .WithMany()
-                          .HasForeignKey(s => s.UserId)
-                          .OnDelete(DeleteBehavior.Restrict);
-
-             //   builder.HasIndex(x => x.Email).IsUnique();
-
-                builder.HasOne(s => s.Class)
-                          .WithMany()
-                          .HasForeignKey(s => s.ClassId)
-                          .OnDelete(DeleteBehavior.Restrict);
-
-                builder.HasOne(s => s.Section)
-                          .WithMany()
-                          .HasForeignKey(s => s.SectionId)
-                          .OnDelete(DeleteBehavior.Restrict);
-
-                // Column Configurations (Data Annotations)
-                builder.Property(s => s.StudentName)
-                          .IsRequired()
-                          .HasMaxLength(150);
-
-                builder.Property(s => s.ArabicStudentName)
-                          .HasMaxLength(150);
-
-                builder.Property(s => s.BanglaStudentName)
-                          .HasMaxLength(150);
-
-                builder.Property(s => s.RegNo)
-                          .IsRequired()
-                          .HasMaxLength(20)
-                          .IsUnicode(false);  // Ensuring ASCII-based Roll No
-
-                builder.Property(s => s.AdmissionDate)
-                          .HasDefaultValueSql("GETDATE()");
-
-                // Multi-language support: Translated Names
+                builder.HasIndex(s => s.RegNo).IsUnique();
+                builder.HasOne(s => s.AppUser).WithMany().HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Restrict);
+                builder.HasOne(s => s.Class).WithMany().HasForeignKey(s => s.ClassId).OnDelete(DeleteBehavior.Restrict);
+                builder.HasOne(s => s.Section).WithMany().HasForeignKey(s => s.SectionId).OnDelete(DeleteBehavior.Restrict);
+                builder.Property(s => s.StudentName).IsRequired().HasMaxLength(150);
+                builder.Property(s => s.RegNo).IsRequired().HasMaxLength(20).IsUnicode(false);
+                builder.Property(s => s.AdmissionDate).HasDefaultValueSql("GETDATE()");
                 builder.Property(s => s.TranslatedNames)
-                          .HasConversion(
-                              v => JsonConvert.SerializeObject(v),
-                              v => JsonConvert.DeserializeObject<Dictionary<string, string>>(v))
-                          .HasMaxLength(1000);
-
-                // Optional: Index for fields like Name or Phone, etc.
-                builder.HasIndex(s => s.StudentName).HasName("IX_StudentName");
-
-                // Audit Fields
-                builder.Property(s => s.CreatedAt)
-                          .HasDefaultValueSql("GETDATE()");
-                builder.Property(s => s.UpdatedAt)
-                          .IsRequired(false);
-
-
-
+                       .HasConversion(v => JsonConvert.SerializeObject(v), v => JsonConvert.DeserializeObject<Dictionary<string, string>>(v))
+                       .HasMaxLength(1000);
+                builder.Property(s => s.CreatedAt).HasDefaultValueSql("GETDATE()");
             }
         }
-    }
 
-    public class TeacherConfiguration : IEntityTypeConfiguration<Teacher>
-    {
-        public void Configure(EntityTypeBuilder<Teacher> builder)
+        public class TeacherConfiguration : IEntityTypeConfiguration<Teacher>
         {
-            builder.ToTable("Teachers");
-            builder.HasIndex(x => x.Email).IsUnique();
-            builder.HasKey(t => t.TeacherId);
-            builder.Property(t => t.Qualification).HasMaxLength(250);
-            builder.Property(t => t.Designation).HasMaxLength(150);
-            builder.HasOne(t => t.AppUser).WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(t => t.Department).WithMany(d => d.Teachers).HasForeignKey(t => t.DepartmentId).OnDelete(DeleteBehavior.Restrict);
-
-        }
-    
-    }
-
-    public class ClassConfiguration : IEntityTypeConfiguration<Class>
-    {
-        public void Configure(EntityTypeBuilder<Class> builder)
-        {
-            builder.ToTable("Classes");
-            builder.HasKey(c => c.ClassId);
-            builder.Property(c => c.ClassName).IsRequired().HasMaxLength(100);
-            builder.HasOne(c => c.Department).WithMany(d => d.Classes).HasForeignKey(c => c.DepartmentId).OnDelete(DeleteBehavior.Restrict);
-        }
-    }
-
-    public class SectionConfiguration : IEntityTypeConfiguration<Section>
-    {
-        public void Configure(EntityTypeBuilder<Section> builder)
-        {
-            builder.ToTable("Sections");
-            builder.HasKey(s => s.SectionId);
-            builder.Property(s => s.SectionName).IsRequired().HasMaxLength(50);
-            builder.HasOne(s => s.Class).WithMany(c => c.Sections).HasForeignKey(s => s.ClassId).OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
-    public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
-    {
-        public void Configure(EntityTypeBuilder<Subject> builder)
-        {
-            builder.ToTable("Subjects");
-            builder.HasKey(s => s.SubjectId);
-            builder.Property(s => s.SubjectName).IsRequired().HasMaxLength(150);
-            builder.Property(s => s.SubjectCode).IsRequired().HasMaxLength(50);
-            builder.HasIndex(s => s.SubjectCode).IsUnique();
-            builder.HasOne(s => s.Class).WithMany(c => c.Subjects).HasForeignKey(s => s.ClassId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(s => s.Department).WithMany().HasForeignKey(s => s.DepartmentId).OnDelete(DeleteBehavior.Restrict);
-        }
-    }
-
-    public class ClassSubjectConfiguration : IEntityTypeConfiguration<ClassSubject>
-    {
-        public void Configure(EntityTypeBuilder<ClassSubject> builder)
-        {
-            builder.ToTable("ClassSubjects");
-            builder.HasKey(cs => new { cs.ClassId, cs.SubjectId });
-            builder.HasOne(cs => cs.Class).WithMany(c => c.ClassSubjects).HasForeignKey(cs => cs.ClassId).OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(cs => cs.Subject).WithMany(s => s.ClassSubjects).HasForeignKey(cs => cs.SubjectId).OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(cs => cs.Teacher).WithMany(t => t.ClassSubjects).HasForeignKey(cs => cs.TeacherId).OnDelete(DeleteBehavior.Restrict);
-        }
-    }
-
-    public class ExamFeeConfiguration : IEntityTypeConfiguration<ExamFee>
-    {
-        public void Configure(EntityTypeBuilder<ExamFee> builder)
-        {
-            builder.ToTable("ExamFees"); 
-            builder.Property(e => e.ExamAmount)
-                .HasPrecision(18, 2);
-
-            builder.HasOne(e => e.Department)
-                .WithMany()
-                .HasForeignKey(e => e.DepartmentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasOne(e => e.Class)
-                .WithMany()
-                .HasForeignKey(e => e.ClassId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasOne(e => e.Examination)
-                .WithMany()
-                .HasForeignKey(e => e.ExamId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasMany(e => e.FeeCollections)
-                .WithOne(fc => fc.ExamFee)
-                .HasForeignKey(fc => fc.ExamFeeId)
-                .OnDelete(DeleteBehavior.Restrict);
-        }
-    }
-
-    public class ExamResultConfiguration : IEntityTypeConfiguration<ExamResult>
-    {
-        public void Configure(EntityTypeBuilder<ExamResult> builder)
-        {
-            builder.ToTable("ExamResults");
-            builder.HasKey(er => er.ResultId);
-
-            builder.HasOne(er => er.Exam)
-                .WithMany(e => e.ExamResults)
-                .HasForeignKey(er => er.ExamId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            builder.HasOne(er => er.Student)
-                .WithMany(s => s.ExamResults)
-                .HasForeignKey(er => er.StudentId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            builder.HasOne(er => er.Subject)
-                .WithMany()
-                .HasForeignKey(er => er.SubjectId)
-                .OnDelete(DeleteBehavior.NoAction);
-        }
-    }
-
-    public class AttendanceConfiguration : IEntityTypeConfiguration<Attendance>
-    {
-        public void Configure(EntityTypeBuilder<Attendance> builder)
-        {
-            builder.ToTable("Attendances");
-            builder.HasKey(a => a.AttendanceId);
-            builder.Property(a => a.Status).IsRequired();
-            builder.HasOne(a => a.Student).WithMany(s => s.Attendances).HasForeignKey(a => a.StudentId).OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(a => a.Teacher).WithMany(t => t.MarkedAttendances).HasForeignKey(a => a.TeacherId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasIndex(a => new { a.Date, a.StudentId }).IsUnique(false);
-        }
-    }
-
-    public class TeacherAttendanceConfiguration : IEntityTypeConfiguration<TeacherAttendance>
-    {
-        public void Configure(EntityTypeBuilder<TeacherAttendance> builder)
-        {
-            builder.ToTable("TeacherAttendances");
-            builder.HasKey(ta => ta.Id);
-            builder.HasOne(ta => ta.Teacher).WithMany(t => t.TeacherAttendances).HasForeignKey(ta => ta.TeacherId).OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
-    public class FeeTypeConfiguration : IEntityTypeConfiguration<FeeType>
-    {
-        public void Configure(EntityTypeBuilder<FeeType> builder)
-        {
-            builder.ToTable("FeeTypes");
-            builder.HasKey(ft => ft.FeeTypeId);
-            builder.Property(ft => ft.Name).IsRequired().HasMaxLength(150);
-            builder.HasOne(ft => ft.Class).WithMany(c => c.FeeTypes).HasForeignKey(ft => ft.ClassId).OnDelete(DeleteBehavior.Restrict);
+            public void Configure(EntityTypeBuilder<Teacher> builder)
+            {
+                builder.ToTable("Teachers");
+                builder.HasIndex(x => x.Email).IsUnique();
+                builder.HasKey(t => t.TeacherId);
+                builder.HasOne(t => t.AppUser).WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(t => t.Department).WithMany(d => d.Teachers).HasForeignKey(t => t.DepartmentId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
 
-    }
-
-    public class FeeCollectionConfiguration : IEntityTypeConfiguration<FeeCollection>
-    {
-        public void Configure(EntityTypeBuilder<FeeCollection> builder)
+        public class ClassConfiguration : IEntityTypeConfiguration<Class>
         {
-            builder.ToTable("FeeCollections");
-            builder.HasKey(fc => fc.Id);
-            builder.HasOne(fc => fc.Student).WithMany(s => s.FeeCollections).HasForeignKey(fc => fc.StudentId).OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(fc => fc.FeeType).WithMany().HasForeignKey(fc => fc.FeeTypeId).OnDelete(DeleteBehavior.Restrict);
-
-
+            public void Configure(EntityTypeBuilder<Class> builder)
+            {
+                builder.ToTable("Classes");
+                builder.HasKey(c => c.ClassId);
+                builder.HasOne(c => c.Department).WithMany(d => d.Classes).HasForeignKey(c => c.DepartmentId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
-    }
-    public class SalaryConfiguration : IEntityTypeConfiguration<Salary>
-    {
-        public void Configure(EntityTypeBuilder<Salary> builder)
+
+        public class SectionConfiguration : IEntityTypeConfiguration<Section>
         {
-            builder.ToTable("Salaries");
-            builder.HasKey(s => s.SalaryId);
-            builder.HasOne(s => s.Teacher).WithMany(t => t.Salaries).HasForeignKey(s => s.TeacherId).OnDelete(DeleteBehavior.Restrict);
-
-            // Simple - let it create the index ignoring NULLs
-            builder.HasIndex(s => new { s.TeacherId, s.MonthName, s.Year })
-                .IsUnique()
-                .HasDatabaseName("IX_SalaryRecord_Teacher_Month_Year_Unique");
-
-            builder.HasIndex(s => new { s.StaffId, s.MonthName, s.Year })
-                .IsUnique()
-                .HasDatabaseName("IX_SalaryRecord_Staff_Month_Year_Unique");
+            public void Configure(EntityTypeBuilder<Section> builder)
+            {
+                builder.ToTable("Sections");
+                builder.HasKey(s => s.SectionId);
+                builder.HasOne(s => s.Class).WithMany(c => c.Sections).HasForeignKey(s => s.ClassId).OnDelete(DeleteBehavior.Cascade);
+            }
         }
-    }
 
-    public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
-    {
-        public void Configure(EntityTypeBuilder<Expense> builder)
+        public class SubjectConfiguration : IEntityTypeConfiguration<Subject>
         {
-            builder.ToTable("Expenses");
-            builder.HasKey(e => e.ExpenseId);
+            public void Configure(EntityTypeBuilder<Subject> builder)
+            {
+                builder.ToTable("Subjects");
+                builder.HasKey(s => s.SubjectId);
+                builder.HasIndex(s => s.SubjectCode).IsUnique();
+                builder.HasOne(s => s.Class).WithMany(c => c.Subjects).HasForeignKey(s => s.ClassId).OnDelete(DeleteBehavior.Restrict);
+                builder.HasOne(s => s.Department).WithMany().HasForeignKey(s => s.DepartmentId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
-    }
 
-    public class BookConfiguration : IEntityTypeConfiguration<Book>
-    {
-        public void Configure(EntityTypeBuilder<Book> builder)
+        public class ClassSubjectConfiguration : IEntityTypeConfiguration<ClassSubject>
         {
-            builder.ToTable("Books");
-            builder.HasKey(b => b.BookId);
-
-            builder.Property(b => b.Title)
-                .IsRequired()
-                .HasMaxLength(250);
-
-            builder.Property(b => b.Category)
-                .HasMaxLength(100);
-
-            builder.HasIndex(b => new { b.Title, b.Category })
-                .HasDatabaseName("IX_Books_Title_Category")
-                .IsUnique()
-                .HasFilter("[Category] is not null");
-
-            builder.HasIndex(b => b.Title)
-                .HasDatabaseName("IX_Books_Title_NoCategory")
-                .IsUnique()
-                .HasFilter("[Category] is null");
+            public void Configure(EntityTypeBuilder<ClassSubject> builder)
+            {
+                builder.ToTable("ClassSubjects");
+                builder.HasKey(cs => new { cs.ClassId, cs.SubjectId });
+                builder.HasOne(cs => cs.Class).WithMany(c => c.ClassSubjects).HasForeignKey(cs => cs.ClassId).OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(cs => cs.Subject).WithMany(s => s.ClassSubjects).HasForeignKey(cs => cs.SubjectId).OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(cs => cs.Teacher).WithMany(t => t.ClassSubjects).HasForeignKey(cs => cs.TeacherId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
-    }
 
-    public class IssuedBookConfiguration : IEntityTypeConfiguration<IssuedBook>
-    {
-        public void Configure(EntityTypeBuilder<IssuedBook> builder)
+        public class ExamFeeConfiguration : IEntityTypeConfiguration<ExamFee>
         {
-            builder.ToTable("IssuedBooks");
-            builder.HasKey(ib => ib.Id);
-            builder.HasOne(ib => ib.Book).WithMany(b => b.IssuedBooks).HasForeignKey(ib => ib.BookId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(ib => ib.AppUser).WithMany().HasForeignKey(ib => ib.IssuedTo).OnDelete(DeleteBehavior.Restrict);
-            builder.HasIndex(ib => new { ib.BookId, ib.IssuedTo })
-            .IsUnique()
-            .HasFilter("[ReturnDate] IS NULL");
+            public void Configure(EntityTypeBuilder<ExamFee> builder)
+            {
+                builder.ToTable("ExamFees");
+                builder.Property(e => e.ExamAmount).HasPrecision(18, 2);
+                builder.HasOne(e => e.Department).WithMany().HasForeignKey(e => e.DepartmentId).OnDelete(DeleteBehavior.Restrict);
+                builder.HasOne(e => e.Class).WithMany().HasForeignKey(e => e.ClassId).OnDelete(DeleteBehavior.Restrict);
+                builder.HasOne(e => e.Examination).WithMany().HasForeignKey(e => e.ExamId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
-    }
 
-    public class NoticeConfiguration : IEntityTypeConfiguration<Notice>
-    {
-        public void Configure(EntityTypeBuilder<Notice> builder)
+        public class ExamResultConfiguration : IEntityTypeConfiguration<ExamResult>
         {
-            builder.ToTable("Notices");
-            builder.HasKey(n => n.NoticeId);
-            builder.Property(n => n.Title).IsRequired().HasMaxLength(200);
-            builder.Property(n => n.Content).IsRequired().HasMaxLength(4000);
-            builder.HasOne(n => n.AppRole).WithMany().HasForeignKey(n => n.VisibleToRoleId).OnDelete(DeleteBehavior.SetNull);
+            public void Configure(EntityTypeBuilder<ExamResult> builder)
+            {
+                builder.ToTable("ExamResults");
+                builder.HasKey(er => er.ResultId);
+                builder.HasOne(er => er.Examination).WithMany().HasForeignKey(er => er.ExamId).OnDelete(DeleteBehavior.NoAction);
+                builder.HasOne(er => er.Student).WithMany().HasForeignKey(er => er.StudentId).OnDelete(DeleteBehavior.NoAction);
+            }
         }
-    }
 
-    public class HostelConfiguration : IEntityTypeConfiguration<Hostel>
-    {
-        public void Configure(EntityTypeBuilder<Hostel> builder)
+        public class AttendanceConfiguration : IEntityTypeConfiguration<Attendance>
         {
-            builder.ToTable("Hostels");
-            builder.HasKey(h => h.HostelId);
-            builder.Property(h => h.Name).IsRequired().HasMaxLength(150);
+            public void Configure(EntityTypeBuilder<Attendance> builder)
+            {
+                builder.ToTable("Attendances");
+                builder.HasOne(a => a.Student).WithMany(s => s.Attendances).HasForeignKey(a => a.StudentId).OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(a => a.Teacher).WithMany(t => t.MarkedAttendances).HasForeignKey(a => a.TeacherId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
-    }
 
-    public class HostelResidentConfiguration : IEntityTypeConfiguration<HostelResident>
-    {
-        public void Configure(EntityTypeBuilder<HostelResident> builder)
+        public class TeacherAttendanceConfiguration : IEntityTypeConfiguration<TeacherAttendance>
         {
-            builder.ToTable("HostelResidents");
-            builder.HasKey(hr => hr.Id);
-            builder.HasOne(hr => hr.Student).WithMany(s => s.HostelResidents).HasForeignKey(hr => hr.StudentId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(hr => hr.Hostel).WithMany(h => h.Residents).HasForeignKey(hr => hr.HostelId).OnDelete(DeleteBehavior.Restrict);
+            public void Configure(EntityTypeBuilder<TeacherAttendance> builder)
+            {
+                builder.ToTable("TeacherAttendances");
+                builder.HasOne(ta => ta.Teacher).WithMany(t => t.TeacherAttendances).HasForeignKey(ta => ta.TeacherId).OnDelete(DeleteBehavior.Cascade);
+            }
         }
-    }
 
-    public class TransportRouteConfiguration : IEntityTypeConfiguration<TransportRoute>
-    {
-        public void Configure(EntityTypeBuilder<TransportRoute> builder)
+        public class FeeTypeConfiguration : IEntityTypeConfiguration<FeeType>
         {
-            builder.ToTable("TransportRoutes");
-            builder.HasKey(tr => tr.RouteId);
-            builder.Property(tr => tr.RouteName).IsRequired().HasMaxLength(150);
+            public void Configure(EntityTypeBuilder<FeeType> builder)
+            {
+                builder.ToTable("FeeTypes");
+                builder.HasOne(ft => ft.Class).WithMany(c => c.FeeTypes).HasForeignKey(ft => ft.ClassId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
-    }
 
-    public class TransportAssignmentConfiguration : IEntityTypeConfiguration<TransportAssignment>
-    {
-        public void Configure(EntityTypeBuilder<TransportAssignment> builder)
+        public class FeeCollectionConfiguration : IEntityTypeConfiguration<FeeCollection>
         {
-            builder.ToTable("TransportAssignments");
-            builder.HasKey(ta => ta.Id);
-            builder.HasOne(ta => ta.Student).WithMany(s => s.TransportAssignments).HasForeignKey(ta => ta.StudentId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(ta => ta.TransportRoute).WithMany(tr => tr.Assignments).HasForeignKey(ta => ta.RouteId).OnDelete(DeleteBehavior.Restrict);
+            public void Configure(EntityTypeBuilder<FeeCollection> builder)
+            {
+                builder.ToTable("FeeCollections");
+                builder.HasOne(fc => fc.Student).WithMany(s => s.FeeCollections).HasForeignKey(fc => fc.StudentId).OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(fc => fc.FeeType).WithMany().HasForeignKey(fc => fc.FeeTypeId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
-    }
+
+        public class SalaryConfiguration : IEntityTypeConfiguration<Salary>
+        {
+            public void Configure(EntityTypeBuilder<Salary> builder)
+            {
+                builder.ToTable("Salaries");
+                builder.HasOne(s => s.Teacher).WithMany(t => t.Salaries).HasForeignKey(s => s.TeacherId).OnDelete(DeleteBehavior.Restrict);
+            }
+        }
+
+        public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
+        {
+            public void Configure(EntityTypeBuilder<Expense> builder) { builder.ToTable("Expenses"); }
+        }
+
+        public class BookConfiguration : IEntityTypeConfiguration<Book>
+        {
+            public void Configure(EntityTypeBuilder<Book> builder)
+            {
+                builder.ToTable("Books");
+                builder.HasIndex(b => new { b.Title, b.Category }).IsUnique().HasFilter("[Category] is not null");
+            }
+        }
+
+        public class IssuedBookConfiguration : IEntityTypeConfiguration<IssuedBook>
+        {
+            public void Configure(EntityTypeBuilder<IssuedBook> builder)
+            {
+                builder.ToTable("IssuedBooks");
+                builder.HasOne(ib => ib.Book).WithMany(b => b.IssuedBooks).HasForeignKey(ib => ib.BookId).OnDelete(DeleteBehavior.Restrict);
+            }
+        }
+
+        public class NoticeConfiguration : IEntityTypeConfiguration<Notice>
+        {
+            public void Configure(EntityTypeBuilder<Notice> builder)
+            {
+                builder.ToTable("Notices");
+                builder.HasOne(n => n.AppRole).WithMany().HasForeignKey(n => n.VisibleToRoleId).OnDelete(DeleteBehavior.SetNull);
+            }
+        }
+
+        public class HostelConfiguration : IEntityTypeConfiguration<Hostel>
+        {
+            public void Configure(EntityTypeBuilder<Hostel> builder) { builder.ToTable("Hostels"); }
+        }
+
+        public class HostelResidentConfiguration : IEntityTypeConfiguration<HostelResident>
+        {
+            public void Configure(EntityTypeBuilder<HostelResident> builder)
+            {
+                builder.ToTable("HostelResidents");
+                builder.HasOne(hr => hr.Student).WithMany(s => s.HostelResidents).HasForeignKey(hr => hr.StudentId).OnDelete(DeleteBehavior.Restrict);
+            }
+        }
+
+        public class TransportRouteConfiguration : IEntityTypeConfiguration<TransportRoute>
+        {
+            public void Configure(EntityTypeBuilder<TransportRoute> builder) { builder.ToTable("TransportRoutes"); }
+        }
+
+        public class TransportAssignmentConfiguration : IEntityTypeConfiguration<TransportAssignment>
+        {
+            public void Configure(EntityTypeBuilder<TransportAssignment> builder)
+            {
+                builder.ToTable("TransportAssignments");
+                builder.HasOne(ta => ta.Student).WithMany(s => s.TransportAssignments).HasForeignKey(ta => ta.StudentId).OnDelete(DeleteBehavior.Restrict);
+            }
+        }
 
     public class TimetableConfiguration : IEntityTypeConfiguration<Timetable>
     {
         public void Configure(EntityTypeBuilder<Timetable> builder)
         {
-            builder.ToTable("Timetables");
             builder.HasKey(t => t.Id);
 
-            // Unique constraint
-            builder.HasIndex(t => new
-            {
-                t.AcademicYear,
-                t.DepartmentId,
-                t.ClassId,
-                t.SectionId,
-                t.DayName,
-                t.PeriodName
-            }).IsUnique();
+            builder.Property(t => t.Day)
+                .HasMaxLength(20)
+                .IsRequired();
 
-            // Relationships - now with nullable FKs
-            builder.HasOne(t => t.Department)
-                .WithMany()
-                .HasForeignKey(t => t.DepartmentId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(t => t.Period)
+                .HasMaxLength(50)
+                .IsRequired();
 
+            builder.Property(t => t.Room)
+                .HasMaxLength(50);
+
+            // Class Relationship (NO CASCADE!!)
             builder.HasOne(t => t.Class)
-                .WithMany(c => c.Timetables)
-                .HasForeignKey(t => t.ClassId)
-                .OnDelete(DeleteBehavior.Restrict);
+                   .WithMany(c => c.Timetables)
+                   .HasForeignKey(t => t.ClassId)
+                   .OnDelete(DeleteBehavior.Restrict);
 
+            // Section Relationship (NO CASCADE!!)
             builder.HasOne(t => t.Section)
-                .WithMany(s => s.Timetables)
-                .HasForeignKey(t => t.SectionId)
-                .OnDelete(DeleteBehavior.Restrict);
+                   .WithMany(s => s.Timetables)
+                   .HasForeignKey(t => t.SectionId)
+                   .OnDelete(DeleteBehavior.Restrict);
 
-            // ✅ Optional relationships
-            builder.HasOne(t => t.Subject)
-                .WithMany()
-                .HasForeignKey(t => t.SubjectId)
-                .IsRequired(false)  // Optional
-                .OnDelete(DeleteBehavior.Restrict);
+            //// Subject Relationship
+            //builder.HasOne(t => t.Subject)
+            //       .WithMany(s => s.Timetables)
+            //       .HasForeignKey(t => t.SubjectId)
+            //       .OnDelete(DeleteBehavior.Restrict);
 
+            // Teacher Relationship
             builder.HasOne(t => t.Teacher)
-                .WithMany(t => t.Timetables)
-                .HasForeignKey(t => t.TeacherId)
-                .IsRequired(false)  // Optional
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Property configurations
-            builder.Property(t => t.AcademicYear)
-                .IsRequired()
-                .HasMaxLength(20);
-
-            builder.Property(t => t.DayName)
-                .IsRequired()
-                .HasMaxLength(10);
-
-            builder.Property(t => t.PeriodName)
-                .IsRequired()
-                .HasMaxLength(20);
+                   .WithMany(te => te.Timetables)
+                   .HasForeignKey(t => t.TeacherId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 
-
-    public class MessageConfiguration : IEntityTypeConfiguration<Message>
-    {
-        public void Configure(EntityTypeBuilder<Message> builder)
+        public class MessageConfiguration : IEntityTypeConfiguration<Message>
         {
-            builder.ToTable("Messages");
-            builder.HasKey(m => m.MessageId);
-            //builder.HasOne(m => m.Sender).WithMany(u => u.SentMessages).HasForeignKey(m => m.SenderId).OnDelete(DeleteBehavior.Restrict);
-            //builder.HasOne(m => m.Receiver).WithMany(u => u.ReceivedMessages).HasForeignKey(m => m.ReceiverId).OnDelete(DeleteBehavior.Restrict);
+            public void Configure(EntityTypeBuilder<Message> builder) { builder.ToTable("Messages"); }
         }
-    }
 
-    //public class LoginLogConfiguration : IEntityTypeConfiguration<LoginLog>
-    //{
-    //    public void Configure(EntityTypeBuilder<LoginLog> builder)
-    //    {
-    //        builder.ToTable("LoginLogs");
-    //        builder.HasKey(ll => ll.Id);
-    //        builder.HasOne(ll => ll.AppUser).WithMany(u => u.LoginLogs).HasForeignKey(ll => ll.UserId).OnDelete(DeleteBehavior.Cascade);
-    //    }
-    //}
-
-    //public class ActivityLogConfiguration : IEntityTypeConfiguration<ActivityLog>
-    //{
-    //    public void Configure(EntityTypeBuilder<ActivityLog> builder)
-    //    {
-    //        builder.ToTable("ActivityLogs");
-    //        builder.HasKey(al => al.Id);
-    //        builder.HasOne(al => al.AppUser).WithMany(u => u.ActivityLogs).HasForeignKey(al => al.UserId).OnDelete(DeleteBehavior.Cascade);
-    //    }
-    //}
-
-
-    public class EventConfiguration : IEntityTypeConfiguration<Event>
-    {
-        public void Configure(EntityTypeBuilder<Event> builder)
+        public class EventConfiguration : IEntityTypeConfiguration<Event>
         {
-            builder.ToTable("Events");
-
-            builder.HasKey(e => e.EventId);
-
-            builder.Property(e => e.Title)
-                   .IsRequired()
-                   .HasMaxLength(200);
-
-            builder.Property(e => e.Description)
-                   .HasMaxLength(2000);
-
-            builder.Property(e => e.StartDateTime)
-                   .IsRequired();
-
-            builder.Property(e => e.EndDateTime)
-                   .IsRequired();
-
-            builder.Property(e => e.Location)
-                   .HasMaxLength(250);
-
+            public void Configure(EntityTypeBuilder<Event> builder) { builder.ToTable("Events"); }
         }
-    }
 
-    public class AssignmentConfiguration : IEntityTypeConfiguration<Assignment>
-    {
-        public void Configure(EntityTypeBuilder<Assignment> builder)
+        public class AssignmentConfiguration : IEntityTypeConfiguration<Assignment>
         {
-            builder.ToTable("Assignments");
-            builder.HasKey(a => a.AssignmentId);
-            builder.Property(a => a.Title).IsRequired().HasMaxLength(200);
-            builder.HasOne(a => a.Class).WithMany(c => c.Assignments).HasForeignKey(a => a.ClassId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(a => a.Subject).WithMany().HasForeignKey(a => a.SubjectId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(a => a.Teacher).WithMany(t => t.Assignments).HasForeignKey(a => a.TeacherId).OnDelete(DeleteBehavior.Restrict);
+            public void Configure(EntityTypeBuilder<Assignment> builder)
+            {
+                builder.ToTable("Assignments");
+                builder.HasOne(a => a.Class).WithMany(c => c.Assignments).HasForeignKey(a => a.ClassId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
-    }
 
-    public class SubmissionConfiguration : IEntityTypeConfiguration<Submission>
-    {
-        public void Configure(EntityTypeBuilder<Submission> builder)
+        public class SubmissionConfiguration : IEntityTypeConfiguration<Submission>
         {
-            builder.ToTable("Submissions");
-            builder.HasKey(s => s.SubmissionId);
-            builder.Property(s => s.FileLink).IsRequired().HasMaxLength(1000);
-            builder.HasOne(s => s.Assignment).WithMany(a => a.Submissions).HasForeignKey(s => s.AssignmentId).OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(s => s.Student).WithMany(st => st.Submissions).HasForeignKey(s => s.StudentId).OnDelete(DeleteBehavior.Restrict);
+            public void Configure(EntityTypeBuilder<Submission> builder)
+            {
+                builder.ToTable("Submissions");
+                builder.HasOne(s => s.Assignment).WithMany(a => a.Submissions).HasForeignKey(s => s.AssignmentId).OnDelete(DeleteBehavior.Cascade);
+            }
         }
-    }
 
-    public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
-    {
-        public void Configure(EntityTypeBuilder<Department> builder)
+        public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
         {
-            // Table Name (optional)
-            builder.ToTable("Departments");
-
-            // Primary Key
-            builder.HasKey(d => d.DepartmentId);
-
-            // Properties
-            builder.Property(d => d.DepartmentName).IsRequired().HasMaxLength(100);
-            builder.Property(d => d.Description).HasMaxLength(200);
-            // Relationships
-            builder.HasMany(d => d.Classes).WithOne(c => c.Department).HasForeignKey(c => c.DepartmentId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasMany(d => d.Teachers).WithOne(t => t.Department).HasForeignKey(t => t.DepartmentId).OnDelete(DeleteBehavior.Restrict);
+            public void Configure(EntityTypeBuilder<Department> builder)
+            {
+                builder.ToTable("Departments");
+                builder.HasMany(d => d.Classes).WithOne(c => c.Department).HasForeignKey(c => c.DepartmentId).OnDelete(DeleteBehavior.Restrict);
+            }
         }
     }
-
 }
-
