@@ -611,5 +611,79 @@ namespace MadrasahManagement.Controllers
             ViewData["DepartmentId"] = new SelectList(_context.Departments.OrderBy(d => d.DepartmentName), "DepartmentId", "DepartmentName");
             ViewData["ExamId"] = new SelectList(_context.Examinations.OrderBy(e => e.ExamName), "ExamId", "ExamName");
         }
+
+        // GET: Print Routines (Grid View)
+        public async Task<IActionResult> PrintRoutines(string? educationYear = null, int? departmentId = null, int? examId = null)
+        {
+            var query = _context.ExamRoutines
+                .Include(e => e.Class)
+                .Include(e => e.Examination)
+                .Include(e => e.Department)
+                .Include(e => e.Subject)
+                .AsQueryable();
+
+            // Apply filters if provided
+            if (!string.IsNullOrEmpty(educationYear))
+            {
+                query = query.Where(e => e.EducationYear == educationYear);
+            }
+
+            if (departmentId.HasValue && departmentId > 0)
+            {
+                query = query.Where(e => e.DepartmentId == departmentId);
+            }
+
+            if (examId.HasValue && examId > 0)
+            {
+                query = query.Where(e => e.ExamId == examId);
+            }
+
+            var examRoutines = await query.ToListAsync();
+
+            // Group by EducationYear, ClassId, ExamId
+            var grouped = examRoutines
+                .GroupBy(e => new { e.EducationYear, e.ClassId, e.ExamId })
+                .Select(g => new ExamRoutineGroupViewModel
+                {
+                    EducationYear = g.Key.EducationYear,
+                    ClassId = g.Key.ClassId,
+                    ClassName = g.First().Class?.ClassName ?? "Unknown",
+                    ExamId = g.Key.ExamId,
+                    ExamName = g.First().Examination?.ExamName ?? "Unknown",
+                    DepartmentId = g.First().DepartmentId,
+                    DepartmentName = g.First().Department?.DepartmentName ?? "Unknown",
+                    RoomNumber = g.First().RoomNumber,
+                    Subjects = g.Select(r => new RoutineSubjectViewModel
+                    {
+                        SubjectId = r.SubjectId,
+                        SubjectCode = r.Subject?.SubjectCode ?? "",
+                        SubjectName = r.Subject?.SubjectName ?? "Unknown",
+                        ExamDate = r.ExamDate,
+                        ExamDay = r.ExamDay,
+                        ExamStartTime = r.ExamStartTime,
+                        ExamEndTime = r.ExamEndTime
+                    }).ToList()
+                })
+                .OrderBy(g => g.ClassName)
+                .ThenBy(g => g.ExamName)
+                .ToList();
+
+            // Get filter data for dropdowns
+            ViewBag.EducationYears = await _context.ExamRoutines
+                .Select(e => e.EducationYear)
+                .Distinct()
+                .OrderByDescending(y => y)
+                .ToListAsync();
+
+            ViewBag.Departments = await _context.Departments
+                .OrderBy(d => d.DepartmentName)
+                .ToListAsync();
+
+            ViewBag.Exams = await _context.Examinations
+                .OrderBy(e => e.ExamName)
+                .ToListAsync();
+
+            return View(grouped);
+        }
     }
 }

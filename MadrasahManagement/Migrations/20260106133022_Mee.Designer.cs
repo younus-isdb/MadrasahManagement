@@ -4,6 +4,7 @@ using MadrasahManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    partial class MadrasahDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260106133022_Mee")]
+    partial class Mee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1627,10 +1630,12 @@ namespace MadrasahManagement.Migrations
 
                     b.Property<string>("AcademicYear")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClassId1")
                         .HasColumnType("int");
 
                     b.Property<int?>("ClassSubjectClassId")
@@ -1644,8 +1649,7 @@ namespace MadrasahManagement.Migrations
 
                     b.Property<string>("DayName")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DepartmentId")
                         .HasColumnType("int");
@@ -1661,39 +1665,47 @@ namespace MadrasahManagement.Migrations
 
                     b.Property<string>("PeriodName")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SectionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SectionId1")
                         .HasColumnType("int");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
 
-                    b.Property<int?>("SubjectId")
+                    b.Property<int>("SubjectId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TeacherId")
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TeacherId1")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClassId");
 
+                    b.HasIndex("ClassId1");
+
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("SectionId");
+
+                    b.HasIndex("SectionId1");
 
                     b.HasIndex("SubjectId");
 
                     b.HasIndex("TeacherId");
 
+                    b.HasIndex("TeacherId1");
+
                     b.HasIndex("ClassSubjectClassId", "ClassSubjectSubjectId");
 
-                    b.HasIndex("AcademicYear", "DepartmentId", "ClassId", "SectionId", "DayName", "PeriodName")
-                        .IsUnique();
-
-                    b.ToTable("Timetables", (string)null);
+                    b.ToTable("Timetables");
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.TransportAssignment", b =>
@@ -2435,10 +2447,14 @@ namespace MadrasahManagement.Migrations
             modelBuilder.Entity("MadrasahManagement.Models.Timetable", b =>
                 {
                     b.HasOne("MadrasahManagement.Models.Class", "Class")
-                        .WithMany("Timetables")
+                        .WithMany()
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Class", null)
+                        .WithMany("Timetables")
+                        .HasForeignKey("ClassId1");
 
                     b.HasOne("MadrasahManagement.Models.Department", "Department")
                         .WithMany()
@@ -2447,20 +2463,30 @@ namespace MadrasahManagement.Migrations
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Section", "Section")
-                        .WithMany("Timetables")
+                        .WithMany()
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MadrasahManagement.Models.Section", null)
+                        .WithMany("Timetables")
+                        .HasForeignKey("SectionId1");
+
                     b.HasOne("MadrasahManagement.Models.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Teacher", "Teacher")
-                        .WithMany("Timetables")
+                        .WithMany()
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MadrasahManagement.Models.Teacher", null)
+                        .WithMany("Timetables")
+                        .HasForeignKey("TeacherId1");
 
                     b.HasOne("MadrasahManagement.Models.ClassSubject", null)
                         .WithMany("Timetables")

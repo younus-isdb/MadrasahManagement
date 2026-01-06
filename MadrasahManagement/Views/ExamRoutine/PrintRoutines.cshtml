@@ -1,0 +1,435 @@
+﻿@model List<MadrasahManagement.ViewModels.ExamRoutineGroupViewModel>
+
+@{
+    ViewData["Title"] = "Exam Routine Timetable";
+    Layout = null; // No layout for print view, or keep it minimal
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Halishahar Islamia Mahila Madrasah</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        /* Print-specific styles */
+        @@media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .timetable-grid {
+                font-size: 10pt !important;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            body {
+                padding: 0;
+                margin: 0;
+             
+            }
+        }
+
+        /* General styles */
+        body {
+            background-color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+           
+        }
+
+        .header-section {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #007bff;
+        }
+
+        .school-name {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 28px;
+        }
+
+        .report-title {
+            color: #007bff;
+            font-weight: 600;
+            font-size: 22px;
+        }
+
+        .timetable-grid {
+            font-size: 12px;
+        }
+
+            .timetable-grid th {
+                background-color: #2c3e50 !important;
+                color: white !important;
+                text-align: center;
+                vertical-align: middle;
+                font-weight: 600;
+                padding: 10px 5px;
+                border: 1px solid #dee2e6;
+            }
+
+            .timetable-grid td {
+                vertical-align: middle;
+                padding: 8px 5px;
+                border: 1px solid #dee2e6;
+                min-height: 70px;
+            }
+
+        .class-header {
+            background-color: #e9ecef !important;
+            font-weight: 700;
+            color: #2c3e50;
+            text-align: center;
+            width: 150px;
+        }
+
+        .subject-cell {
+            background-color: #fff;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+            padding: 8px;
+            height: 100%;
+            min-height: 65px;
+        }
+
+        .subject-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 13px;
+            margin-bottom: 3px;
+        }
+
+        .subject-details {
+            font-size: 11px;
+            color: #555;
+        }
+
+        .subject-code {
+            display: inline-block;
+            background-color: #f1f3f4;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-right: 5px;
+        }
+
+        .subject-time {
+            color: #27ae60;
+            font-weight: 500;
+            font-size: 10px;
+        }
+
+        .subject-room {
+            color: #7f8c8d;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .no-exam {
+            text-align: center;
+            color: #95a5a6;
+            font-style: italic;
+            font-size: 11px;
+            padding: 15px 5px;
+        }
+
+        .exam-info {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+           
+        }
+
+        .footer-note {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        /* Filter panel */
+        .filter-panel {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .print-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+            .print-button:hover {
+                background-color: #218838;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+
+        .legend-box {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            vertical-align: middle;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Filter Panel (Hidden when printing) -->
+    <div class="container-fluid no-print">
+        <div class="filter-panel mt-3">
+            <form asp-action="PrintRoutines" method="get" class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="educationYear">Education Year:</label>
+                        <select name="educationYear" id="educationYear" class="form-control form-control-sm">
+                            <option value="">All Years</option>
+                            @foreach (var year in ViewBag.EducationYears)
+                            {
+                                <option value="@year">@year</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="departmentId">Department:</label>
+                        <select name="departmentId" id="departmentId" class="form-control form-control-sm">
+                            <option value="">All Departments</option>
+                            @foreach (var dept in ViewBag.Departments)
+                            {
+                                <option value="@dept.DepartmentId">@dept.DepartmentName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="examId">Exam:</label>
+                        <select name="examId" id="examId" class="form-control form-control-sm">
+                            <option value="">All Exams</option>
+                            @foreach (var exam in ViewBag.Exams)
+                            {
+                                <option value="@exam.ExamId">@exam.ExamName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-sm mr-2">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                        <a href="@Url.Action("PrintRoutines")" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-redo"></i> Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid" id="printableArea">
+        @if (Model.Any())
+        {
+            // Group by EducationYear and Exam
+            var groupedByYearExam = Model
+            .GroupBy(g => new { g.EducationYear, g.ExamId, g.ExamName })
+            .OrderByDescending(g => g.Key.EducationYear)
+            .ThenBy(g => g.Key.ExamName)
+            .ToList();
+
+            foreach (var yearExamGroup in groupedByYearExam)
+            {
+                <div class="header-section">
+                    <div class="text-center">
+                        <h1 class="school-name">Halishahar Islamia Mahila Madrasah</h1>
+                        <h2 class="report-title">Exam Routine - @yearExamGroup.Key.EducationYear</h2>
+                        <h4 class="text-muted">@yearExamGroup.Key.ExamName</h4>
+                        <p class="mb-0">
+                            <strong>Date:</strong> @DateTime.Now.ToString("dddd, MMMM dd, yyyy") |
+                            <strong>Time:</strong> @DateTime.Now.ToString("hh:mm tt")
+                        </p>
+                    </div>
+                </div>
+
+                <div class="exam-info">
+                    <div class="row">
+                       
+                        <div >
+                            @{
+                                var firstDate = yearExamGroup
+                                .SelectMany(g => g.Subjects)
+                                .Min(s => s.ExamDate);
+                                var lastDate = yearExamGroup
+                                .SelectMany(g => g.Subjects)
+                                .Max(s => s.ExamDate);
+                            }
+                            <strong>Exam Period:</strong> @firstDate.ToString("dd-MMM-yyyy") to @lastDate.ToString("dd-MMM-yyyy") <br>
+                            <strong>Duration:</strong> @((lastDate - firstDate).Days + 1) days
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timetable Grid -->
+                <div class="table-responsive">
+                    <table class="table table-bordered timetable-grid">
+                        <thead>
+                            <tr>
+                                <th class="class-header">Class</th>
+                                @{
+                                    // Get all unique exam dates across all classes in this group
+                                    var allDates = yearExamGroup
+                                    .SelectMany(g => g.Subjects)
+                                    .Select(s => s.ExamDate)
+                                    .Distinct()
+                                    .OrderBy(d => d)
+                                    .ToList();
+                                }
+                                @foreach (var date in allDates)
+                                {
+                                    <th style="min-width: 180px;">
+                                        <div class="text-center">
+                                            <div>@date.ToString("dd-MMM-yyyy")</div>
+                                            <div class="text-muted" style="font-size: 11px;">@date.ToString("dddd")</div>
+                                        </div>
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var group in yearExamGroup.OrderBy(g => g.ClassName))
+                            {
+                                <tr>
+                                    <td class="class-header">
+                                        @group.ClassName
+                                        <br>
+                                        <span class="text-muted" style="font-size: 11px;">
+                                            Room: @group.RoomNumber
+                                        </span>
+                                    </td>
+                                    @foreach (var date in allDates)
+                                    {
+                                        var subjectOnDate = group.Subjects.FirstOrDefault(s => s.ExamDate.Date == date.Date);
+                                        <td>
+                                            @if (subjectOnDate != null)
+                                            {
+                                                <div class="subject-cell">
+                                                    <div class="subject-name">@subjectOnDate.SubjectName</div>
+                                                    <div class="subject-details">
+                                                        <span class="subject-code">@subjectOnDate.SubjectCode</span>
+                                                        <span class="subject-time">
+                                                            @subjectOnDate.ExamStartTime - @subjectOnDate.ExamEndTime
+                                                        </span>
+                                                    </div>
+                                                    <div class="subject-room">Room: @group.RoomNumber</div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="no-exam">No Exam</div>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Legend -->
+                <div class="row mt-4 no-print">
+                    <div class="col-md-12">
+                        <div class="alert alert-info py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Legend:</strong>
+                                    <span class="ml-3"><span class="legend-box" style="background-color: #3498db;"></span> Subject Exam</span>
+                                    <span class="ml-3"><span class="legend-box" style="background-color: #f8f9fa; border: 1px solid #ddd;"></span> No Exam</span>
+                                </div>
+                                <div>
+                                    <button onclick="window.print()" class="print-button">
+                                        <i class="fas fa-print"></i> Print Timetable
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-note">
+                    <p>Generated by Halishahar Islamia Mahila Madrasah | Page @(groupedByYearExam.IndexOf(yearExamGroup) + 1) of @groupedByYearExam.Count</p>
+                    <p>This is a computer-generated document. No signature is required.</p>
+                </div>
+
+                @if (groupedByYearExam.IndexOf(yearExamGroup) < groupedByYearExam.Count - 1)
+                {
+                    <div class="page-break"></div>
+                }
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="alert alert-warning">
+                    <h4><i class="fas fa-exclamation-triangle"></i> No Data Found</h4>
+                    <p>No exam routines found for the selected filters.</p>
+                    <a href="@Url.Action("PrintRoutines")" class="btn btn-primary">View All Routines</a>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Bootstrap JS (for tooltips, etc.) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Set selected values from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const educationYear = urlParams.get('educationYear');
+            const departmentId = urlParams.get('departmentId');
+            const examId = urlParams.get('examId');
+
+            if (educationYear) {
+                $('#educationYear').val(educationYear);
+            }
+            if (departmentId) {
+                $('#departmentId').val(departmentId);
+            }
+            if (examId) {
+                $('#examId').val(examId);
+            }
+        });
+    </script>
+</body>
+</html>

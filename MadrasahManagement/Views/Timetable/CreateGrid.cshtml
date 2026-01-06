@@ -1,0 +1,340 @@
+﻿@using MadrasahManagement.ViewModels
+@model TimetableGridVM
+
+@{
+    var pageTitle = Model.IsEditMode ? "Edit Timetable" : "Create Timetable - Step 2";
+    var saveButtonText = Model.IsEditMode ? "Update Timetable" : "Save Timetable";
+    var pageIcon = Model.IsEditMode ? "fa-edit" : "fa-calendar-alt";
+}
+
+<style>
+    .timetable-grid {
+        font-size: 0.9rem;
+    }
+
+    .period-header {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+    }
+
+    .day-header {
+        background-color: #0d6efd;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+    }
+
+    .cell {
+        padding: 5px;
+        min-height: 100px;
+        border: 1px solid #dee2e6;
+        position: relative;
+    }
+
+    .break-cell {
+        background-color: #fff3cd !important;
+    }
+
+    .assembly-cell {
+        background-color: #d1e7dd !important;
+    }
+
+    .checkbox-container {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 10;
+    }
+
+    .cell-content {
+        margin-top: 25px;
+    }
+
+    .form-control-sm {
+        padding: 2px 5px;
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="fas fa-calendar-alt"></i> Create Timetable:
+                @Model.AcademicYear - @Model.DepartmentName - @Model.ClassName - @Model.SectionName
+            </h4>
+            <div>
+                <a asp-action="Create" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Change Selection
+                </a>
+                <a asp-action="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-list"></i> Back to List
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <form asp-action="Save" method="post" id="timetableForm">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="AcademicYear" value="@Model.AcademicYear" />
+                <input type="hidden" name="DepartmentId" value="@Model.DepartmentId" />
+                <input type="hidden" name="ClassId" value="@Model.ClassId" />
+                <input type="hidden" name="SectionId" value="@Model.SectionId" />
+
+                <div class="table-responsive timetable-grid">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="period-header">Period</th>
+                                <th class="period-header">Time</th>
+                                @foreach (var day in Model.Days)
+                                {
+                                    <th class="day-header">@day</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- REPLACE the entire cell generation with this: -->
+                            @{
+                                int cellIndex = 0;
+                            }
+                            @foreach (var period in Model.Periods)
+                            {
+                                <tr>
+                                    <td class="period-header">@period.PeriodName</td>
+                                    <td class="period-header">@period.TimeDisplay</td>
+
+                                    @foreach (var day in Model.Days)
+                                    {
+                                        var cell = Model.GridData[day][period.PeriodName];
+                                        var cellClass = "";
+                                        if (cell.IsBreak) cellClass = "break-cell";
+                                        if (cell.IsAssembly) cellClass = "assembly-cell";
+
+                                        <td class="cell @cellClass" data-day="@day" data-period="@period.PeriodName">
+                                            <div class="checkbox-container">
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input break-checkbox"
+                                                           type="checkbox"
+                                                           name="Cells[@cellIndex].IsBreak"
+                                                           value="true"
+                                                           @(cell.IsBreak ? "checked" : "")>
+                                                    <input type="hidden" name="Cells[@cellIndex].IsBreak" value="false" />
+                                                    <label class="form-check-label" title="Break">B</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input assembly-checkbox"
+                                                           type="checkbox"
+                                                           name="Cells[@cellIndex].IsAssembly"
+                                                           value="true"
+                                                           @(cell.IsAssembly ? "checked" : "")>
+                                                    <input type="hidden" name="Cells[@cellIndex].IsAssembly" value="false" />
+                                                    <label class="form-check-label" title="Assembly">A</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="cell-content">
+                                                <!-- Hidden fields for form submission -->
+                                                <input type="hidden" name="Cells[@cellIndex].Day" value="@day" />
+                                                <input type="hidden" name="Cells[@cellIndex].Period" value="@period.PeriodName" />
+
+                                                @if (!period.IsBreak && !period.IsAssembly)
+                                                {
+                                                    <div class="mb-2">
+                                                        <select name="Cells[@cellIndex].SubjectId"
+                                                                class="form-control form-control-sm subject-select"
+                                                                @(cell.IsBreak || cell.IsAssembly ? "disabled" : "")>
+                                                            <option value="">-- Subject --</option>
+                                                            @foreach (var subject in Model.Subjects)
+                                                            {
+                                                                var isSelected = cell.SubjectId?.ToString() == subject.Value;
+                                                                <option value="@subject.Value" selected="@isSelected">
+                                                                    @subject.Text
+                                                                </option>
+                                                            }
+                                                        </select>
+                                                    </div>
+
+                                                    <div>
+                                                        <select name="Cells[@cellIndex].TeacherId"
+                                                                class="form-control form-control-sm teacher-select"
+                                                                @(cell.IsBreak || cell.IsAssembly ? "disabled" : "")>
+                                                            <option value="">-- Teacher --</option>
+                                                            @foreach (var teacher in Model.Teachers)
+                                                            {
+                                                                var isSelected = cell.TeacherId?.ToString() == teacher.Value;
+                                                                <option value="@teacher.Value" selected="@isSelected">
+                                                                    @teacher.Text
+                                                                </option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="text-center fw-bold">
+                                                        @(period.IsBreak ? "BREAK" : "ASSEMBLY")
+                                                    </div>
+                                                    <input type="hidden" name="Cells[@cellIndex].SubjectId" value="" />
+                                                    <input type="hidden" name="Cells[@cellIndex].TeacherId" value="" />
+                                                }
+                                            </div>
+                                        </td>
+                                        cellIndex++;
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Legend:</strong>
+                        <span class="badge bg-warning">B = Break</span>
+                        <span class="badge bg-success">A = Assembly</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Save Timetable
+                        </button>
+                        <button type="button" id="debugBtn" class="btn btn-warning">
+                            <i class="fas fa-bug"></i> Debug
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+                // Add this to CreateGrid.cshtml Scripts section
+        $('#timetableForm').submit(function(e) {
+            // Debug: Show form data
+            const formData = $(this).serialize();
+            console.log("Form Data:", formData);
+
+            // Or view as object
+            const formArray = $(this).serializeArray();
+            console.log("Form Array:", formArray);
+
+            // Continue with normal validation
+            // ... rest of your validation code
+        });
+
+        $(document).ready(function() {
+            // Handle break/assembly checkboxes
+            $('.break-checkbox, .assembly-checkbox').change(function() {
+                const checkbox = $(this);
+                const cellId = checkbox.data('cell-id');
+                const cell = $(`td[data-cell-id="${cellId}"]`);
+                const isBreak = cell.find('.break-checkbox').is(':checked');
+                const isAssembly = cell.find('.assembly-checkbox').is(':checked');
+
+                // Update hidden fields
+                cell.find('.break-hidden').val(isBreak.toString().toLowerCase());
+                cell.find('.assembly-hidden').val(isAssembly.toString().toLowerCase());
+
+                // Toggle cell styling
+                cell.removeClass('break-cell assembly-cell');
+                if (isBreak) cell.addClass('break-cell');
+                if (isAssembly) cell.addClass('assembly-cell');
+
+                // Toggle dropdowns
+                const subjectSelect = cell.find('.subject-select');
+                const teacherSelect = cell.find('.teacher-select');
+
+                if (isBreak || isAssembly) {
+                    subjectSelect.prop('disabled', true).val('');
+                    teacherSelect.prop('disabled', true).val('');
+                } else {
+                    subjectSelect.prop('disabled', false);
+                    teacherSelect.prop('disabled', false);
+                }
+
+                // Ensure only one checkbox is checked
+                if (isBreak && isAssembly) {
+                    if (checkbox.hasClass('break-checkbox')) {
+                        cell.find('.assembly-checkbox').prop('checked', false);
+                        cell.find('.assembly-hidden').val('false');
+                        cell.removeClass('assembly-cell');
+                    } else {
+                        cell.find('.break-checkbox').prop('checked', false);
+                        cell.find('.break-hidden').val('false');
+                        cell.removeClass('break-cell');
+                    }
+                }
+            });
+
+            // Form validation before submission
+            $('#timetableForm').submit(function(e) {
+                let isValid = true;
+                let errorMessage = '';
+
+                $('td.cell').each(function() {
+                    const cell = $(this);
+                    const isBreak = cell.find('.break-checkbox').is(':checked');
+                    const isAssembly = cell.find('.assembly-checkbox').is(':checked');
+                    const subject = cell.find('.subject-select').val();
+                    const teacher = cell.find('.teacher-select').val();
+                    const day = cell.data('day');
+                    const period = cell.data('period');
+
+                    if (!isBreak && !isAssembly) {
+                        if (!subject) {
+                            isValid = false;
+                            errorMessage += `${day} - ${period}: Subject is required<br>`;
+                        }
+                        if (!teacher) {
+                            isValid = false;
+                            errorMessage += `${day} - ${period}: Teacher is required<br>`;
+                        }
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        html: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+
+            // Load teachers based on selected subject
+            $(document).on('change', '.subject-select', function() {
+                const subjectId = $(this).val();
+                const teacherSelect = $(this).closest('.cell').find('.teacher-select');
+
+                if (subjectId) {
+                    teacherSelect.prop('disabled', false);
+                } else {
+                    teacherSelect.val('').prop('disabled', true);
+                }
+            });
+        });
+    </script>
+}

@@ -974,26 +974,28 @@ namespace MadrasahManagement.Models
     {
         public int Id { get; set; }
 
-        [ForeignKey(nameof(Department))]
+        public string AcademicYear { get; set; } = string.Empty;
         public int DepartmentId { get; set; }
-
-        public Department Department { get; set; } = default;
-
         public int ClassId { get; set; }
-        public Class Class { get; set; } = default!;
-
         public int SectionId { get; set; }
+
+        public string DayName { get; set; } = string.Empty; 
+        public string PeriodName { get; set; } = string.Empty;
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; } 
+        public bool IsBreak { get; set; } = false;
+        public bool IsAssembly { get; set; } = false;
+
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public int? SubjectId { get; set; }
+        public int? TeacherId { get; set; }
+
+
+        public Department Department { get; set; } = default!;
+        public Class Class { get; set; } = default!;
         public Section Section { get; set; } = default!;
-
-        public int SubjectId { get; set; }
-        public Subject Subject { get; set; } = default!;
-
-        public int TeacherId { get; set; }
-        public Teacher Teacher { get; set; } = default!;
-
-        public string Day { get; set; } = string.Empty;
-        public string Period { get; set; } = string.Empty;
-        public string? Room { get; set; }
+        public Subject? Subject { get; set; } = default!;
+        public Teacher? Teacher { get; set; } = default!;
     }
 
 

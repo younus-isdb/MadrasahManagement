@@ -1,0 +1,191 @@
+﻿@using MadrasahManagement.ViewModels
+@model TimetableViewVM
+
+@{
+    ViewData["Title"] = "Timetable Details";
+}
+
+<style>
+    .timetable-view {
+        font-size: 0.9rem;
+    }
+
+    .view-period-header {
+        background-color: #0d6efd;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+    }
+
+    .view-day-header {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+    }
+
+    .view-cell {
+        padding: 15px;
+        min-height: 100px;
+        border: 1px solid #dee2e6;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .view-break-cell {
+        background-color: #fff3cd !important;
+        font-weight: bold;
+        color: #856404;
+    }
+
+    .view-assembly-cell {
+        background-color: #d1e7dd !important;
+        font-weight: bold;
+        color: #0f5132;
+    }
+
+    .cell-content {
+        white-space: pre-line;
+        font-size: 0.85rem;
+    }
+
+    .subject-name {
+        font-weight: bold;
+        color: #0d6efd;
+    }
+
+    .teacher-name {
+        color: #6c757d;
+        font-size: 0.8rem;
+    }
+
+    .time-header {
+        background-color: #6c757d;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+        padding: 8px;
+        border: 1px solid #dee2e6;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="fas fa-calendar-check"></i> Timetable:
+                @Model.AcademicYear - @Model.DepartmentName - @Model.ClassName - @Model.SectionName
+            </h4>
+            <div>
+                <a asp-action="Index" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+                <a href="javascript:window.print()" class="btn btn-light btn-sm">
+                    <i class="fas fa-print"></i> Print
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive timetable-view">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="view-day-header">Day / Period</th>
+                            @foreach (var period in Model.Periods)
+                            {
+                                <th class="view-period-header" colspan="2">
+                                    @period.PeriodName
+                                </th>
+                            }
+                        </tr>
+                        <tr>
+                            <th class="time-header">Time</th>
+                            @foreach (var period in Model.Periods)
+                            {
+                                <td class="time-header" colspan="2">
+                                    @period.StartTime - @period.EndTime
+                                </td>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var day in Model.Days)
+                        {
+                            <tr>
+                                <th class="view-day-header">@day</th>
+
+                                @foreach (var period in Model.Periods)
+                                {
+                                    var cell = Model.Grid.ContainsKey(day) && Model.Grid[day].ContainsKey(period.PeriodName)
+                                    ? Model.Grid[day][period.PeriodName]
+                                    : new TimetableCellVM();
+
+                                    var cellClass = "";
+                                    if (cell.IsBreak) cellClass = "view-break-cell";
+                                    if (cell.IsAssembly) cellClass = "view-assembly-cell";
+
+                                    <td class="view-cell @cellClass" colspan="2">
+                                        <div class="cell-content">
+                                            @if (cell.IsBreak)
+                                            {
+                                                <strong>BREAK</strong>
+                                            }
+                                            else if (cell.IsAssembly)
+                                            {
+                                                <strong>ASSEMBLY</strong>
+                                            }
+                                            else if (!string.IsNullOrEmpty(cell.SubjectName))
+                                            {
+                                                <div class="subject-name">@cell.SubjectName</div>
+                                                <div class="teacher-name">@cell.TeacherName</div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Free Period</span>
+                                            }
+                                        </div>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4">
+                <div class="alert alert-light">
+                    <i class="fas fa-calendar-alt"></i>
+                    <strong>Summary:</strong>
+                    <ul class="mb-0">
+                        <li>Total Periods: @Model.Periods.Count</li>
+                        <li>Working Days: @Model.Days.Count</li>
+                        <li>Total Periods per Week: @(Model.Periods.Count* Model.Days.Count)</li>
+                    </ul>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                @*     <a asp-action="Edit"
+                       asp-route-academicYear="@Model.AcademicYear"
+                       asp-route-departmentId="@Model.DepartmentId"
+                       asp-route-classId="@Model.ClassId"
+                       asp-route-sectionId="@Model.SectionId"
+                       class="btn btn-warning me-2">
+                        <i class="fas fa-edit"></i> Edit Timetable
+                    </a>
+                    <a asp-action="Delete"
+                       asp-route-academicYear="@Model.AcademicYear"
+                       asp-route-departmentId="@Model.DepartmentId"
+                       asp-route-classId="@Model.ClassId"
+                       asp-route-sectionId="@Model.SectionId"
+                       class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Timetable
+                    </a> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

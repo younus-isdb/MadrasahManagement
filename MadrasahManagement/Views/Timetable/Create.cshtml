@@ -1,0 +1,127 @@
+﻿@using MadrasahManagement.ViewModels
+@model TimetableSelectionVM
+
+@{
+    ViewData["Title"] = "Create Timetable - Step 1";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-calendar-plus"></i> Create New Timetable</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateGrid" method="get" id="selectionForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="AcademicYear" class="form-label"></label>
+                                <select asp-for="AcademicYear" asp-items="Model.AcademicYears"
+                                        class="form-select" required>
+                                    <option value="">-- Select Academic Year --</option>
+                                </select>
+                                <span asp-validation-for="AcademicYear" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="DepartmentId" class="form-label"></label>
+                                <select asp-for="DepartmentId" asp-items="Model.Departments"
+                                        class="form-select" required>
+                                    <option value="">-- Select Department --</option>
+                                </select>
+                                <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ClassId" class="form-label"></label>
+                                <select asp-for="ClassId" class="form-select" required disabled>
+                                    <option value="">-- Select Department First --</option>
+                                </select>
+                                <span asp-validation-for="ClassId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="SectionId" class="form-label"></label>
+                                <select asp-for="SectionId" class="form-select" required disabled>
+                                    <option value="">-- Select Class First --</option>
+                                </select>
+                                <span asp-validation-for="SectionId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                                <i class="fas fa-arrow-right"></i> Next: Create Timetable Grid
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const $deptSelect = $('#DepartmentId');
+            const $classSelect = $('#ClassId');
+            const $sectionSelect = $('#SectionId');
+            const $submitBtn = $('#submitBtn');
+
+            // Load classes when department changes
+            $deptSelect.change(function() {
+                const deptId = $(this).val();
+                $classSelect.empty().prop('disabled', true);
+                $sectionSelect.empty().prop('disabled', true);
+                $submitBtn.prop('disabled', true);
+
+                if (deptId) {
+                    $.getJSON('/Timetable/GetClassesByDepartment', { departmentId: deptId }, function(data) {
+                        $classSelect.append('<option value="">-- Select Class --</option>');
+                        $.each(data, function(index, item) {
+                            $classSelect.append($('<option>', {
+                                value: item.value,
+                                text: item.text
+                            }));
+                        });
+                        $classSelect.prop('disabled', false);
+                    });
+                }
+            });
+
+            // Load sections when class changes
+            $classSelect.change(function() {
+                const classId = $(this).val();
+                $sectionSelect.empty().prop('disabled', true);
+                $submitBtn.prop('disabled', true);
+
+                if (classId) {
+                    $.getJSON('/Timetable/GetSectionsByClass', { classId: classId }, function(data) {
+                        $sectionSelect.append('<option value="">-- Select Section --</option>');
+                        $.each(data, function(index, item) {
+                            $sectionSelect.append($('<option>', {
+                                value: item.value,
+                                text: item.text
+                            }));
+                        });
+                        $sectionSelect.prop('disabled', false);
+                    });
+                }
+            });
+
+            // Enable submit button when all fields are filled
+            $sectionSelect.change(function() {
+                const isValid = $('#AcademicYear').val() &&
+                               $('#DepartmentId').val() &&
+                               $('#ClassId').val() &&
+                               $('#SectionId').val();
+                $submitBtn.prop('disabled', !isValid);
+            });
+        });
+    </script>
+}

@@ -69,46 +69,46 @@ namespace MadrasahManagement.Controllers
 			return View(model);
 		}
 
-		// =======================
-		// Teacher Register
-		// =======================
-		//[HttpGet]
-		//public IActionResult RegisterTeacher()
-		//{
-		//	return View();
-		//}
+        // =======================
+        // Teacher Register
+        // =======================
+        //[HttpGet]
+        //public IActionResult RegisterTeacher()
+        //{
+        //    return View();
+        //}
 
-		//[HttpPost]
-		//public async Task<IActionResult> RegisterTeacher(RegisterTeacherViewModel model)
-		//{
-		//	if (!ModelState.IsValid) return View(model);
+        //[HttpPost]
+        //public async Task<IActionResult> RegisterTeacher(RegisterTeacherViewModel model)
+        //{
+        //    if (!ModelState.IsValid) return View(model);
 
-		//	var user = new AppUser
-		//	{
-		//		UserName = model.Email,
-		//		Email = model.Email,
-		//		FullName = model.FullName
-		//	};
+        //    var user = new AppUser
+        //    {
+        //        UserName = model.Email,
+        //        Email = model.Email,
+        //        FullName = model.FullName
+        //    };
 
-		//	var result = await _userManager.CreateAsync(user, model.Password);
+        //    var result = await _userManager.CreateAsync(user, model.Password);
 
-		//	if (result.Succeeded)
-		//	{
-		//		await _userManager.AddToRoleAsync(user, "Teacher");
-		//		await _signInManager.SignInAsync(user, false);
+        //    if (result.Succeeded)
+        //    {
+        //        await _userManager.AddToRoleAsync(user, "Teacher");
+        //        await _signInManager.SignInAsync(user, false);
 
-		//		return RedirectToAction("Index", "TeacherDashboard");
-		//	}
+        //        return RedirectToAction("Index", "TeacherDashboard");
+        //    }
 
-		//	return View(model);
-		//}
+        //    return View(model);
+        //}
 
 
-		// =======================
-		// Admin Register
-		// =======================
+        // =======================
+        // Admin Register
+        // =======================
 
-		[HttpGet]
+        [HttpGet]
 		[Authorize(Roles = "SuperAdmin")]
 		public IActionResult RegisterAdmin()
 		{

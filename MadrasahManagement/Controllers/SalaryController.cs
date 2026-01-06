@@ -33,46 +33,98 @@ public class SalaryController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken] // Add this for security
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PaySalary(Salary model)
     {
-        // Check if either TeacherId or StaffId is selected
-        if (model.TeacherId == null && model.StaffId == null)
+        try
         {
-            ModelState.AddModelError("", "Please select either a teacher or staff member.");
-        }
+            // Check if either TeacherId or StaffId is selected
+            if (model.TeacherId == null && model.StaffId == null)
+            {
+                ModelState.AddModelError("", "Please select either a teacher or staff member.");
+                return ViewWithData(model);
+            }
 
-        // Check for duplicate payment
-        if (ModelState.IsValid)
-        {
-            bool alreadyPaid = await _context.Salaries.AnyAsync(s =>
-                (s.TeacherId == model.TeacherId || s.StaffId == model.StaffId) &&
-                s.MonthName == model.MonthName &&
-                s.PaymentDate.Year == DateTime.Now.Year);
+            // Validate ModelState
+            if (!ModelState.IsValid)
+            {
+                return ViewWithData(model);
+            }
+
+           
+            int yearToCheck = model.Year > 0 ? model.Year : DateTime.Now.Year;
+
+            
+            bool alreadyPaid = false;
+
+            if (model.TeacherId.HasValue)
+            {
+                alreadyPaid = await _context.Salaries.AnyAsync(s =>
+                    s.TeacherId == model.TeacherId &&
+                    s.MonthName == model.MonthName &&
+                    s.PaymentDate.Year == yearToCheck);
+            }
+            else if (model.StaffId.HasValue)
+            {
+                alreadyPaid = await _context.Salaries.AnyAsync(s =>
+                    s.StaffId == model.StaffId &&
+                    s.MonthName == model.MonthName &&
+                    s.PaymentDate.Year == yearToCheck);
+            }
 
             if (alreadyPaid)
             {
-                ModelState.AddModelError("", "Salary has already been paid for this employee this month.");
+                ModelState.AddModelError("", $"Salary has already been paid for this employee for {model.MonthName} {yearToCheck}.");
+                return ViewWithData(model);
             }
-            else
+
+            // Process the payment
+            model.NetAmount = model.BasicSalary + model.Allowances - model.Deductions;
+            model.PaymentDate = DateTime.Now;
+            model.PaymentStatus = PaymentStatus.Paid;
+
+            // Set Year if not already set
+            if (model.Year <= 0)
             {
-                model.NetAmount = model.BasicSalary + model.Allowances - model.Deductions;
-                model.PaymentDate = DateTime.Now;
-                model.PaymentStatus = PaymentStatus.Paid;
-
-                _context.Salaries.Add(model);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Index");
+                model.Year = DateTime.Now.Year;
             }
-        }
 
-        // If we get here, something went wrong - repopulate ViewBag
+            _context.Salaries.Add(model);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Salary payment recorded successfully!";
+            return RedirectToAction("Index");
+        }
+        catch (DbUpdateException dbEx)
+        {
+          
+            if (dbEx.InnerException != null &&
+                (dbEx.InnerException.Message.Contains("IX_SalaryRecord_Teacher_Month_Year_Unique") ||
+                 dbEx.InnerException.Message.Contains("IX_SalaryRecord_Staff_Month_Year_Unique")))
+            {
+                ModelState.AddModelError("", "Salary has already been paid for this employee for the selected month and year.");
+                return ViewWithData(model);
+            }
+
+           
+            ModelState.AddModelError("", "A database error occurred while saving the salary. Please try again.");
+            return ViewWithData(model);
+        }
+        catch (Exception ex)
+        {
+         
+            ModelState.AddModelError("", $"An unexpected error occurred: {ex.Message}");
+            return ViewWithData(model);
+        }
+    }
+
+    // Helper method to repopulate ViewBag
+    private IActionResult ViewWithData(Salary model)
+    {
         ViewBag.Teachers = _context.Teachers.ToList();
         ViewBag.Staff = _context.Staffs.ToList();
         ViewBag.Months = Enum.GetValues(typeof(Month)).Cast<Month>();
         ViewBag.PaymentMethod = Enum.GetValues(typeof(PaymentMethodType)).Cast<PaymentMethodType>();
-
         return View(model);
     }
 

@@ -133,6 +133,7 @@
                    
                     <li class="nav-item"><a class="nav-link" asp-controller="IssuedBook" asp-action="Index">Issued Book</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Section" asp-action="Index">Section</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="TimeTable" asp-action="Index">Routine</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Salary" asp-action="Index">Salary</a></li>
                     <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle fw-bold"
@@ -189,7 +190,8 @@
 
                 @if (User.IsInRole("Teacher"))
                 {
-                    <li class="nav-item"><a class="nav-link" asp-controller="Teacher" asp-action="Dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="TeacherDashboard" asp-action="Index">Dashboard</a></li>
+                   
                     <li class="nav-item"><a class="nav-link" asp-controller="Assignments" asp-action="MyAssignments">My Assignments</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Attendance" asp-action="Mark">Mark Attendance</a></li>
                 }

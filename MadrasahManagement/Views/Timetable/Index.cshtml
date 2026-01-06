@@ -1,0 +1,103 @@
+﻿@using MadrasahManagement.ViewModels
+@model List<TimetableSummaryVM>
+
+@{
+    ViewData["Title"] = "Timetables";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Timetables</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Timetable
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Timetable</th>
+                                <th>Periods</th>
+                                <th>Breaks</th>
+                                <th>Assembly</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var timetable in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@timetable.DisplayName</strong>
+                                    </td>
+                                    <td>@timetable.TotalPeriods</td>
+                                    <td>@timetable.BreakPeriods</td>
+                                    <td>@timetable.AssemblyPeriods</td>
+                                    <td>@timetable.CreatedDate.ToString("dd MMM yyyy")</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Details"
+                                               asp-route-academicYear="@timetable.AcademicYear"
+                                               asp-route-departmentId="@timetable.DepartmentId"
+                                               asp-route-classId="@timetable.ClassId"
+                                               asp-route-sectionId="@timetable.SectionId"
+                                               class="btn btn-info">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            <a asp-action="Edit"
+                                               asp-route-academicYear="@timetable.AcademicYear"
+                                               asp-route-departmentId="@timetable.DepartmentId"
+                                               asp-route-classId="@timetable.ClassId"
+                                               asp-route-sectionId="@timetable.SectionId"
+                                               class="btn btn-warning">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <a asp-action="Delete"
+                                               asp-route-academicYear="@timetable.AcademicYear"
+                                               asp-route-departmentId="@timetable.DepartmentId"
+                                               asp-route-classId="@timetable.ClassId"
+                                               asp-route-sectionId="@timetable.SectionId"
+                                               class="btn btn-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h4>No timetables found</h4>
+                    <p class="text-muted">Create your first timetable by clicking the button above.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

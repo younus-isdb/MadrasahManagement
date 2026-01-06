@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MadrasahManagement.Migrations
 {
     [DbContext(typeof(MadrasahDbContext))]
-    [Migration("20260104061948_Adding")]
-    partial class Adding
+    [Migration("20260106153936_Better")]
+    partial class Better
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1628,6 +1628,11 @@ namespace MadrasahManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AcademicYear")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
@@ -1637,30 +1642,41 @@ namespace MadrasahManagement.Migrations
                     b.Property<int?>("ClassSubjectSubjectId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Day")
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DayName")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Period")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
 
-                    b.Property<string>("Room")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<bool>("IsAssembly")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsBreak")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PeriodName")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("SectionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SubjectId")
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int?>("SubjectId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TeacherId")
+                    b.Property<int?>("TeacherId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1677,7 +1693,10 @@ namespace MadrasahManagement.Migrations
 
                     b.HasIndex("ClassSubjectClassId", "ClassSubjectSubjectId");
 
-                    b.ToTable("Timetables");
+                    b.HasIndex("AcademicYear", "DepartmentId", "ClassId", "SectionId", "DayName", "PeriodName")
+                        .IsUnique();
+
+                    b.ToTable("Timetables", (string)null);
                 });
 
             modelBuilder.Entity("MadrasahManagement.Models.TransportAssignment", b =>
@@ -2427,7 +2446,7 @@ namespace MadrasahManagement.Migrations
                     b.HasOne("MadrasahManagement.Models.Department", "Department")
                         .WithMany()
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MadrasahManagement.Models.Section", "Section")
@@ -2439,14 +2458,12 @@ namespace MadrasahManagement.Migrations
                     b.HasOne("MadrasahManagement.Models.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("MadrasahManagement.Models.Teacher", "Teacher")
                         .WithMany("Timetables")
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("MadrasahManagement.Models.ClassSubject", null)
                         .WithMany("Timetables")
