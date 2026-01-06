@@ -16,23 +16,31 @@ namespace MadrasahManagement.Controllers
         }
 
         // ================= INDEX =================
-        public IActionResult Index()
+        public async Task<IActionResult> Index(int departmentId = 0, int classId = 0)
         {
-            // Get all exam results
-            var results = _context.ExamResults
-                .Include(r => r.Student)
-                .Include(r => r.Class)
-                .Include(r => r.Examination)
-                .Include(r => r.ResultDetails)
-                    .ThenInclude(d => d.Subject)
-                .ToList();
+            ViewBag.Departments = await _context.Departments.ToListAsync();
+            ViewBag.Classes = await _context.Classes.ToListAsync();
+            ViewBag.SelectedDepartmentId = departmentId;
+            ViewBag.SelectedClassId = classId;
 
-            // Pass departments & classes for filters
-            ViewBag.Departments = _context.Departments.ToList();
-            ViewBag.Classes = _context.Classes.ToList();
+            List<ExamResult> results = new List<ExamResult>();
+
+            // Only fetch results if both department & class are selected
+            if (departmentId > 0 && classId > 0)
+            {
+                results = await _context.ExamResults
+                    .Include(r => r.Student)
+                    .Include(r => r.Class)
+                    .Include(r => r.Examination)
+                    .Include(r => r.ResultDetails)
+                        .ThenInclude(d => d.Subject)
+                    .Where(r => r.Student.DepartmentId == departmentId && r.ClassId == classId)
+                    .ToListAsync();
+            }
 
             return View(results);
         }
+
 
 
         // ================= CREATE =================
@@ -257,6 +265,24 @@ namespace MadrasahManagement.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+        // GET: ResultProcess/StudentResult/5
+        public async Task<IActionResult> StudentResult(int studentId, int examId)
+        {
+            var student = await _context.Students.FindAsync(studentId);
+            if (student == null) return NotFound();
+
+            var result = await _context.ExamResults
+                .Include(r => r.ResultDetails)
+                    .ThenInclude(d => d.Subject)
+                .Include(r => r.Class)
+                .Include(r => r.Department)
+                .Include(r => r.Examination)
+                .FirstOrDefaultAsync(r => r.StudentId == studentId && r.ExamId == examId);
+
+            if (result == null) return NotFound();
+
+            return View(result); // Pass the whole result to the view
         }
 
     }

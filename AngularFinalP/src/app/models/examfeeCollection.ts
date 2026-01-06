@@ -1,21 +1,21 @@
-// =================== ExamFeeCollection DTOs ===================
+// =================== Fee Collection DTOs ===================
 
-// For creating a student fee entry
+// Create student fee
 export interface ExamFeeCollectionCreateDto {
   studentId: number;
   examFeeAmount: number;
   totalSubject: number;
 }
 
-// For updating a student fee entry
+// Update student fee
 export interface ExamFeeCollectionUpdateDto {
-  feeCollectionId?: number;   // undefined or null = new
+  feeCollectionId?: number; // undefined = new
   studentId: number;
   examFeeAmount: number;
   totalSubject: number;
 }
 
-// For reading a student fee entry
+// Read student fee
 export interface ExamFeeCollectionReadDto {
   feeCollectionId: number;
   studentId: number;
@@ -23,9 +23,10 @@ export interface ExamFeeCollectionReadDto {
   examFeeAmount: number;
   totalSubject: number;
 }
-// =================== ExamFee DTOs ===================
 
-// For creating a new exam fee with students
+// =================== Exam Fee DTOs ===================
+
+// Create exam fee
 export interface ExamFeesCreateDto {
   educationYear: string;
   departmentId: number;
@@ -35,7 +36,7 @@ export interface ExamFeesCreateDto {
   feeCollections: ExamFeeCollectionCreateDto[];
 }
 
-// For updating an existing exam fee with students
+// Update exam fee
 export interface ExamFeesUpdateDto {
   educationYear: string;
   departmentId: number;
@@ -45,7 +46,7 @@ export interface ExamFeesUpdateDto {
   feeCollections: ExamFeeCollectionUpdateDto[];
 }
 
-// For reading an exam fee from backend
+// Read exam fee
 export interface ExamFeesReadDto {
   examFeeId: number;
   educationYear: string;
@@ -57,20 +58,4 @@ export interface ExamFeesReadDto {
   examName: string;
   examAmount: number;
   feeCollections: ExamFeeCollectionReadDto[];
-}
-// =================== ExamFeeCollection Update DTO ===================
-export interface ExamFeeCollectionUpdateDto {
-  feeCollectionId?: number;   // undefined or null = new collection
-  studentId: number;
-  examFeeAmount: number;
-  totalSubject: number;
-}
-
-// =================== ExamFee Update DTO ===================
-export interface ExamFeesUpdateDto {
-  educationYear: string;
-  classId: number;
-  examId: number;
-  examAmount: number;
-  feeCollections: ExamFeeCollectionUpdateDto[];
 }

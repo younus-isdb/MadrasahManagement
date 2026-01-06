@@ -1,0 +1,34 @@
+﻿@* @{
+    var departments = ViewBag.Departments as List<Department>;
+    var classes = ViewBag.Classes as List<Class>;
+}
+
+<h3>Exam Results Report</h3>
+
+<form method="get" asp-action="ExamResults" class="row g-3">
+    <div class="col-md-4">
+        <label>Department</label>
+        <select name="departmentId" class="form-select">
+            <option value="0">-- All Departments --</option>
+            @foreach (var dept in departments)
+            {
+                <option value="@dept.DepartmentId" @(Request.Query["departmentId"] == dept.DepartmentId.ToString() ? "selected" : "")>@dept.DepartmentName</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label>Class</label>
+        <select name="classId" class="form-select">
+            <option value="0">-- All Classes --</option>
+            @foreach (var cls in classes)
+            {
+                <option value="@cls.ClassId" @(Request.Query["classId"] == cls.ClassId.ToString() ? "selected" : "")>@cls.ClassName</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4 align-self-end">
+        <button type="submit" class="btn btn-info">Download PDF</button>
+        <button type="submit" name="inline" value="true" class="btn btn-secondary">View in Browser</button>
+    </div>
+</form>
+ *@

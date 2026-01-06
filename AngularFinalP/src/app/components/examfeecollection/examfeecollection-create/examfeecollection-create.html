@@ -4,68 +4,124 @@
 
     <form [formGroup]="examFeeForm" (ngSubmit)="onSubmit()">
 
+      <!-- Education Year -->
       <div class="mb-3">
         <label class="form-label">Education Year</label>
-        <input type="text" class="form-control" formControlName="educationYear" placeholder="e.g. 2025-2026" />
+        <input type="text"
+               class="form-control"
+               formControlName="educationYear"
+               placeholder="e.g. 2025-2026" />
       </div>
 
-      <div class="mb-3">
-        <label class="form-label">Class</label>
-        <select class="form-select" formControlName="classId">
-          <option [ngValue]="null">-- Select Class --</option>
-          <option *ngFor="let c of classes()" [ngValue]="c.classId">{{ c.className }}</option>
-        </select>
-      </div>
+      <select class="form-select" formControlName="departmentId">
+        <option value="">-- Select Department --</option>
+        <option *ngFor="let d of departments()" [value]="d.departmentId">
+          {{ d.departmentName }}
+        </option>
+      </select>
 
-      <div class="mb-3">
-        <label class="form-label">Exam</label>
-        <select class="form-select" formControlName="examId">
-          <option [ngValue]="null">-- Select Exam --</option>
-          <option *ngFor="let e of exams()" [ngValue]="e.examId">{{ e.examName }}</option>
-        </select>
-      </div>
+      <select class="form-select" formControlName="classId">
+        <option value="">-- Select Class --</option>
+        <option *ngFor="let c of classes()" [value]="c.classId">
+          {{ c.className }}
+        </option>
+      </select>
 
+      <select class="form-select" formControlName="examId">
+        <option value="">-- Select Exam --</option>
+        <option *ngFor="let e of exams()" [value]="e.examId">
+          {{ e.examName }}
+        </option>
+      </select>
+
+      <select class="form-select" formControlName="studentId">
+        <option value="">-- Select Student --</option>
+        <option *ngFor="let s of filteredStudents()" [value]="s.studentId">
+          {{ s.studentName }}
+        </option>
+      </select>
+
+
+      <!-- Default Exam Amount -->
       <div class="mb-3">
         <label class="form-label">Default Exam Amount</label>
-        <input type="number" class="form-control" formControlName="examAmount" />
+        <input type="number"
+               class="form-control"
+               formControlName="examAmount"
+               min="0" />
       </div>
 
       <hr />
 
+      <!-- Fee Collections -->
       <div formArrayName="feeCollections">
-        <div *ngFor="let fee of feeCollections.controls; let i = index" [formGroupName]="i" class="card mb-3 p-3">
-          <div class="row g-3 align-items-center">
+        <h5>Student Fee Collections</h5>
+
+        <div *ngFor="let fee of feeCollections.controls; let i = index"
+             [formGroupName]="i"
+             class="card mb-3 p-3">
+
+          <div class="row g-3 align-items-end">
+
+            <!-- Student -->
             <div class="col-md-4">
               <label class="form-label">Student</label>
               <select class="form-select" formControlName="studentId">
-                <option [ngValue]="null">-- Select Student --</option>
-                <option *ngFor="let s of students()" [ngValue]="s.studentId">{{ s.studentName }}</option>
+                <option value="">-- Select Student --</option>
+                <option *ngFor="let s of filteredStudents()" [value]="s.studentId">
+                  {{ s.studentName }}
+                </option>
               </select>
             </div>
 
+            <!-- Fee Amount -->
             <div class="col-md-3">
               <label class="form-label">Fee Amount</label>
-              <input type="number" class="form-control" formControlName="examFeeAmount" />
+              <input type="number"
+                     class="form-control"
+                     formControlName="examFeeAmount"
+                     min="0" />
             </div>
 
+            <!-- Total Subjects -->
             <div class="col-md-3">
               <label class="form-label">Total Subjects</label>
-              <input type="number" class="form-control" formControlName="totalSubject" />
+              <input type="number"
+                     class="form-control"
+                     formControlName="totalSubject"
+                     min="1" />
             </div>
 
-            <div class="col-md-2 d-flex align-items-end">
-              <button type="button" class="btn btn-danger w-100" (click)="removeStudentFee(i)">Remove</button>
+            <!-- Remove -->
+            <div class="col-md-2">
+              <button type="button"
+                      class="btn btn-danger w-100"
+                      (click)="removeStudentFee(i)"
+                      [disabled]="feeCollections.length === 1">
+                Remove
+              </button>
             </div>
+
           </div>
         </div>
       </div>
 
-      <button type="button" class="btn btn-primary mb-3" (click)="addStudentFee()">Add Student Fee</button>
+      <!-- Add Student -->
+      <button type="button"
+              class="btn btn-primary mb-3"
+              (click)="addStudentFee()">
+        + Add Student Fee
+      </button>
+
       <hr />
 
-      <button type="submit" class="btn btn-success" [disabled]="loading() || examFeeForm.invalid">
+      <!-- Submit -->
+      <button type="submit"
+              class="btn btn-success"
+              [disabled]="loading() || examFeeForm.invalid">
         {{ loading() ? 'Submitting...' : 'Submit' }}
       </button>
+
     </form>
   </div>
-  </div>
+</div>

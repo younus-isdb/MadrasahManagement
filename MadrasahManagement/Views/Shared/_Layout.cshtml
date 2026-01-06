@@ -130,7 +130,8 @@
                     <li class="nav-item"><a class="nav-link" asp-controller="Subject" asp-action="Index">Subjects</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Examination" asp-action="Index">Exams</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Department" asp-action="Index">Department</a></li>
-                   
+                    <li><a class="dropdown-item" asp-controller="SeatPlan" asp-action="Index">Seat Plan</a></li>
+
                     <li class="nav-item"><a class="nav-link" asp-controller="IssuedBook" asp-action="Index">Issued Book</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Section" asp-action="Index">Section</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Salary" asp-action="Index">Salary</a></li>
@@ -173,7 +174,7 @@
                 <ul class="dropdown-menu shadow" aria-labelledby="examDropdown">
 
                     <li><a class="dropdown-item" asp-controller="ResultProcess" asp-action="Index">Result</a></li>
-                    <li><a class="dropdown-item" asp-controller="Examination" asp-action="SubClassGroup">Point Based MarkSheet </a></li>
+                    <li><a class="dropdown-item" asp-controller="Reports" asp-action="Index">Result Report </a></li>
                     <li><a class="dropdown-item" asp-controller="Examination" asp-action="PointCondition">Point Based Report</a></li>
                     <li><a class="dropdown-item" asp-controller="Examination" asp-action="MeritCondition">Online Result Published</a></li>
                 

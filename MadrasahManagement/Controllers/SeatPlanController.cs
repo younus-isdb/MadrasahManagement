@@ -13,7 +13,36 @@ namespace MadrasahManagement.Controllers
         {
             _context = context;
         }
+        public IActionResult Index()
+        {
+            var seatPlans = _context.SeatPlans
+                .Include(s => s.Student)
+                .Include(s => s.Class)
+                .Include(s => s.Department)
+                .Include(s => s.Subject)
+                .AsNoTracking()
+                .ToList(); // Age data niye ashte hobe grouping er jonno
 
+            // DTO mapping and ordering
+            var result = seatPlans.Select(s => new SeatPlanReadDto
+            {
+                SeatPlanId = s.SeatPlanId,
+                ExamDate = s.ExamDate,
+                RoomNumber = s.RoomNumber,
+                NumberOfRows = s.NumberOfRows,
+                StudentsPerBench = s.StudentsPerBench,
+                StudentName = s.Student.StudentName,
+                RegNo = s.Student.RegNo,
+                ClassName = s.Class.ClassName,
+                DepartmentName = s.Department.DepartmentName,
+                SubjectName = s.Subject?.SubjectName ?? "N/A"
+            })
+            .OrderBy(s => s.ExamDate)
+            .ThenBy(s => s.RoomNumber)
+            .ToList();
+
+            return View(result);
+        }
         // ================= CREATE (GET) =================
         public IActionResult Create()
         {
@@ -77,42 +106,45 @@ namespace MadrasahManagement.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
-        // ================= INDEX =================
-        // ================= INDEX =================
-        public IActionResult Index()
+        // ================= DELETE =================
+        [HttpPost]
+        public IActionResult Delete(int id)
         {
-            var list = _context.SeatPlans
-                .Include(s => s.Student)
-                .Include(s => s.Class)
-                .Include(s => s.Department)
-                .Include(s => s.Subject)
-                .OrderBy(s => s.RoomNumber)
-                .ThenBy(s => s.SeatPlanId)
-                .Select(s => new SeatPlanReadDto
-                {
-                    SeatPlanId = s.SeatPlanId,
-                    ExamDate = s.ExamDate,
-                    RoomNumber = s.RoomNumber,
-                    NumberOfRows = s.NumberOfRows,
-                    StudentsPerBench = s.StudentsPerBench,
-
-                    StudentId = s.StudentId,
-                    RegNo = s.Student != null ? s.Student.RegNo : "",
-                    StudentName = s.Student != null ? s.Student.StudentName : "",
-
-                    ClassId = s.ClassId,
-                    ClassName = s.Class != null ? s.Class.ClassName : "",
-
-                    DepartmentId = s.DepartmentId,
-                    DepartmentName = s.Department != null ? s.Department.DepartmentName : "",
-
-                    SubjectId = s.SubjectId ?? 0,
-                    SubjectName = s.Subject != null ? s.Subject.SubjectName : ""
-                })
-                .ToList();
-
-            return View(list);
+            var seat = _context.SeatPlans.Find(id);
+            if (seat != null)
+            {
+                _context.SeatPlans.Remove(seat);
+                _context.SaveChanges();
+            }
+            return RedirectToAction(nameof(Index));
         }
 
+        // ================= EDIT (GET) =================
+        public IActionResult Edit(int id)
+        {
+            var seat = _context.SeatPlans.Find(id);
+            if (seat == null) return NotFound();
+
+            // Dropdown গুলোর জন্য ডাটা পাঠানো
+            ViewBag.Students = _context.Students.Select(s => new { studentId = s.StudentId, studentName = s.StudentName }).ToList();
+            ViewBag.Classes = _context.Classes.Select(c => new { classId = c.ClassId, className = c.ClassName }).ToList();
+            ViewBag.Departments = _context.Departments.Select(d => new { departmentId = d.DepartmentId, departmentName = d.DepartmentName }).ToList();
+            ViewBag.Subjects = _context.Subjects.Select(s => new { subjectId = s.SubjectId, subjectName = s.SubjectName }).ToList();
+
+            return View(seat);
+        }
+
+        // ================= EDIT (POST) =================
+        [HttpPost]
+        public IActionResult Edit(SeatPlan seat)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.SeatPlans.Update(seat);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(seat);
+        }
     }
 }
