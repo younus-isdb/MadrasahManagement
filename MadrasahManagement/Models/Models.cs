@@ -317,7 +317,7 @@ namespace MadrasahManagement.Models
         // Navigation Collections
         // -------------------------
         public ICollection<Attendance> Attendances { get; set; } = new HashSet<Attendance>();
-        public ICollection<ExamResult> ExamResults { get; set; } = new HashSet<ExamResult>();
+        //public ICollection<ExamResult> ExamResults { get; set; } = new HashSet<ExamResult>();
         public ICollection<FeeCollection> FeeCollections { get; set; } = new HashSet<FeeCollection>();
         public ICollection<HostelResident> HostelResidents { get; set; } = new HashSet<HostelResident>();
         public ICollection<TransportAssignment> TransportAssignments { get; set; } = new HashSet<TransportAssignment>();
@@ -553,7 +553,7 @@ namespace MadrasahManagement.Models
         public string? Type { get; set; }
 
         public Class Class { get; set; } = default!;
-        public ICollection<ExamResult> ExamResults { get; set; } = new HashSet<ExamResult>();
+        //public ICollection<ExamResult> ExamResults { get; set; } = new HashSet<ExamResult>();
     }
 
     // -------------------------
@@ -564,26 +564,69 @@ namespace MadrasahManagement.Models
         [Key]
         public int ResultId { get; set; }
 
-        [ForeignKey(nameof(Exam))]
+        // Academic Info
+        [Required, MaxLength(10)]
+        public string EducationYear { get; set; } = string.Empty;
+
+        [Required]
+        public int DepartmentId { get; set; }
+        public Department? Department { get; set; }
+
+        [Required]
+        public int ClassId { get; set; }
+        public Class? Class { get; set; }
+
+        [Required]
         public int ExamId { get; set; }
+        [ForeignKey(nameof(ExamId))]
+        public Examination? Examination { get; set; }
 
-        [ForeignKey(nameof(Student))]
+        // Student
+        [Required]
         public int StudentId { get; set; }
+        public Student? Student { get; set; }
 
-        [ForeignKey(nameof(Subject))]
+        // Calculated Fields
+        [Column(TypeName = "decimal(5,2)")]
+        public decimal TotalMarks { get; set; }
+
+        [Column(TypeName = "decimal(4,2)")]
+        public decimal TotalCGPA { get; set; }
+
+        public int MeritPosition { get; set; }
+
+        public bool IsPassed { get; set; } = true;
+
+        // Navigation (Multi Subject)
+        public ICollection<ResultDetail> ResultDetails { get; set; } = new List<ResultDetail>();
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
+    [Table("ResultDetails")]
+    public class ResultDetail
+    {
+        [Key]
+        public int ResultDetailId { get; set; }
+
+        [Required]
+        public int ResultId { get; set; }
+        public ExamResult? Result { get; set; }
+
+        [Required]
         public int SubjectId { get; set; }
+        public Subject? Subject { get; set; }
 
-        public double MarksObtained { get; set; }
+        [Required]
+        public int Marks { get; set; }
 
-        [MaxLength(5)]
-        public string? Grade { get; set; }
+        [Required, MaxLength(20)]
+        public string Division { get; set; } = string.Empty;
 
-        [MaxLength(500)]
-        public string? Remarks { get; set; }
+        [Column(TypeName = "decimal(3,2)")]
+        public decimal GPA { get; set; }
 
-        public Exam Exam { get; set; } = default!;
-        public Student Student { get; set; } = default!;
-        public Subject Subject { get; set; } = default!;
+        // UI / Merit purpose
+        public bool IsSilverColor { get; set; } = false;
     }
 
     // -------------------------

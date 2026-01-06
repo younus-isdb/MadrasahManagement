@@ -1,0 +1,140 @@
+﻿@model IEnumerable<MadrasahManagement.Models.ExamResult>
+
+@{
+    var departments = ViewBag.Departments as List<MadrasahManagement.Models.Department> ?? new();
+    var classes = ViewBag.Classes as List<MadrasahManagement.Models.Class> ?? new();
+    int selectedDept = ViewBag.SelectedDepartmentId ?? 0;
+    int selectedClass = ViewBag.SelectedClassId ?? 0;
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Processed Results</h4>
+        <div>
+            <a asp-action="Create" class="btn btn-primary">Process New Result</a>
+            <button type="button" class="btn btn-info" onclick="printFilteredTable()">Print</button>
+        </div>
+    </div>
+
+    <div class="card-body" id="printableArea">
+        <!-- FILTER FORM -->
+        <form method="get" class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Department</label>
+                <select name="departmentId" class="form-select">
+                    <option value="0">-- All Departments --</option>
+                    @foreach (var dept in departments)
+                    {
+                        <option value="@dept.DepartmentId" selected="@(dept.DepartmentId == selectedDept ? "selected" : null)">
+                            @dept.DepartmentName
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Class</label>
+                <select name="classId" class="form-select">
+                    <option value="0">-- All Classes --</option>
+                    @foreach (var cls in classes)
+                    {
+                        <option value="@cls.ClassId" selected="@(cls.ClassId == selectedClass ? "selected" : null)">
+                            @cls.ClassName
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4 align-self-end">
+                <button type="submit" class="btn btn-success">Filter</button>
+                <a asp-action="Index" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+
+        @if (Model != null && Model.Any())
+        {
+            <table class="table table-bordered table-striped table-sm">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Roll/Reg No</th>
+                        <th>Student Name</th>
+                        <th>Class</th>
+                        <th>Exam</th>
+                        <th>Subjects (Marks | GPA)</th>
+                        <th>Total Marks</th>
+                        <th>CGPA</th>
+                        <th>Merit</th>
+                        <th>Status</th>
+                        <th>Action</th> <!-- View Card -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Student?.RegNo</td>
+                            <td>@item.Student?.StudentName</td>
+                            <td>@item.Class?.ClassName</td>
+                            <td>@item.Examination?.ExamName</td>
+                            <td>
+                                @if (item.ResultDetails != null && item.ResultDetails.Any())
+                                {
+                                    @foreach (var d in item.ResultDetails)
+                                    {
+                                        <div style="@(d.IsSilverColor ? "background-color:#C0C0C0;" : d.Division == "Fail" ? "color:red;" : "")">
+                                            <strong>@d.Subject?.SubjectName</strong> :
+                                            @d.Marks
+                                            (<span class="@(d.GPA > 0 ? "text-success" : "text-danger")">@d.GPA</span>)
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No subjects</span>
+                                }
+                            </td>
+                            <td class="text-center">@item.TotalMarks</td>
+                            <td class="text-center fw-bold">@item.TotalCGPA</td>
+                            <td class="text-center"><span class="badge bg-info">@item.MeritPosition</span></td>
+                            <td class="text-center">
+                                @if (item.IsPassed)
+                                {
+                                    <span class="badge bg-success">Passed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Failed</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <a asp-controller="ResultProcess"
+                                   asp-action="StudentResult"
+                                   asp-route-studentId="@item.StudentId"
+                                   asp-route-examId="@item.ExamId"
+                                   class="btn btn-sm btn-info">
+                                    View Card
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info text-center">No results found.</div>
+        }
+    </div>
+</div>
+
+<script>
+    function printFilteredTable() {
+        var printContents = document.getElementById('printableArea').innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload(); // restore event handlers
+    }
+</script>

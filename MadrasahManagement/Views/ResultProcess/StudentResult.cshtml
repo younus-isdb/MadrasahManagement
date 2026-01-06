@@ -1,0 +1,131 @@
+﻿@model MadrasahManagement.Models.ExamResult
+
+<div id="resultCardWrapper" class="card shadow-sm p-4" style="max-width:850px; margin:auto; border-radius:15px; border:1px solid #ddd;">
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <img src="~/images/school-logo.png" alt="School Logo" style="height:80px; margin-bottom:10px;" />
+        <h3 class="fw-bold mb-1">XYZ School Result Card</h3>
+        <small class="text-muted">Education Year: @Model.EducationYear</small>
+    </div>
+
+    <!-- Student Info Box -->
+    <div class="card p-3 mb-4 shadow-sm" style="border-radius:12px; border:1px solid #ccc;">
+        <h5 class="text-center text-primary mb-3">Student Summary</h5>
+        <div class="row text-center">
+            <div class="col-6 mb-2">
+                <div class="p-2 border rounded bg-light"><strong>Class</strong><br />@Model.Class.ClassName</div>
+            </div>
+            <div class="col-6 mb-2">
+                <div class="p-2 border rounded bg-light"><strong>Department</strong><br />@Model.Department.DepartmentName</div>
+            </div>
+            <div class="col-6 mb-2">
+                <div class="p-2 border rounded bg-light"><strong>Exam</strong><br />@Model.Examination.ExamName</div>
+            </div>
+            <div class="col-6 mb-2">
+                <div class="p-2 border rounded bg-light"><strong>Merit Position</strong><br />@Model.MeritPosition</div>
+            </div>
+           
+            <div class="col-6 mb-2">
+                <div class="p-2 border rounded bg-light"><strong>Total Marks</strong><br />@Model.TotalMarks</div>
+            </div>
+            <div class="col-6 mb-2">
+                <div class="p-2 border rounded bg-light"><strong>CGPA</strong><br />@Model.TotalCGPA</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Marks Table -->
+    <table class="table table-bordered text-center align-middle shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Subject</th>
+                <th>Marks</th>
+                <th>Division</th>
+                <th>GPA</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.ResultDetails)
+            {
+                var bgColor = d.IsSilverColor ? "#C0C0C0" : d.Division == "Fail" ? "#f8d7da" : "";
+                <tr style="@(bgColor != "" ? $"background-color:{bgColor};" : "")">
+                    <td class="fw-bold">@d.Subject.SubjectName</td>
+                    <td>@d.Marks</td>
+                    <td>@d.Division</td>
+                    <td>@d.GPA</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Remarks Boxes -->
+    <div class="row mt-4">
+        <!-- Class Teacher's Remarks -->
+        <div class="col-6">
+            <div class="p-3 border rounded" style="min-height:80px;">
+                <strong>Class Teacher's Remarks & Sign:</strong>
+                <div class="mt-4" style="border-top:1px solid #000;"></div>
+            </div>
+        </div>
+
+        <!-- Guardian's Remarks -->
+        <div class="col-6">
+            <div class="p-3 border rounded" style="min-height:80px;">
+                <strong>Guardian's Remarks & Sign:</strong>
+                <div class="mt-4" style="border-top:1px solid #000;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approved By Principal -->
+    <div class="mt-4 text-center">
+        <div class="p-3 border rounded" style="min-height:60px; max-width:300px; margin:auto;">
+            <strong>Approved by Principal:</strong>
+            <div class="mt-4" style="border-top:1px solid #000; width:50%; margin:auto;"></div>
+        </div>
+    </div>
+
+    <!-- Print Button -->
+    <div class="text-center mt-4">
+        <button class="btn btn-primary shadow-sm" onclick="printResultCard()">
+            <i class="fas fa-print"></i> Print Result
+        </button>
+    </div>
+</div>
+
+<script>
+    function printResultCard() {
+        var printContents = document.getElementById('resultCardWrapper').innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload();
+    }
+</script>
+
+<style>
+    @@media print {
+        .btn
+
+    {
+        display: none !important;
+    }
+
+    body {
+        margin: 0;
+        font-size: 12pt;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #000 !important;
+    }
+
+    table {
+        page-break-inside: avoid;
+    }
+
+    }
+</style>

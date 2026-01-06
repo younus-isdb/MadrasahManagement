@@ -383,43 +383,59 @@ namespace MadrasahManagement.Models
     {
         public void Configure(EntityTypeBuilder<Timetable> builder)
         {
-            builder.HasKey(t => t.Id);
+                builder.ToTable("Timetables");
+                builder.HasKey(t => t.Id);
 
-            builder.Property(t => t.Day)
-                .HasMaxLength(20)
-                .IsRequired();
+                // Unique constraint to prevent duplicate entries
+                builder.HasIndex(t => new
+                {
+                    t.AcademicYear,
+                    t.DepartmentId,
+                    t.ClassId,
+                    t.SectionId,
+                    t.DayName,
+                    t.PeriodName
+                }).IsUnique();
 
-            builder.Property(t => t.Period)
-                .HasMaxLength(50)
-                .IsRequired();
+                // Relationships
+                builder.HasOne(t => t.Department)
+                    .WithMany()
+                    .HasForeignKey(t => t.DepartmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Property(t => t.Room)
-                .HasMaxLength(50);
+                builder.HasOne(t => t.Class)
+                    .WithMany(c => c.Timetables)
+                    .HasForeignKey(t => t.ClassId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-            // Class Relationship (NO CASCADE!!)
-            builder.HasOne(t => t.Class)
-                   .WithMany(c => c.Timetables)
-                   .HasForeignKey(t => t.ClassId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                builder.HasOne(t => t.Section)
+                    .WithMany(s => s.Timetables)
+                    .HasForeignKey(t => t.SectionId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-            // Section Relationship (NO CASCADE!!)
-            builder.HasOne(t => t.Section)
-                   .WithMany(s => s.Timetables)
-                   .HasForeignKey(t => t.SectionId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                builder.HasOne(t => t.Subject)
+                    .WithMany()
+                    .HasForeignKey(t => t.SubjectId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-            //// Subject Relationship
-            //builder.HasOne(t => t.Subject)
-            //       .WithMany(s => s.Timetables)
-            //       .HasForeignKey(t => t.SubjectId)
-            //       .OnDelete(DeleteBehavior.Restrict);
+                builder.HasOne(t => t.Teacher)
+                    .WithMany(t => t.Timetables)
+                    .HasForeignKey(t => t.TeacherId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-            // Teacher Relationship
-            builder.HasOne(t => t.Teacher)
-                   .WithMany(te => te.Timetables)
-                   .HasForeignKey(t => t.TeacherId)
-                   .OnDelete(DeleteBehavior.Restrict);
-        }
+                // Property configurations
+                builder.Property(t => t.AcademicYear)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                builder.Property(t => t.DayName)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                builder.Property(t => t.PeriodName)
+                    .IsRequired()
+                    .HasMaxLength(20);
+            }
     }
 
         public class MessageConfiguration : IEntityTypeConfiguration<Message>

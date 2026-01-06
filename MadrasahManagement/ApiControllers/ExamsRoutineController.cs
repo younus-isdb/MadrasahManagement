@@ -24,6 +24,7 @@ namespace MadrasahManagement.ApiControllers
         {
             var data = await _context.ExamRoutines
                 .Include(x => x.Class)
+               
                 .Include(x => x.Examination)
                 .Include(x => x.Subject)
                 .GroupBy(x => new
@@ -121,6 +122,7 @@ namespace MadrasahManagement.ApiControllers
             {
                 EducationYear = dto.EducationYear,
                 ClassId = dto.ClassId,
+                DepartmentId = dto.DepartmentId,
                 ExamId = dto.ExamId,
                 SubjectId = dto.SubjectId,
                 RoomNumber = dto.RoomNumber,

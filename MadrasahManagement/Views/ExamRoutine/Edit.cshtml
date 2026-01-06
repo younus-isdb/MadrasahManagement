@@ -13,8 +13,8 @@
     <div class="card-body">
         <form asp-action="Edit" id="examRoutineForm" method="post">
     @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="ExamRoutineId" />
-
+    @* <input type="hidden" asp-for="ExamRoutineId" />
+ *@
             <!-- Hidden fields for primary keys -->
             <input type="hidden" asp-for="EducationYear" />
             <input type="hidden" asp-for="DepartmentId" />

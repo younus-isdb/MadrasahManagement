@@ -1,0 +1,55 @@
+﻿@model MadrasahManagement.Models.ExamResult
+
+<h4>Delete Exam Result</h4>
+
+<p>Are you sure you want to delete this result for <strong>@Model.Student.StudentName</strong>?</p>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Education Year</th>
+        <td>@Model.EducationYear</td>
+    </tr>
+    <tr>
+        <th>Class</th>
+        <td>@Model.Class.ClassName</td>
+    </tr>
+    <tr>
+        <th>Department</th>
+        <td>@Model.Department.DepartmentName</td>
+    </tr>
+    <tr>
+        <th>Exam</th>
+        <td>@Model.Examination.ExamName</td>
+    </tr>
+    <tr>
+        <th>Subjects & Marks</th>
+        <td>
+            @foreach (var d in Model.ResultDetails)
+            {
+                <div>@d.Subject.SubjectName : @d.Marks (@d.GPA)</div>
+            }
+        </td>
+    </tr>
+    <tr>
+        <th>Total Marks</th>
+        <td>@Model.TotalMarks</td>
+    </tr>
+    <tr>
+        <th>CGPA</th>
+        <td>@Model.TotalCGPA</td>
+    </tr>
+    <tr>
+        <th>Merit Position</th>
+        <td>@Model.MeritPosition</td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>@(Model.IsPassed ? "Passed" : "Failed")</td>
+    </tr>
+</table>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="ResultId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

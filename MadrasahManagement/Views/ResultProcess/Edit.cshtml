@@ -1,0 +1,102 @@
+﻿@model MadrasahManagement.Dto.ResultProcessUpdateDto
+
+@{
+    ViewData["Title"] = "Edit Result";
+}
+
+<h4>Edit Exam Result</h4>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="ResultProcessId" />
+
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label>Education Year</label>
+            <select asp-for="EducationYear" class="form-control" asp-items="ViewBag.Years"></select>
+        </div>
+
+        <div class="col-md-3">
+            <label>Student</label>
+            <select asp-for="StudentId" class="form-control" asp-items="ViewBag.Students"></select>
+        </div>
+
+        <div class="col-md-3">
+            <label>Department</label>
+            <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.Departments"></select>
+        </div>
+
+        <div class="col-md-3">
+            <label>Class</label>
+            <select asp-for="ClassId" class="form-control" asp-items="ViewBag.Classes"></select>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label>Exam</label>
+            <select asp-for="ExamId" class="form-control" asp-items="ViewBag.Exams"></select>
+        </div>
+    </div>
+
+    <hr />
+
+    <h5>Subjects & Marks</h5>
+
+    <div id="subjectContainer">
+        @for (int i = 0; i < Model.Subjects.Count; i++)
+        {
+            <div class="row mb-2 align-items-center">
+                <div class="col-md-6">
+                    @Model.Subjects[i].SubjectName
+                    <input type="hidden" asp-for="Subjects[@i].SubjectId" />
+                    <input type="hidden" asp-for="Subjects[@i].SubjectName" />
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="Subjects[@i].Marks"
+                           class="form-control"
+                           type="number"
+                           min="0"
+                           max="100"
+                           required />
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectRow(this)">X</button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <button type="button" class="btn btn-secondary btn-sm mb-3" onclick="addSubjectRow()">➕ Add Subject</button>
+
+    <br />
+    <button type="submit" class="btn btn-success">Update Result</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    <script>
+        let subjectIndex = @Model.Subjects.Count;
+
+        function addSubjectRow() {
+            let html = `
+            <div class="row mb-2 align-items-center">
+                <div class="col-md-6">
+                    <input type="text" name="Subjects[${subjectIndex}].SubjectName" class="form-control" placeholder="Subject Name" required />
+                    <input type="hidden" name="Subjects[${subjectIndex}].SubjectId" value="0" />
+                </div>
+                <div class="col-md-4">
+                    <input type="number" name="Subjects[${subjectIndex}].Marks" class="form-control" min="0" max="100" required />
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeSubjectRow(this)">X</button>
+                </div>
+            </div>`;
+            document.getElementById("subjectContainer").insertAdjacentHTML("beforeend", html);
+            subjectIndex++;
+        }
+
+        function removeSubjectRow(btn) {
+            btn.parentElement.parentElement.remove();
+        }
+    </script>
+}

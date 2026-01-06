@@ -15,6 +15,7 @@ import { SubjectService } from '../../../service/subject-service';
 })
 export class Examroutinecreate implements OnInit {
   form!: FormGroup;
+  departments = signal<any[]>([]);
   classes = signal<any[]>([]);
   exams = signal<any[]>([]);
   subjects = signal<any[]>([]);
@@ -32,6 +33,7 @@ export class Examroutinecreate implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       educationYear: ['', [Validators.required]],
+
       classId: [null, Validators.required],
       examId: [null, Validators.required],
       subjects: this.fb.array([])

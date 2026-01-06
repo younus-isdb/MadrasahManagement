@@ -21,8 +21,8 @@ namespace MadrasahManagement.Dto
         public string ExamName { get; set; } = string.Empty;
 
         // Optional: just count instead of full collection
-        public int ExamFeeCount { get; set; }
-        public int PointConditionCount { get; set; }
-        public int ExamRoutineCount { get; set; }
+        //public int ExamFeeCount { get; set; }
+        //public int PointConditionCount { get; set; }
+        //public int ExamRoutineCount { get; set; }
     }
 }

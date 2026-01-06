@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="2026-01-06" ReportInfo.Modified="2026-01-06" ReportInfo.CreatorVersion="2026.1">
+  <Dictionary>
+    <TableDataSource Name="ExamResults" ReferenceName="ExamResults" DataType="System.Collections.Generic.List`1[[MadrasahManagement.Models.ExamResult, MadrasahManagement]], mscorlib" Enabled="true">
+      <Column Name="StudentName" DataType="System.String"/>
+      <Column Name="ClassName" DataType="System.String"/>
+      <Column Name="ExaminationName" DataType="System.String"/>
+      <Column Name="DepartmentName" DataType="System.String"/>
+      <Column Name="ResultDetails" DataType="System.Collections.Generic.List`1[[MadrasahManagement.Models.ResultDetail, MadrasahManagement]], mscorlib"/>
+    </TableDataSource>
+
+    <TableDataSource Name="ResultDetails" ReferenceName="ExamResults.ResultDetails" DataType="System.Collections.Generic.List`1[[MadrasahManagement.Models.ResultDetail, MadrasahManagement]], mscorlib" Enabled="true">
+      <Column Name="SubjectName" DataType="System.String"/>
+      <Column Name="MarksObtained" DataType="System.Int32"/>
+      <Column Name="PassMarks" DataType="System.Int32"/>
+    </TableDataSource>
+
+    <Parameter Name="DepartmentId" DataType="System.Int32"/>
+    <Parameter Name="ClassId" DataType="System.Int32"/>
+  </Dictionary>
+
+  <ReportPage Name="Page1">
+    <ReportTitleBand Name="ReportTitle1" Height="50">
+      <TextObject Name="Text1" Left="0" Top="0" Width="700" Height="30" Text="Exam Results" Font="Arial, 16pt, style=Bold" />
+      <TextObject Name="Text2" Left="0" Top="30" Width="700" Height="20" Text="Department: [DepartmentId], Class: [ClassId]" Font="Arial, 10pt"/>
+    </ReportTitleBand>
+
+    <DataBand Name="Data1" DataSource="ExamResults" Height="25">
+      <TextObject Name="TextStudent" Left="0" Top="0" Width="200" Text="[Student.StudentName]" Font="Arial, 10pt"/>
+      <TextObject Name="TextClass" Left="200" Top="0" Width="100" Text="[Class.ClassName]" Font="Arial, 10pt"/>
+      <TextObject Name="TextExam" Left="300" Top="0" Width="150" Text="[Examination.ExaminationName]" Font="Arial, 10pt"/>
+
+      <!-- Nested child DataBand for ResultDetails -->
+      <DataBand Name="Data2" DataSource="ResultDetails" Height="20" Top="25">
+        <TextObject Name="TextSubject" Left="0" Top="0" Width="200" Text="[Subject.SubjectName]" Font="Arial, 9pt"/>
+        <TextObject Name="TextMarks" Left="200" Top="0" Width="50" Text="[MarksObtained]" Font="Arial, 9pt"/>
+        <TextObject Name="TextPassMarks" Left="250" Top="0" Width="50" Text="[PassMarks]" Font="Arial, 9pt"/>
+      </DataBand>
+
+    </DataBand>
+  </ReportPage>
+</Report>
