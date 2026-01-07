@@ -1,0 +1,160 @@
+﻿@using MadrasahManagement.ViewModels
+@model TeacherProfileEditViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Edit Profile</h2>
+                <a asp-action="Profile" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Profile
+                </a>
+            </div>
+
+            <!-- Main Form Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Edit Your Profile Information</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ImageUrl" />
+
+                        <!-- Basic Information -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label">Full Name *</label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label">Email Address *</label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Contact" class="form-label">Contact Number *</label>
+                                <input asp-for="Contact" class="form-control" />
+                                <span asp-validation-for="Contact" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Designation" class="form-label">Designation</label>
+                                <input asp-for="Designation" class="form-control" placeholder="e.g., Senior Teacher" />
+                                <span asp-validation-for="Designation" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Qualifications & Joining Date -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Qualification" class="form-label">Qualifications</label>
+                                <input asp-for="Qualification" class="form-control" placeholder="e.g., M.Ed, B.Sc" />
+                                <span asp-validation-for="Qualification" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="JoiningDate" class="form-label">Joining Date *</label>
+                                <input asp-for="JoiningDate" type="date" class="form-control"
+                                       max="@DateTimeOffset.Now.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="JoiningDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Profile Picture -->
+                        <div class="mb-4">
+                            <label asp-for="ImageFile" class="form-label">Profile Picture</label>
+                            <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
+                            <div class="form-text">
+                                Upload a profile picture (JPG, PNG, GIF - Max 2MB)
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <br />
+                                    <small class="text-muted">Current: <a href="@Model.ImageUrl" target="_blank" class="text-decoration-none">View Image</a></small>
+                                }
+                            </div>
+                            <span asp-validation-for="ImageFile" class="text-danger"></span>
+                        </div>
+
+                        <!-- Form Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-action="Profile" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Current Profile Picture Preview -->
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">Current Profile Picture</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="@Model.ImageUrl" class="img-fluid rounded" alt="Current Profile" style="max-height: 200px;">
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Image preview
+            $('#ImageFile').change(function() {
+                var file = this.files[0];
+                if (file) {
+                    // Check file size (2MB limit)
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('File size must be less than 2MB');
+                        $(this).val('');
+                        return;
+                    }
+
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('.image-preview').remove();
+                        $('.card-body').append(
+                            '<div class="image-preview mt-3 text-center">' +
+                            '<h6>New Image Preview:</h6>' +
+                            '<img src="' + e.target.result + '" class="img-fluid rounded" style="max-height: 150px;">' +
+                            '</div>'
+                        );
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Set max date for joining date
+            var today = new Date().toISOString().split('T')[0];
+            $('#JoiningDate').attr('max', today);
+        });
+    </script>
+}

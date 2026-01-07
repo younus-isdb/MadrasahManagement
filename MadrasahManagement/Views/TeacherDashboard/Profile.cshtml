@@ -1,0 +1,173 @@
+﻿@model Teacher
+
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Profile</h2>
+        <div>
+            <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Success Alert -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Left Column - Profile Picture & Contact -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" class="img-fluid rounded-circle mb-3 border" alt="Profile" style="width:200px;height:200px;object-fit:cover;">
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3 border" style="width:200px;height:200px;">
+                            <i class="fas fa-user fa-5x text-white"></i>
+                        </div>
+                    }
+                    <h3>@Model.Name</h3>
+                    <p class="text-muted">
+                        @if (!string.IsNullOrEmpty(Model.Designation))
+                        {
+                            @Model.Designation
+                        }
+                        else
+                        {
+                            <text>Teacher</text>
+                        }
+                    </p>
+                    <p><i class="fas fa-building me-1"></i> @Model.Department?.DepartmentName</p>
+                    <div class="d-grid gap-2 mt-3">
+                        <a asp-action="EditProfile" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-envelope me-2"></i> @Model.Email</p>
+                    <p><i class="fas fa-phone me-2"></i> @Model.Contact</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Details -->
+        <div class="col-md-8">
+            <!-- Personal Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Teacher ID:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-primary">@Model.TeacherId</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Full Name:</dt>
+                        <dd class="col-sm-8">@Model.Name</dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
+
+                        <dt class="col-sm-4">Contact:</dt>
+                        <dd class="col-sm-8">@Model.Contact</dd>
+
+                        <dt class="col-sm-4">Department:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-info">@Model.Department?.DepartmentName</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Joining Date:</dt>
+                        <dd class="col-sm-8">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            @Model.JoiningDate.ToString("dd MMMM yyyy")
+                        </dd>
+
+                        <dt class="col-sm-4">User ID:</dt>
+                        <dd class="col-sm-8">
+                            <small class="text-muted">@Model.UserId</small>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Professional Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Professional Information</h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.Designation))
+                    {
+                        <div class="mb-4">
+                            <h6>Designation</h6>
+                            <p class="lead">@Model.Designation</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Qualification))
+                    {
+                        <div class="mb-4">
+                            <h6>Qualifications</h6>
+                            <p>@Model.Qualification</p>
+                        </div>
+                    }
+
+                    <!-- Teaching Statistics -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h6>Total Classes</h6>
+                                    <h3 class="text-primary">@Model.ClassSubjects?.Count() ?? 0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h6>Weekly Periods</h6>
+                                    <h3 class="text-success">@Model.Timetables?.Count() ?? 0</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto-dismiss alerts
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        });
+    </script>
+}

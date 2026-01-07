@@ -1,4 +1,5 @@
 ﻿using MadrasahManagement.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MadrasahManagement.Controllers
 {
+    [Authorize(Roles="Admin")]
     public class StudentController : Controller
     {
         private readonly MadrasahDbContext _context;

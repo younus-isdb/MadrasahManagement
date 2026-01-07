@@ -1,0 +1,17 @@
+﻿@model Submission
+
+<h2>Submit Assignment</h2>
+<h4>@ViewBag.Assignment.Title</h4>
+
+<form method="post">
+    <input type="hidden" asp-for="AssignmentId" />
+    <input type="hidden" asp-for="StudentId" />
+
+    <div class="form-group">
+        <label asp-for="FileLink">File Link/URL</label>
+        <input asp-for="FileLink" class="form-control" />
+        <span asp-validation-for="FileLink" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

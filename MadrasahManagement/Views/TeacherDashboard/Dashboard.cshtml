@@ -2,59 +2,329 @@
 
 @{
     ViewData["Title"] = "Teacher Dashboard";
+    Layout = "_Layout";
+
+    // Get today's schedule from ViewBag
+    var todaySchedule = ViewBag.TodaySchedule as List<Timetable>;
+    var today = ViewBag.Today as string ?? DateTime.Now.ToString("dddd, MMMM dd, yyyy");
+    var hasTodaySchedule = todaySchedule != null && todaySchedule.Any();
 }
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>My Profile</h4>
-            </div>
-            <div class="card-body">
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                {
-                    <img src="@Model.ImageUrl" class="img-fluid rounded-circle mb-3" alt="Profile" style="width:150px;height:150px;">
-                }
-                <p>Name:  @Model.Name</p>
-                <p>Designation: @Model.Designation</p>
-                <p>Department: @Model.Department.DepartmentName</p>
-                <p>Email: @Model.Email</p>
-                <p>Contact: @Model.Contact</p>
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Teacher Dashboard</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <span class="me-3">Welcome, @Model.Name!</span>
+            <div class="btn-group me-2">
+                <a asp-action="EditProfile" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h4>My Classes</h4>
+    <!-- Success Alert -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Classes</h5>
+                    <p class="card-text display-6">@Model.ClassSubjects?.Count() ?? 0</p>
+                </div>
             </div>
-            <div class="card-body">
-               @*  @if (Model.ClassSubjects.Any())
-                {
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Class</th>
-                                <th>Subject</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var cs in Model.ClassSubjects)
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Subjects</h5>
+                    @{
+                        var subjectCount = Model.ClassSubjects?.Select(cs => cs.SubjectId).Distinct().Count() ?? 0;
+                    }
+                    <p class="card-text display-6">@subjectCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Weekly Periods</h5>
+                    <p class="card-text display-6">@Model.Timetables?.Count() ?? 0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Classes</h5>
+                    <p class="card-text display-6">@(todaySchedule?.Count ?? 0)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Left Column - Profile -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Profile Overview</h5>
+                </div>
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" class="img-fluid rounded-circle mb-3 border" alt="Profile" style="width:150px;height:150px;object-fit:cover;">
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3 border" style="width:150px;height:150px;">
+                            <i class="fas fa-user fa-4x text-white"></i>
+                        </div>
+                    }
+                    <h4>@Model.Name</h4>
+                    <p class="text-muted">
+                        @if (!string.IsNullOrEmpty(Model.Designation))
+                        {
+                            @Model.Designation
+                        }
+                        else
+                        {
+                            <text>Teacher</text>
+                        }
+                    </p>
+                    <p><strong>Department:</strong> @Model.Department?.DepartmentName</p>
+                    <p><strong>Teacher ID:</strong> @Model.TeacherId</p>
+                    <div class="d-grid gap-2 mt-3">
+                        <a asp-action="Profile" class="btn btn-primary">
+                            <i class="fas fa-user me-1"></i> View Full Profile
+                        </a>
+                        <a asp-action="EditProfile" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Access</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a asp-action="MyClasses" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chalkboard-teacher me-2"></i> My Classes
+                        </a>
+                        <a asp-action="Timetable" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt me-2"></i> Weekly Timetable
+                        </a>
+                        <a asp-controller="Assignments" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tasks me-2"></i> Assignments
+                        </a>
+                        <a asp-controller="Attendance" asp-action="TakeAttendance" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clipboard-check me-2"></i> Take Attendance
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Today's Schedule & Classes -->
+        <div class="col-md-8">
+            <!-- Today's Schedule -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Today's Schedule</h5>
+                    <span class="text-muted">@today</span>
+                </div>
+                <div class="card-body">
+                    @if (hasTodaySchedule)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Subject</th>
+                                        <th>Class</th>
+                                        <th>Period</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var period in todaySchedule)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-primary">
+                                                    @period.StartTime.ToString(@"hh\:mm") - @period.EndTime.ToString(@"hh\:mm")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong>@period.Subject?.SubjectName</strong>
+                                                @if (!string.IsNullOrEmpty(period.Subject?.SubjectCode))
+                                                {
+                                                    <br />
+                                        
+                                                    <small class="text-muted">@period.Subject.SubjectCode</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">@period.Class?.ClassName</span>
+                                            </td>
+                                            <td>
+                                                @period.PeriodName
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5>No classes scheduled for today</h5>
+                            @if (Model.Timetables != null && Model.Timetables.Any())
                             {
-                                <tr>
-                                    <td>@cs.Class.ClassName</td>
-                                    <td>@cs.Subject.SubjectName</td>
-                                </tr>
+                                var daysWithClasses = Model.Timetables
+                                .Select(t => t.DayName)
+                                .Where(d => !string.IsNullOrEmpty(d))
+                                .Distinct()
+                                .OrderBy(d => d)
+                                .ToList();
+
+                                if (daysWithClasses.Any())
+                                {
+                                    <p class="text-muted">
+                                        Your classes are on: @string.Join(", ", daysWithClasses)
+                                    </p>
+                                }
                             }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <p>No classes assigned yet.</p>
-                } *@
+                            <a asp-action="Timetable" class="btn btn-outline-primary mt-2">
+                                <i class="fas fa-calendar-alt me-1"></i> View Full Timetable
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- My Classes -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">My Classes & Subjects</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.ClassSubjects != null && Model.ClassSubjects.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Subject</th>
+                                        <th>Subject Code</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cs in Model.ClassSubjects.Take(6))
+                                    {
+                                        <tr>
+                                            <td>@cs.Class?.ClassName</td>
+                                            <td>@cs.Subject?.SubjectName</td>
+                                            <td><span class="badge bg-info">@cs.Subject?.SubjectCode</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        @if (Model.ClassSubjects.Count() > 6)
+                        {
+                            <div class="text-center mt-3">
+                                <a asp-action="MyClasses" class="btn btn-primary">
+                                    View All Classes (@Model.ClassSubjects.Count())
+                                </a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+                            <h5>No classes assigned yet</h5>
+                            <p class="text-muted">Contact your department head for class assignments</p>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+
+        .display-6 {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid #dee2e6;
+            padding: 12px 15px;
+        }
+
+            .list-group-item:last-child {
+                border-bottom: none;
+            }
+
+            .list-group-item:hover {
+                background-color: #f8f9fa;
+            }
+
+        .table th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            console.log('Teacher dashboard loaded');
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        });
+    </script>
+}

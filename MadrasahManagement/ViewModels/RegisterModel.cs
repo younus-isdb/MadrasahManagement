@@ -5,7 +5,7 @@ namespace MadrasahManagement.ViewModels
 {
     public class RegisterModel
     {
-        [EmailAddress]
+       // [EmailAddress]
         [StringLength(50)]
         [Required(AllowEmptyStrings = false)]
         public string UserName { get; set; } = default!;

@@ -1,0 +1,114 @@
+﻿@using MadrasahManagement.Controllers
+@model Teacher
+@{
+    ViewData["Title"] = "My Timetable";
+    Layout = "_Layout";
+
+    var timetableGroups = ViewBag.TimetableGroups as List<TeacherDashboardController.TimetableGroup>;
+}
+
+<div class="container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Weekly Timetable</h2>
+        <div>
+            <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (timetableGroups != null && timetableGroups.Any())
+    {
+        @foreach (var dayGroup in timetableGroups)
+        {
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">@dayGroup.Day</h5>
+                </div>
+                <div class="card-body">
+                    @if (dayGroup.Periods.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Subject</th>
+                                        <th>Class</th>
+                                        <th>Period</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var period in dayGroup.Periods)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    @period.StartTime.ToString(@"hh\:mm") - @period.EndTime.ToString(@"hh\:mm")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong>@period.Subject?.SubjectName</strong>
+                                                @if (!string.IsNullOrEmpty(period.Subject?.SubjectCode))
+                                                {
+                                                    <br />
+                                
+                                                    <small class="text-muted">@period.Subject.SubjectCode</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">@period.Class?.ClassName</span>
+                                            </td>
+                                            <td>@period.PeriodName</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-3">
+                            <p class="text-muted mb-0">No classes scheduled for @dayGroup.Day</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-calendar-alt fa-4x text-muted mb-3"></i>
+                <h4>No timetable available</h4>
+                <p class="text-muted">Your timetable hasn't been set up yet.</p>
+                <p class="text-muted">Please contact your department head.</p>
+            </div>
+        </div>
+    }
+
+    <!-- Summary -->
+    @if (Model.Timetables != null && Model.Timetables.Any())
+    {
+        <div class="card mt-3">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h4>@Model.Timetables.Count()</h4>
+                        <p class="text-muted">Total Periods</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>@Model.Timetables.Select(t => t.DayName).Distinct().Count()</h4>
+                        <p class="text-muted">Days with Classes</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>@Model.Timetables.Select(t => t.ClassId).Distinct().Count()</h4>
+                        <p class="text-muted">Different Classes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

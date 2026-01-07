@@ -22,7 +22,8 @@
                         This action cannot be undone. All timetable entries for this class and section will be permanently deleted.
                     </p>
 
-                    <form asp-action="DeleteConfirmed" method="post">
+                    <!-- FIX: Change asp-action from "DeleteConfirmed" to "Delete" -->
+                    <form asp-action="Delete" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="academicYear" value="@ViewBag.AcademicYear" />
                         <input type="hidden" name="departmentId" value="@ViewBag.DepartmentId" />

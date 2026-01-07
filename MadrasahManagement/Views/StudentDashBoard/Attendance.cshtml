@@ -1,0 +1,27 @@
+﻿@using MadrasahManagement.Controllers
+@model AttendanceSummaryViewModel
+
+<h2>Attendance Record</h2>
+
+<p><strong>Student:</strong> @Model.StudentName</p>
+<p><strong>Reg No:</strong> @Model.RegNo</p>
+<p><strong>Present:</strong> @Model.PresentDays days</p>
+<p><strong>Absent:</strong> @Model.AbsentDays days</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model.AttendanceRecords)
+        {
+            <tr>
+                <td>@record.Date.ToString("dd/MM/yyyy")</td>
+                <td>@record.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>

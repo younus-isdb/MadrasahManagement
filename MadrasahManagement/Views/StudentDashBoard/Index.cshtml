@@ -1,5 +1,31 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@using MadrasahManagement.Controllers
+@model DashboardViewModel
+
+<h2>Student Dashboard</h2>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Today's Attendance</h5>
+                <p class="card-text">@Model.TodayAttendance</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Pending Assignments</h5>
+                <p class="card-text">@Model.PendingAssignments</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4>Recent Notices</h4>
+<ul>
+    @foreach (var notice in Model.RecentNotices)
+    {
+        <li>@notice.Title - @notice.DatePosted.ToString("dd/MM/yyyy")</li>
+    }
+</ul>

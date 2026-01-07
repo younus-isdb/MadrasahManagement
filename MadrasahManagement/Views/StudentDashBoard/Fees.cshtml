@@ -1,0 +1,32 @@
+﻿@using MadrasahManagement.Controllers
+@model FeeSummaryViewModel
+
+<h2>Fee Details</h2>
+
+<p><strong>Student:</strong> @Model.StudentName</p>
+<p><strong>Total Due:</strong> @Model.TotalDue.ToString("C")</p>
+<p><strong>Total Paid:</strong> @Model.TotalPaid.ToString("C")</p>
+<p><strong>Balance:</strong> @Model.Balance.ToString("C")</p>
+
+<h4>Payment History</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Fee Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var fee in Model.FeeCollections)
+        {
+            <tr>
+                <td>@fee.DatePaid.ToString("dd/MM/yyyy")</td>
+                <td>@fee.FeeType?.Name</td>
+                <td>@fee.AmountPaid.ToString("C")</td>
+                <td>@fee.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,33 @@
+﻿@using MadrasahManagement.Controllers
+@model AssignmentViewModel
+
+<h2>Assignments</h2>
+
+<h4>Pending Assignments</h4>
+@if (Model.PendingAssignments.Any())
+{
+    <ul>
+        @foreach (var assignment in Model.PendingAssignments)
+        {
+            <li>
+                @assignment.Title (Due: @assignment.DueDate.ToString("dd/MM/yyyy"))
+                <a asp-action="SubmitAssignment" asp-route-id="@assignment.AssignmentId">Submit</a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No pending assignments.</p>
+}
+
+<h4>Submitted Assignments</h4>
+@if (Model.SubmittedAssignments.Any())
+{
+    <ul>
+        @foreach (var assignment in Model.SubmittedAssignments)
+        {
+            <li>@assignment.Title (Submitted)</li>
+        }
+    </ul>
+}

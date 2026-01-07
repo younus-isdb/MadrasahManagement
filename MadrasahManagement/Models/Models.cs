@@ -358,15 +358,7 @@ namespace MadrasahManagement.Models
         [NotMapped, DisplayName("Image")]
         public IFormFile? ImageFile { get; set; }
 
-        //[Required]
-        //[ForeignKey(nameof(AppUser))]
-        //public string UserId { get; set; } = default!;
-        //[EmailAddress]
-        //public string Email { get; set; } = default!;
-
-        //// Navigation
-        //public AppUser AppUser { get; set; } = default!;
-
+      
         [Required]
         [EmailAddress]
         public string Email { get; set; } = default!;
