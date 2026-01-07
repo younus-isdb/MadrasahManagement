@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MadrasahManagement.Controllers
 {
-    [Authorize(Roles="Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class StudentController : Controller
     {
         private readonly MadrasahDbContext _context;

@@ -1,0 +1,325 @@
+﻿@using MadrasahManagement.ViewModels
+@model TimetableViewVM
+
+@{
+    ViewData["Title"] = "Print Timetable";
+    Layout = null; // No layout for print
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timetable - @Model.ClassName @Model.SectionName</title>
+
+    <!-- Bootstrap CSS for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Print-specific styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            font-size: 12pt;
+            line-height: 1.4;
+        }
+
+        @@page {
+            size: A4 portrait;
+            margin: 15mm;
+        }
+
+        .print-container {
+            max-width: 100%;
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #0d6efd;
+        }
+
+            .print-header h1 {
+                color: #2c3e50;
+                font-size: 22pt;
+                margin-bottom: 8px;
+                font-weight: bold;
+            }
+
+            .print-header h2 {
+                color: #0d6efd;
+                font-size: 18pt;
+                margin-bottom: 10px;
+            }
+
+            .print-header h3 {
+                color: #6c757d;
+                font-size: 14pt;
+                margin-bottom: 5px;
+                font-weight: normal;
+            }
+
+        /* Table styling for print */
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 10pt;
+        }
+
+            .print-table th,
+            .print-table td {
+                border: 1.5px solid #333 !important;
+                padding: 8px 5px;
+                text-align: center;
+                vertical-align: middle;
+                page-break-inside: avoid;
+            }
+
+        .day-column {
+            background-color: #f8f9fa !important;
+            font-weight: bold;
+            width: 100px;
+            color: #212529;
+        }
+
+        .period-header {
+            background-color: #0d6efd !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .time-header {
+            background-color: #495057 !important;
+            color: white !important;
+            font-weight: bold;
+            font-size: 9pt;
+        }
+
+        .cell-content {
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .break-cell {
+            background-color: #fff3cd !important;
+            font-weight: bold;
+            color: #856404 !important;
+        }
+
+        .assembly-cell {
+            background-color: #d1e7dd !important;
+            font-weight: bold;
+            color: #0f5132 !important;
+        }
+
+        .subject-name {
+            font-weight: bold;
+            color: #0d6efd;
+            font-size: 10pt;
+            margin-bottom: 3px;
+        }
+
+        .teacher-name {
+            color: #6c757d;
+            font-size: 9pt;
+            font-style: italic;
+        }
+
+        .free-period {
+            color: #adb5bd;
+            font-style: italic;
+            font-size: 10pt;
+        }
+
+        /* Print footer */
+        .print-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            font-size: 10pt;
+            color: #6c757d;
+        }
+
+        .summary-box {
+            display: inline-block;
+            background-color: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            margin: 10px 0;
+        }
+
+        /* Print controls (hidden when printing) */
+        .print-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-top: 2px solid #0d6efd;
+            z-index: 1000;
+        }
+
+        /* Hide controls when printing */
+        @@media print {
+            .print-controls {
+                display: none !important;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .print-table {
+                font-size: 9pt;
+            }
+
+                .print-table th,
+                .print-table td {
+                    padding: 6px 4px;
+                }
+        }
+
+        /* Prevent page breaks inside rows */
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <!-- Print Header -->
+        <div class="print-header">
+            <h1>Madrasah Management System</h1>
+            <h2>Academic Timetable</h2>
+            <h3>Academic Year: @Model.AcademicYear</h3>
+            <h3>Department: @Model.DepartmentName</h3>
+            <h3>Class: @Model.ClassName | Section: @Model.SectionName</h3>
+        </div>
+
+        <!-- Timetable Table -->
+        <table class="print-table table-bordered">
+            <thead>
+                <tr>
+                    <th class="day-column">Day / Period</th>
+                    @foreach (var period in Model.Periods)
+                    {
+                        <th class="period-header" colspan="2">
+                            @period.PeriodName
+                        </th>
+                    }
+                </tr>
+                <tr>
+                    <th class="time-header">Time</th>
+                    @foreach (var period in Model.Periods)
+                    {
+                        <td class="time-header" colspan="2">
+                            @period.StartTime - @period.EndTime
+                        </td>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var day in Model.Days)
+                {
+                    <tr>
+                        <th class="day-column">@day</th>
+                        @foreach (var period in Model.Periods)
+                        {
+                            var cell = Model.Grid.ContainsKey(day) && Model.Grid[day].ContainsKey(period.PeriodName)
+                            ? Model.Grid[day][period.PeriodName]
+                            : new TimetableCellVM();
+
+                            var cellClass = "";
+                            if (cell.IsBreak) cellClass = "break-cell";
+                            if (cell.IsAssembly) cellClass = "assembly-cell";
+
+                            <td class="@cellClass" colspan="2">
+                                <div class="cell-content">
+                                    @if (cell.IsBreak)
+                                    {
+                                        <strong style="font-size: 11pt;">BREAK</strong>
+                                    }
+                                    else if (cell.IsAssembly)
+                                    {
+                                        <strong style="font-size: 11pt;">ASSEMBLY</strong>
+                                    }
+                                    else if (!string.IsNullOrEmpty(cell.SubjectName))
+                                    {
+                                        <div class="subject-name">@cell.SubjectName</div>
+                                        <div class="teacher-name">@cell.TeacherName</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="free-period">Free Period</span>
+                                    }
+                                </div>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Print Footer -->
+        <div class="print-footer">
+            <div class="summary-box">
+                <strong>Summary:</strong>
+                Total Periods: @Model.Periods.Count |
+                Working Days: @Model.Days.Count |
+                Total Periods per Week: @(Model.Periods.Count* Model.Days.Count)
+            </div>
+            <p style="margin-top: 10px;">
+                Generated on: @DateTime.Now.ToString("dd MMMM yyyy hh:mm tt") |
+                Page 1 of 1
+            </p>
+        </div>
+    </div>
+
+    <!-- Print Controls -->
+    <div class="print-controls">
+        <button onclick="window.print()" class="btn btn-primary btn-lg">
+            <i class="fas fa-print"></i> Print Now
+        </button>
+        <button onclick="window.close()" class="btn btn-secondary btn-lg">
+            <i class="fas fa-times"></i> Close Window
+        </button>
+        <p class="text-muted mt-2">This page is optimized for A4 paper printing</p>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <!-- Auto-print script -->
+    <script>
+        // Auto-print after 1 second
+        setTimeout(function() {
+            window.print();
+        }, 1000);
+
+        // Listen for after print event
+        window.onafterprint = function() {
+            // Optional: Close window after printing
+            // window.close();
+        };
+
+        // Also listen for Ctrl+P
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+    </script>
+</body>
+</html>

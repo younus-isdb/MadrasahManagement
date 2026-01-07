@@ -139,6 +139,26 @@ namespace MadrasahManagement.Models
         .HasForeignKey(s => s.AssignmentId)
         .OnDelete(DeleteBehavior.Cascade);
 
+
+            modelBuilder.Entity<Attendance>()
+       .HasOne(a => a.Department)
+       .WithMany()
+       .HasForeignKey(a => a.DepartmentId)
+       .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Attendance>()
+                .HasOne(a => a.Class)
+                .WithMany()
+                .HasForeignKey(a => a.ClassId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Attendance>()
+                .HasOne(a => a.Section)
+                .WithMany()
+                .HasForeignKey(a => a.SectionId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+
             // Submissions -> Student (no cascade)
             modelBuilder.Entity<Submission>()
                 .HasOne(s => s.Student)

@@ -1,10 +1,12 @@
 ﻿using MadrasahManagement.Models;
 using MadrasahManagement.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MadrasahManagement.Controllers
 {
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class BookController : Controller
     {
         private readonly MadrasahDbContext _db;

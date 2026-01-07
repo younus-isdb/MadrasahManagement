@@ -1,0 +1,245 @@
+﻿@using MadrasahManagement.Controllers
+@model AttendanceViewModel
+@{
+    ViewData["Title"] = "Attendance Management";
+}
+
+<div class="container-fluid">
+    <h2>@ViewData["Title"]</h2>
+
+    <!-- Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Select Class & Date</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Department</label>
+                    <select name="departmentId" id="departmentId" class="form-select"
+                            onchange="this.form.submit()">
+                        <option value="">-- Select Department --</option>
+                        @foreach (var dept in Model.Departments)
+                        {
+                            <option value="@dept.DepartmentId"
+                                    selected="@(Model.DepartmentId == dept.DepartmentId ? "selected" : null)">
+                                @dept.DepartmentName
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Class</label>
+                    <select name="classId" id="classId" class="form-select"
+                            onchange="this.form.submit()"
+                            disabled="@(Model.DepartmentId == null ? "disabled" : null)">
+                        <option value="">-- Select Class --</option>
+                        @foreach (var cls in Model.Classes)
+                        {
+                            <option value="@cls.ClassId"
+                                    selected="@(Model.ClassId == cls.ClassId ? "selected" : null)">
+                                @cls.ClassName
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Section</label>
+                    <select name="sectionId" id="sectionId" class="form-select"
+                            onchange="this.form.submit()"
+                            disabled="@(Model.ClassId == null ? "disabled" : null)">
+                        <option value="">-- Select Section --</option>
+                        @foreach (var sec in Model.Sections)
+                        {
+                            <option value="@sec.SectionId"
+                                    selected="@(Model.SectionId == sec.SectionId ? "selected" : null)">
+                                @sec.SectionName
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="date" class="form-control"
+                           value="@Model.SelectedDate.ToString("yyyy-MM-dd")"
+                           onchange="this.form.submit()" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Students.Any())
+    {
+        <!-- Attendance Summary -->
+        @if (Model.Summary != null)
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Summary: @Model.DepartmentName > @Model.ClassName > @Model.SectionName</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="stat-card bg-primary text-white p-3 rounded">
+                                        <h6 class="mb-0">Total Students</h6>
+                                        <h3 class="mb-0">@Model.Summary.TotalStudents</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-card bg-success text-white p-3 rounded">
+                                        <h6 class="mb-0">Present</h6>
+                                        <h3 class="mb-0">@Model.Summary.Present</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-card bg-danger text-white p-3 rounded">
+                                        <h6 class="mb-0">Absent</h6>
+                                        <h3 class="mb-0">@Model.Summary.Absent</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-card bg-warning text-white p-3 rounded">
+                                        <h6 class="mb-0">Late</h6>
+                                        <h3 class="mb-0">@Model.Summary.Late</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-card bg-info text-white p-3 rounded">
+                                        <h6 class="mb-0">Not Marked</h6>
+                                        <h3 class="mb-0">@Model.Summary.NotMarked</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="stat-card bg-secondary text-white p-3 rounded">
+                                        <h6 class="mb-0">Present %</h6>
+                                        <h3 class="mb-0">@Model.Summary.PresentPercentage.ToString("0.00")%</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Attendance Form -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Mark Attendance for @Model.SelectedDate.ToString("dd MMM yyyy")</h5>
+                <a asp-action="MonthlyReport"
+                   asp-route-departmentId="@Model.DepartmentId"
+                   asp-route-classId="@Model.ClassId"
+                   asp-route-sectionId="@Model.SectionId"
+                   asp-route-month="@Model.SelectedDate.Month"
+                   asp-route-year="@Model.SelectedDate.Year"
+                   class="btn btn-outline-primary">
+                    <i class="fas fa-chart-bar"></i> Monthly Report
+                </a>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="SaveAttendance">
+                    <input type="hidden" name="departmentId" value="@Model.DepartmentId" />
+                    <input type="hidden" name="classId" value="@Model.ClassId" />
+                    <input type="hidden" name="sectionId" value="@Model.SectionId" />
+                    <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                    @Html.AntiForgeryToken()
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Reg No</th>
+                                    <th>Student Name</th>
+                                    <th>Gender</th>
+                                    <th>Status</th>
+                                    <th>Marked By</th>
+                                    <th>Marked At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Students.Count; i++)
+                                {
+                                    var student = Model.Students[i];
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>@student.RegNo</td>
+                                        <td>@student.StudentName</td>
+                                        <td>@student.Gender</td>
+                                        <td>
+                                            <select name="attendance_@student.StudentId" class="form-select attendance-status">
+                                                <option value="0" selected="@(student.Status == AttendanceStatus.Present ? "selected" : null)">Present</option>
+                                                <option value="1" selected="@(student.Status == AttendanceStatus.Absent ? "selected" : null)">Absent</option>
+                                                <option value="2" selected="@(student.Status == AttendanceStatus.Late ? "selected" : null)">Late</option>
+                                               
+                                            </select>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(student.MarkedBy))
+                                            {
+                                                <span class="badge bg-info">@student.MarkedBy</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Not Marked</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (student.MarkedAt.HasValue)
+                                            {
+                                                @student.MarkedAt.Value.ToString("hh:mm tt")
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Attendance
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else if (Model.DepartmentId != null && Model.ClassId != null && Model.SectionId != null)
+    {
+        <div class="alert alert-info">
+            <h5>No students found!</h5>
+            <p>No active students found in this section.</p>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <h5>Select Department, Class, and Section</h5>
+            <p>Please select a department, then class, then section to view attendance.</p>
+        </div>
+    }
+</div>

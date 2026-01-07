@@ -5,7 +5,7 @@ namespace MadrasahManagement.ViewModels
 {
     public class RegisterModel
     {
-       // [EmailAddress]
+       //[EmailAddress]
         [StringLength(50)]
         [Required(AllowEmptyStrings = false)]
         public string UserName { get; set; } = default!;
@@ -22,7 +22,7 @@ namespace MadrasahManagement.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password")]
         public string ConfirmPassword { get; set; } = default!;
-        
+
         public string ReturnUrl { get; set; } = "/";
 
 

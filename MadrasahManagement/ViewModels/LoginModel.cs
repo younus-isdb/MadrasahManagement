@@ -4,7 +4,7 @@ namespace MadrasahManagement.ViewModels
 {
     public class LoginModel
     {
-      //  [EmailAddress]
+       // [EmailAddress]
         [StringLength(50)]
         [Required(AllowEmptyStrings = false)]
         public string UserName { get; set; } = default!;
@@ -20,6 +20,7 @@ namespace MadrasahManagement.ViewModels
 
 
     }
+
     public class ForgotPasswordViewModel
     {
         [Required]

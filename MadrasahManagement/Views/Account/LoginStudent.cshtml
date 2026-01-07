@@ -1,0 +1,25 @@
+﻿@using MadrasahManagement.ViewModels
+@model StudentLoginViewModel
+
+<h2>Student Login</h2>
+
+<form asp-action="LoginStudent" method="post">
+
+    <input asp-for="RegNo" class="form-control" placeholder="Registration No" />
+    <span asp-validation-for="RegNo"></span>
+
+    <input asp-for="StudentName" class="form-control" placeholder="Student Name" />
+    <span asp-validation-for="StudentName"></span>
+
+    <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+    <span asp-validation-for="Password"></span>
+
+    <div class="form-check">
+        <input asp-for="RememberMe" class="form-check-input" />
+        <label asp-for="RememberMe">Remember Me</label>
+    </div>
+
+    <button class="btn btn-success mt-3">Login</button>
+
+    <a asp-action="RegisterStudent" class="btn btn-link">New student? Register</a>
+</form>

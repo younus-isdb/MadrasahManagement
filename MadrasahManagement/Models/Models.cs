@@ -151,17 +151,6 @@ namespace MadrasahManagement.Models
         [ValidateNever]
         public AppUser AppUser { get; set; } = default!;
 
-        //[Required]
-        //[ForeignKey(nameof(AppUser))]
-        //public string? UserId { get; set; } = default!;
-
-        //[ValidateNever]
-        //public AppUser? AppUser { get; set; } = default!;
-
-        //[Required]
-        //[EmailAddress]
-        //public string Email { get; set; } = default!;
-
         // -------------------------
         // Multilingual Names
         // -------------------------
@@ -630,17 +619,31 @@ namespace MadrasahManagement.Models
         public int AttendanceId { get; set; }
 
         [ForeignKey(nameof(Student))]
+
         public int StudentId { get; set; }
+        [ForeignKey(nameof(Class))]
+
+        public int ClassId { get; set; }
+
+        [ForeignKey(nameof(Department))]
+        public int DepartmentId { get; set; }
+
+        [ForeignKey(nameof(Section))]
+        public int SectionId { get; set; }
+        public Class Class { get; set; } = default!;
+        public Department Department { get; set; } = default!;
+        public Section Section { get; set; } = default!;
 
         public DateTimeOffset Date { get; set; }
 
         public AttendanceStatus Status { get; set; }
 
         [ForeignKey(nameof(Teacher))]
-        public int? TeacherId { get; set; } // teacher who marked, can be null for auto import
+        public int? TeacherId { get; set; }
 
         public Student Student { get; set; } = default!;
         public Teacher? Teacher { get; set; }
+       
     }
 
     // -------------------------

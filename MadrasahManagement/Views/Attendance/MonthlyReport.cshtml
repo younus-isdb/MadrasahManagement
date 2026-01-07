@@ -1,0 +1,439 @@
+﻿@using MadrasahManagement.Controllers
+@model List<MonthlyAttendanceReport>
+@{
+    ViewData["Title"] = "Monthly Attendance Report";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="h4 mb-0">
+                    <i class="fas fa-chart-bar text-primary"></i> Monthly Attendance Report
+                </h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Attendance" asp-action="Index">Attendance</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Monthly Report</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-bottom">
+            <h5 class="mb-0">
+                <i class="fas fa-filter"></i> Report Filters
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Month</label>
+                    <select name="month" class="form-select" id="monthSelect" required>
+                        <option value="">Select Month</option>
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            var monthName = new DateTime(DateTime.Today.Year, i, 1).ToString("MMMM");
+                            <option value="@i">@monthName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Year</label>
+                    <select name="year" class="form-select" id="yearSelect" required>
+                        <option value="">Select Year</option>
+                        @for (int year = DateTime.Today.Year - 2; year <= DateTime.Today.Year; year++)
+                        {
+                            <option value="@year">@year</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Class</label>
+                    <select name="classId" class="form-select" id="classSelect" required>
+                        <option value="">-- Select Class --</option>
+                        @if (ViewBag.TeacherClasses != null)
+                        {
+                            foreach (var cls in ViewBag.TeacherClasses)
+                            {
+                                <option value="@cls.ClassId" data-section="@cls.SectionId">
+                                    @cls.ClassName - @cls.SectionName
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <input type="hidden" name="sectionId" id="sectionId" value="">
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-chart-bar"></i> Generate Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Header -->
+    @if (ViewBag.ClassName != null)
+    {
+        <div class="card shadow-sm border-0 mb-4 bg-primary text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4 class="mb-1">@ViewBag.ClassName</h4>
+                        <p class="mb-0">
+                            <i class="fas fa-calendar-alt"></i> @ViewBag.MonthYear
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="display-6 fw-bold">
+                            @if (Model.Any())
+                            {
+                                var avgPercentage = Model.Average(m => m.AttendancePercentage);
+                                <span>@avgPercentage.ToString("0.00")%</span>
+                            }
+                            else
+                            {
+                                <span>0.00%</span>
+                            }
+                        </div>
+                        <small>Average Attendance</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Statistics Cards -->
+    @if (Model.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 border-start border-success border-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted">Highest</h6>
+                                <h4 class="fw-bold text-success">@Model.Max(m => m.AttendancePercentage).ToString("0.00")%</h4>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-arrow-up fa-2x text-success"></i>
+                            </div>
+                        </div>
+                        <small class="text-muted">Best attendance in class</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 border-start border-danger border-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted">Lowest</h6>
+                                <h4 class="fw-bold text-danger">@Model.Min(m => m.AttendancePercentage).ToString("0.00")%</h4>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-arrow-down fa-2x text-danger"></i>
+                            </div>
+                        </div>
+                        <small class="text-muted">Lowest attendance in class</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 border-start border-info border-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted">Average</h6>
+                                <h4 class="fw-bold text-info">@Model.Average(m => m.AttendancePercentage).ToString("0.00")%</h4>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-chart-line fa-2x text-info"></i>
+                            </div>
+                        </div>
+                        <small class="text-muted">Class average attendance</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 border-start border-warning border-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted">Total Days</h6>
+                                <h4 class="fw-bold text-warning">@Model.FirstOrDefault()?.TotalDays</h4>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-day fa-2x text-warning"></i>
+                            </div>
+                        </div>
+                        <small class="text-muted">Working days in month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Report Table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Student-wise Report</h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary me-2" onclick="printReport()">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button class="btn btn-sm btn-outline-success" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="reportTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>Reg No</th>
+                                <th class="text-center">Total Days</th>
+                                <th class="text-center">Present</th>
+                                <th class="text-center">Absent</th>
+                                <th class="text-center">Late</th>
+                                <th class="text-center">Leave</th>
+                                <th class="text-center">Attendance %</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                var student = Model[i];
+                                string statusClass = "";
+                                string statusText = "";
+                                string progressClass = "";
+
+                                if (student.AttendancePercentage >= 90)
+                                {
+                                    statusClass = "badge bg-success";
+                                    statusText = "Excellent";
+                                    progressClass = "bg-success";
+                                }
+                                else if (student.AttendancePercentage >= 75)
+                                {
+                                    statusClass = "badge bg-info";
+                                    statusText = "Good";
+                                    progressClass = "bg-info";
+                                }
+                                else if (student.AttendancePercentage >= 60)
+                                {
+                                    statusClass = "badge bg-warning";
+                                    statusText = "Average";
+                                    progressClass = "bg-warning";
+                                }
+                                else
+                                {
+                                    statusClass = "badge bg-danger";
+                                    statusText = "Poor";
+                                    progressClass = "bg-danger";
+                                }
+
+                                <tr>
+                                    <td class="text-muted">@(i + 1)</td>
+                                    <td class="fw-medium">@student.StudentName</td>
+                                    <td><span class="badge bg-secondary">@student.RegNo</span></td>
+                                    <td class="text-center"><span class="fw-bold">@student.TotalDays</span></td>
+                                    <td class="text-center text-success fw-bold">@student.PresentDays</td>
+                                    <td class="text-center text-danger fw-bold">@student.AbsentDays</td>
+                                    <td class="text-center text-warning fw-bold">@student.LateDays</td>
+                                    <td class="text-center text-info fw-bold">@student.LeaveDays</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1 me-2">
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar @progressClass" style="width: @student.AttendancePercentage%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="fw-bold" style="min-width: 50px;">@student.AttendancePercentage.ToString("0.00")%</div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center"><span class="@statusClass">@statusText</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summary Statistics -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-chart-pie"></i> Summary Statistics</h6>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Total Students:</span>
+                                            <span class="fw-bold">@Model.Count</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Above 90%:</span>
+                                            <span class="fw-bold text-success">@Model.Count(m => m.AttendancePercentage >= 90)</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Below 60%:</span>
+                                            <span class="fw-bold text-danger">@Model.Count(m => m.AttendancePercentage < 60)</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Class Average:</span>
+                                            <span class="fw-bold text-primary">@Model.Average(m => m.AttendancePercentage).ToString("0.00")%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (ViewBag.ClassName != null)
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Attendance Data</h5>
+                    <p class="text-muted">No attendance records found for the selected month and class.</p>
+                    <a asp-action="Index" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Daily Attendance
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-filter fa-3x text-primary mb-3"></i>
+                    <h5 class="text-primary">Generate Monthly Report</h5>
+                    <p class="text-muted">Please select a class and month to generate the attendance report.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Set current selections from ViewBag (if any)
+            var currentMonth = '@(ViewBag.Month != null ? ViewBag.Month : "")';
+            var currentYear = '@(ViewBag.Year != null ? ViewBag.Year : "")';
+            var currentClassId = '@(ViewBag.ClassId != null ? ViewBag.ClassId : "")';
+            var currentSectionId = '@(ViewBag.SectionId != null ? ViewBag.SectionId : "")';
+
+            // Set month dropdown
+            if (currentMonth && currentMonth >= 1 && currentMonth <= 12) {
+                $('#monthSelect').val(currentMonth);
+            }
+
+            // Set year dropdown
+            if (currentYear) {
+                $('#yearSelect').val(currentYear);
+            }
+
+            // Set class dropdown and section
+            if (currentClassId) {
+                $('#classSelect').val(currentClassId);
+                $('#sectionId').val(currentSectionId);
+            }
+
+            // Update section when class changes
+            $('#classSelect').change(function() {
+                var sectionId = $(this).find(':selected').data('section');
+                $('#sectionId').val(sectionId);
+            });
+
+            // Initialize DataTable for sorting/searching
+            if ($('#reportTable').length) {
+                $('#reportTable').DataTable({
+                    pageLength: 25,
+                    order: [[8, 'desc']], // Sort by attendance percentage
+                    language: {
+                        search: "Search students:",
+                        lengthMenu: "Show _MENU_ entries",
+                        info: "Showing _START_ to _END_ of _TOTAL_ students"
+                    }
+                });
+            }
+
+            // Add form validation
+            $('form').submit(function(e) {
+                var month = $('#monthSelect').val();
+                var year = $('#yearSelect').val();
+                var classId = $('#classSelect').val();
+
+                if (!month || !year || !classId) {
+                    e.preventDefault();
+                    alert('Please select month, year, and class before generating report.');
+                    return false;
+                }
+            });
+        });
+
+        // Print report
+        function printReport() {
+            window.print();
+        }
+
+        // Export to Excel (CSV)
+        function exportToExcel() {
+            var table = document.getElementById('reportTable');
+            if (!table) {
+                alert('No data to export!');
+                return;
+            }
+
+            var rows = table.querySelectorAll('tr');
+            var csv = [];
+
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll('td, th');
+
+                for (var j = 0; j < cols.length; j++) {
+                    row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"');
+                }
+
+                csv.push(row.join(','));
+            }
+
+            var csvContent = 'data:text/csv;charset=utf-8,' + csv.join('\n');
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'attendance_report.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            alert('Report exported as CSV file!');
+        }
+    </script>
+}

@@ -154,8 +154,8 @@ namespace MadrasahManagement.ViewModels
         public string ClassName { get; set; } = string.Empty;
         public string SectionName { get; set; } = string.Empty;
 
-        public int DepartmentId { get; set; }      // Add this
-        public int ClassId { get; set; }           // Add this
+        public int DepartmentId { get; set; }     
+        public int ClassId { get; set; }           
         public int SectionId { get; set; }
 
         public List<string> Days { get; set; } = new();

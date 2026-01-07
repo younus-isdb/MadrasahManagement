@@ -120,7 +120,7 @@
             <ul class="nav flex-column">
                 
                 <li class="nav-item"><a class="nav-link" href="/swagger">Api Doc</a></li>
-                @if (User.IsInRole("Admin"))
+                @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                 {
                     <li class="nav-item"><a class="nav-link" asp-controller="AdminDashboard" asp-action="Index">Dashboard</a></li>
                    
@@ -131,11 +131,29 @@
                     <li class="nav-item"><a class="nav-link" asp-controller="Examination" asp-action="Index">Exams</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Department" asp-action="Index">Department</a></li>
                     <li><a class="dropdown-item" asp-controller="SeatPlan" asp-action="Index">Seat Plan</a></li>
-
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="attendanceDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-calendar-check"></i> Attendance
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="attendanceDropdown">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Attendance" asp-action="Index">
+                                    <i class="fas fa-calendar-day"></i> Daily Attendance
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-controller="Attendance" asp-action="MonthlyReport">
+                                    <i class="fas fa-chart-bar"></i> Monthly Report
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="nav-item"><a class="nav-link" asp-controller="IssuedBook" asp-action="Index">Issued Book</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Section" asp-action="Index">Section</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="TimeTable" asp-action="Index">Routine</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Salary" asp-action="Index">Salary</a></li>
+
                     <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle fw-bold"
                    href="#"
@@ -189,8 +207,8 @@
                 {
                     <li class="nav-item"><a class="nav-link" asp-controller="TeacherDashboard" asp-action="Index">Dashboard</a></li>
                    
-                    <li class="nav-item"><a class="nav-link" asp-controller="Assignments" asp-action="MyAssignments">My Assignments</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Attendance" asp-action="Mark">Mark Attendance</a></li>
+                   @*  <li class="nav-item"><a class="nav-link" asp-controller="Assignments" asp-action="MyAssignments">My Assignments</a></li> *@
+                    <li class="nav-item"><a class="nav-link" asp-controller="Attendance" asp-action="Index">Mark Attendance</a></li>
                 }
 
                 @if (User.IsInRole("Student"))

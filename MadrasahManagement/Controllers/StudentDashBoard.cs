@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MadrasahManagement.Controllers
 {
-    [Authorize(Roles = "Student")]
+    //[Authorize(Roles = "Student")]
     public class StudentDashboardController : Controller
     {
         private readonly MadrasahDbContext _context;

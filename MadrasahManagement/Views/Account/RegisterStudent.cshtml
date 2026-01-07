@@ -1,17 +1,23 @@
-﻿@model MadrasahManagement.ViewModels.RegisterStudentViewModel
+﻿@using MadrasahManagement.ViewModels
+@model StudentRegisterViewModel
 
 <h2>Student Registration</h2>
 
-<form method="post">
-    <label asp-for="FullName"></label>
-    <input asp-for="FullName" class="form-control" />
-    <span asp-validation-for="FullName"></span>
+<form asp-action="RegisterStudent" method="post">
 
-    <label asp-for="Password"></label>
-    <input asp-for="Password" class="form-control" />
+    <input asp-for="StudentName" class="form-control" placeholder="Student Name" />
+    <span asp-validation-for="StudentName"></span>
 
-    <label asp-for="ConfirmPassword"></label>
-    <input asp-for="ConfirmPassword" class="form-control" />
+    <input asp-for="RegNo" class="form-control" placeholder="Registration No" />
+    <span asp-validation-for="RegNo"></span>
 
-    <button class="btn btn-primary mt-3">Register Student</button>
+    <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+    <span asp-validation-for="Password"></span>
+
+    <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password" />
+    <span asp-validation-for="ConfirmPassword"></span>
+
+    <button class="btn btn-primary mt-3">Register</button>
+
+    <a asp-action="LoginStudent" class="btn btn-link">Already have account? Login</a>
 </form>

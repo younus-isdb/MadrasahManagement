@@ -83,7 +83,17 @@
                 <a asp-action="Index" class="btn btn-light btn-sm">
                     <i class="fas fa-arrow-left"></i> Back to List
                 </a>
-                <a href="javascript:window.print()" class="btn btn-light btn-sm">
+                @* <a href="javascript:window.print()" class="btn btn-light btn-sm">
+                    <i class="fas fa-print"></i> Print
+                </a> *@
+                <!-- Replace your existing print button with this: -->
+                <a asp-action="Print"
+                   asp-route-academicYear="@Model.AcademicYear"
+                   asp-route-departmentId="@Model.DepartmentId"
+                   asp-route-classId="@Model.ClassId"
+                   asp-route-sectionId="@Model.SectionId"
+                   target="_blank"
+                   class="btn btn-light btn-sm">
                     <i class="fas fa-print"></i> Print
                 </a>
             </div>
