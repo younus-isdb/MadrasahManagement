@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace MadrasahManagement.Controllers
 {
-    [Authorize(Roles = "Teacher,Admin")]
+    [Authorize(Roles = "Teacher,Admin,SuperAdmin")]
     public class AttendanceController : Controller
     {
         private readonly MadrasahDbContext _context;

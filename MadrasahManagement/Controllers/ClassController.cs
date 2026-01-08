@@ -1,9 +1,11 @@
 ﻿using MadrasahManagement.Models;
 using MadrasahManagement.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
+[Authorize(Roles = "Admin,SuperAdmin")]
 public class ClassController : Controller
 {
     private readonly MadrasahDbContext _context;

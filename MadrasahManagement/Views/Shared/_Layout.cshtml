@@ -214,12 +214,12 @@
                 @if (User.IsInRole("Student"))
                 {
                     <li class="nav-item"><a class="nav-link" asp-controller="StudentDashboard" asp-action="Index">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Assignments" asp-action="MyAssignments">Assignments</a></li>
+                   @*  <li class="nav-item"><a class="nav-link" asp-controller="Assignments" asp-action="MyAssignments">Assignments</a></li> *@
                     <li class="nav-item"><a class="nav-link" asp-controller="Examination" asp-action="MyResults">Exam Results</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="StudentDashboard" asp-action="Profile">Profile</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="StudentDashboard" asp-action="Fees">Fees</a></li>
-                   @*  <li class="nav-item"><a class="nav-link" asp-controller="Assignments" asp-action="Index">Assignments</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Attendence" asp-action="Index">Attendence</a></li> *@
+                    @*  <li class="nav-item"><a class="nav-link" asp-controller="Assignments" asp-action="Index">Assignments</a></li>*@
+                    <li class="nav-item"><a class="nav-link" asp-controller="Attendence" asp-action="Index">Attendence</a></li> 
                 }
 
             </ul>

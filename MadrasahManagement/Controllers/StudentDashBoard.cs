@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace MadrasahManagement.Controllers
 {
-    //[Authorize(Roles = "Student")]
+    [Authorize(Roles = "Student")]
+   // [Route("StudentDashboard")]
     public class StudentDashboardController : Controller
     {
         private readonly MadrasahDbContext _context;
@@ -24,6 +25,8 @@ namespace MadrasahManagement.Controllers
             _context = context;
             _userManager = userManager;
         }
+
+     
 
         // Main Dashboard
         public async Task<IActionResult> Index()
@@ -133,18 +136,25 @@ namespace MadrasahManagement.Controllers
             return View(summary);
         }
 
-        // Fee Details
         public async Task<IActionResult> Fees()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             var student = await _context.Students
                 .FirstOrDefaultAsync(s => s.UserId == userId);
 
             if (student == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Student profile not found. Please complete your profile first.";
+                return RedirectToAction("Profile");  // Redirect to Profile instead of NotFound
             }
 
+            // Get fee collections
             var feeCollections = await _context.FeeCollections
                 .Include(f => f.FeeType)
                 .Where(f => f.StudentId == student.StudentId)
@@ -153,7 +163,7 @@ namespace MadrasahManagement.Controllers
 
             var totalPaid = feeCollections.Sum(f => f.AmountPaid);
 
-            // Assuming class-based fee structure
+            // Get fee types for the student's class
             var classFeeTypes = await _context.FeeTypes
                 .Where(f => f.ClassId == student.ClassId)
                 .ToListAsync();

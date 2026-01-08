@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MadrasahManagement.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MadrasahManagement.Models;
 
 namespace MadrasahManagement.Controllers
 {
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class DepartmentController : Controller
     {
         private readonly MadrasahDbContext _context;

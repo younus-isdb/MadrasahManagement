@@ -47,59 +47,75 @@ namespace MadrasahManagement.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var student = _db.Students
-                .FirstOrDefault(s => s.RegNo == model.RegNo && s.StudentName == model.StudentName);
-
-            if (student == null)
+            try
             {
-                ModelState.AddModelError("", "Student not found.");
+                // Generate unique username and email
+                var username = $"{model.RegNo}@school.com";
+
+                // Check if user already exists
+                var existingUser = await _userManager.FindByNameAsync(username);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("", "Student account already exists with this registration number.");
+                    return View(model);
+                }
+
+                // 1. First create the AppUser
+                var user = new AppUser
+                {
+                    UserName = username,
+                    Email = username,
+                    FullName = model.StudentName,
+                    EmailConfirmed = true
+                };
+
+                var createUserResult = await _userManager.CreateAsync(user, model.Password);
+
+                if (!createUserResult.Succeeded)
+                {
+                    foreach (var error in createUserResult.Errors)
+                        ModelState.AddModelError("", error.Description);
+                    return View(model);
+                }
+
+                // 2. Assign Student role
+                if (!await _roleManager.RoleExistsAsync("Student"))
+                    await _roleManager.CreateAsync(new AppRole("Student"));
+
+                await _userManager.AddToRoleAsync(user, "Student");
+
+                // 3. Create Student record - Set default/empty values for required fields
+                var student = new Student
+                {
+                    StudentName = model.StudentName,
+                    RegNo = model.RegNo,
+                    UserId = user.Id, // This is now properly set
+
+                    // Set minimal required values
+                    DepartmentId = 1, // You need to have at least one department in your database
+                    ClassId = 1,      // You need to have at least one class
+                    SectionId = 1,    // You need to have at least one section
+
+                    // Set default values for other required fields
+                    AdmissionDate = DateOnly.FromDateTime(DateTime.Today),
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    IsActive = true
+                };
+
+                _db.Students.Add(student);
+                await _db.SaveChangesAsync();
+
+                // Auto login after registration
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
+                return RedirectToAction("Index", "StudentDashboard");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Registration failed: {ex.Message}");
                 return View(model);
             }
-
-            if (!string.IsNullOrEmpty(student.UserId))
-            {
-                ModelState.AddModelError("", "Account already registered. Please login.");
-                return View(model);
-            }
-
-            var username = $"{student.RegNo}@school.com";
-
-            var user = new AppUser
-            {
-                UserName = username,
-                Email = username,
-                FullName = student.StudentName,
-                EmailConfirmed = true
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-            {
-                foreach (var e in result.Errors)
-                    ModelState.AddModelError("", e.Description);
-                return View(model);
-            }
-
-            if (!await _roleManager.RoleExistsAsync("Student"))
-                await _roleManager.CreateAsync(new AppRole("Student"));
-
-            var roles = await _userManager.GetRolesAsync(user);
-            foreach (var r in roles)
-                await _userManager.RemoveFromRoleAsync(user, r);
-
-            await _userManager.AddToRoleAsync(user, "Student");
-
-            student.UserId = user.Id;
-            _db.Update(student);
-            await _db.SaveChangesAsync();
-
-            await _signInManager.SignInAsync(user, false);
-
-            return RedirectToAction("Index", "StudentDashboard");
         }
-
-
 
         // =======================
         // Student Login
@@ -116,32 +132,38 @@ namespace MadrasahManagement.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var student = _db.Students
-                .FirstOrDefault(s => s.RegNo == model.RegNo && s.StudentName == model.StudentName);
-
-            if (student == null || string.IsNullOrEmpty(student.UserId))
-            {
-                ModelState.AddModelError("", "Account not found. Please register first.");
-                return View(model);
-            }
-
-            var user = await _userManager.FindByIdAsync(student.UserId);
+            // Try to login with username format
+            var username = $"{model.RegNo}@school.com";
 
             var result = await _signInManager.PasswordSignInAsync(
-                user.UserName,
+                username,
                 model.Password,
                 model.RememberMe,
-                false);
+                lockoutOnFailure: false);
 
-            if (!result.Succeeded)
+            if (result.Succeeded)
             {
-                ModelState.AddModelError("", "Invalid password.");
-                return View(model);
+                return RedirectToAction("Index", "StudentDashboard");
             }
 
-            return RedirectToAction("Index", "StudentDashboard");
-        }
+            // Alternative: Try without @school.com
+            if (!username.Contains("@"))
+            {
+                result = await _signInManager.PasswordSignInAsync(
+                    model.RegNo,
+                    model.Password,
+                    model.RememberMe,
+                    lockoutOnFailure: false);
+            }
 
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "StudentDashboard");
+            }
+
+            ModelState.AddModelError("", "Invalid registration number or password.");
+            return View(model);
+        }
 
 
         public async Task CreateStudentAccount(string studentRegNo, string studentName, string email)

@@ -87,6 +87,7 @@ namespace MadrasahManagement.Controllers
 
         }
 
+
         // GET: TeacherController/Create
         public IActionResult Create()
         {
@@ -102,6 +103,7 @@ namespace MadrasahManagement.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateTeacherVM model)
@@ -181,8 +183,9 @@ namespace MadrasahManagement.Controllers
                 .ToListAsync();
         }
 
-		// GET: Teacher/Edit/5
-		public async Task<IActionResult> Edit(int id)
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        // GET: Teacher/Edit/5
+        public async Task<IActionResult> Edit(int id)
 		{
 			var teacher = await _db.Teachers
 				.Include(t => t.AppUser)
